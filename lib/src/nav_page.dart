@@ -19,7 +19,7 @@ class Start extends StatelessWidget {
       const HomePage(), // 홈
       const PerformancePage(),
       const ArtistPage(), // 아티스트
-      const MyPage(),
+      const Mypage(),
     ];
 
     return Scaffold(
