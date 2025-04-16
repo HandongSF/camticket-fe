@@ -1,5 +1,6 @@
 import 'package:camticket/src/pages/artist_page.dart';
 import 'package:camticket/src/pages/my_page.dart';
+import 'package:camticket/src/pages/notification_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class Start extends StatelessWidget {
       const HomePage(), // 홈
       const PerformancePage(),
       const ArtistPage(), // 아티스트
+      const NotificationPage(), // 알림
       const Mypage(),
     ];
 
@@ -94,6 +96,10 @@ class Start extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(Icons.music_note),
               label: '아티스트',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications_none),
+              label: '알림',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
