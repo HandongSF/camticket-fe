@@ -1,3 +1,4 @@
+import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
 enum UserRole { none, viewer, artist }
@@ -23,33 +24,58 @@ class _Mypagestate extends State<Mypage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 26),
-            const Text(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 26),
+          Padding(
+            padding: const EdgeInsets.only(left: 26.0, top: 22),
+            child: const Text(
               '마이페이지',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+                fontSize: 28,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
-            _buildProfileSection(context),
-            const SizedBox(height: 32),
-            if (currentUser.role != UserRole.none) ...[
-              const Text(
+          ),
+          const SizedBox(height: 16),
+          _buildProfileSection(context),
+          const SizedBox(height: 32),
+          if (currentUser.role != UserRole.none) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0),
+              child: const Text(
                 '메뉴',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+                style: TextStyle(color: AppColors.gray1, fontSize: 16),
               ),
-              const SizedBox(height: 8),
-              _buildLogoutButton(),
-            ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              clipBehavior: Clip.antiAlias,
+              decoration: ShapeDecoration(
+                color: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    width: 1,
+                    color: AppColors.gray2,
+                  ),
+                ),
+              ),
+              child: Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLogoutButton(),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -90,47 +116,84 @@ class _Mypagestate extends State<Mypage> {
             });
           }
         },
-        child: Row(
-          children: [
-            const CircleAvatar(
-              radius: 35,
-              backgroundImage: AssetImage('assets/images/profile.png'),
-            ),
-            const SizedBox(width: 16),
-            const Text(
-              '로그인을 해주세요.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                decoration: TextDecoration.underline,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                color: AppColors.gray2,
               ),
             ),
-          ],
+          ),
+          child: Center(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  backgroundColor: AppColors.gray1,
+                  radius: 35,
+                  child: Icon(Icons.person_outline, color: AppColors.gray4),
+                ),
+                const SizedBox(width: 16),
+                const Text(
+                  '로그인을 해주세요.',
+                  style: TextStyle(
+                    color: AppColors.gray5,
+                    fontSize: 20,
+                    decoration: TextDecoration.underline,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.40,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
 
     final badgeText = currentUser.role == UserRole.viewer ? '관람객' : '아티스트';
 
-    return Row(
-      children: [
-        const CircleAvatar(
-          radius: 35,
-          backgroundImage: AssetImage('assets/images/LOGO 1.png'),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: 1,
+            color: AppColors.gray2,
+          ),
         ),
-        const SizedBox(width: 16),
-        Column(
+      ),
+      child: Center(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildGradientBadge(badgeText),
-            const SizedBox(height: 8),
-            Text(
-              '${currentUser.name} 님',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+            CircleAvatar(
+              backgroundColor: AppColors.gray1,
+              radius: 35,
+              backgroundImage: AssetImage('assets/images/zzanggu.png'),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              '유저 님',
+              style: TextStyle(
+                color: AppColors.gray5,
+                fontSize: 20,
+                decoration: TextDecoration.underline,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.40,
+              ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 

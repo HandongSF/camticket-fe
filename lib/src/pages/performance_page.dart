@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../provider/pc_provider.dart';
 import '../../utility/color.dart';
 
 class PerformancePage extends StatefulWidget {
@@ -9,7 +11,6 @@ class PerformancePage extends StatefulWidget {
 }
 
 class _PerformancePageState extends State<PerformancePage> {
-  int selectedCategory = 0;
   int selectedSort = 0; // 등록순(0) / 최신순(1)
 
   final List<String> categories = ['음악', '연극 / 뮤지컬', '댄스', '전시'];
@@ -25,7 +26,7 @@ class _PerformancePageState extends State<PerformancePage> {
     {
       'profile': 'assets/Home/Pagination.png',
       'image': 'assets/Home/Pagination.png',
-      'title': '🔥박 Street performance🕺',
+      'title': '🔥Street performance🕺',
       'subtitle': '예매 기간 | 예매가 필요없는 공연\n공연 날짜 | 25.03.12 (1회)\n장소 | 학관 앞',
       'tag': '무료 공연',
     },
@@ -41,6 +42,8 @@ class _PerformancePageState extends State<PerformancePage> {
 
   @override
   Widget build(BuildContext context) {
+    final categoryProvider = Provider.of<PerformanceCategoryProvider>(context);
+    final selectedCategory = categoryProvider.selectedCategory;
     return Scaffold(
       backgroundColor: AppColors.mainBlack,
       body: SafeArea(
@@ -69,9 +72,7 @@ class _PerformancePageState extends State<PerformancePage> {
                   final isSelected = selectedCategory == index;
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        selectedCategory = index;
-                      });
+                      categoryProvider.setCategory(index);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -81,7 +82,7 @@ class _PerformancePageState extends State<PerformancePage> {
                             ? AppColors.subPurple
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: AppColors.white),
+                        border: Border.all(color: AppColors.gray3),
                       ),
                       child: Text(
                         categories[index],
@@ -212,7 +213,7 @@ class _PerformancePageState extends State<PerformancePage> {
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
                                       width: 1,
-                                      color: const Color(0xFFE4C3FF),
+                                      color: AppColors.subPurple,
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
@@ -229,7 +230,7 @@ class _PerformancePageState extends State<PerformancePage> {
                                           fontSize: 8,
                                           fontFamily: 'Inter',
                                           fontWeight: FontWeight.w600,
-                                          height: 1.25,
+                                          height: 1,
                                           letterSpacing: -0.16,
                                         ),
                                       ),

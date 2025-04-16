@@ -1,4 +1,5 @@
 import 'package:camticket/provider/navigation_provider.dart';
+import 'package:camticket/provider/pc_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +12,15 @@ class CamTicket extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => NavigationProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => PerformanceCategoryProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NavigationProvider(),
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

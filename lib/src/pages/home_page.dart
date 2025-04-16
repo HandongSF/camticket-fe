@@ -1,6 +1,10 @@
+import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../provider/navigation_provider.dart';
+import '../../provider/pc_provider.dart';
 import '../../utility/category_btn.dart';
 
 class HomePage extends StatefulWidget {
@@ -155,10 +159,10 @@ class _HomePageState extends State<HomePage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  buildCategoryButton('음악'),
-                  buildCategoryButton('연극 / 뮤지컬'),
-                  buildCategoryButton('댄스'),
-                  buildCategoryButton('전시'),
+                  _buildCategoryButton(context, '음악', 0),
+                  _buildCategoryButton(context, '연극 / 뮤지컬', 1),
+                  _buildCategoryButton(context, '댄스', 2),
+                  _buildCategoryButton(context, '전시', 3),
                 ],
               ),
             ),
@@ -177,6 +181,25 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryButton(BuildContext context, String label, int index) {
+    return GestureDetector(
+      onTap: () {
+        Provider.of<PerformanceCategoryProvider>(context, listen: false)
+            .setCategory(index);
+        Provider.of<NavigationProvider>(context, listen: false)
+            .setIndex(1); // PerformancePage index
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.gray3),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Text(label, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
