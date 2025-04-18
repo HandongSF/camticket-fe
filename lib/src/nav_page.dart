@@ -2,6 +2,7 @@ import 'package:camticket/src/pages/artist_page.dart';
 import 'package:camticket/src/pages/my_page.dart';
 import 'package:camticket/src/pages/notification_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
+import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,13 @@ class Start extends StatelessWidget {
               ),
               actions: <Widget>[
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Searchpage()),
+                    );
+                  },
                   icon: const Icon(
                     Icons.search,
                     size: 24,
