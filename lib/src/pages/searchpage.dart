@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:camticket/utility/color.dart';
 
 class Searchpage extends StatefulWidget {
   const Searchpage({Key? key}) : super(key: key);
@@ -35,6 +34,8 @@ class _Searchstate extends State<Searchpage> {
   void _onSearch(String query) {
     if (query.trim().isEmpty) return;
 
+    _searchController.text = query;
+
     setState(() {
       _searchResults = _mockSearch(query);
       _recentSearches.remove(query);
@@ -45,16 +46,13 @@ class _Searchstate extends State<Searchpage> {
     });
 
     _saveRecentSearches();
-    _searchController.clear();
   }
 
-//임시로 search되는 것들 리스트
   List<String> _mockSearch(String query) {
     final data = ['스트리트 무대', '캠티켓', '마이크 쇼케이스', '클래식 페스티벌', '서울 댄스 페어'];
     return data.where((item) => item.contains(query)).toList();
   }
 
-//최근 검색어 삭제
   void _removeRecentSearch(String term) {
     setState(() {
       _recentSearches.remove(term);
@@ -64,25 +62,42 @@ class _Searchstate extends State<Searchpage> {
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: TextField(
-          controller: _searchController,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: '검색어를 입력하세요',
-            hintStyle: const TextStyle(color: Colors.white54),
-            border: InputBorder.none,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () => _onSearch(_searchController.text),
+        title: Center(
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF242424),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: '검색어를 입력하세요',
+                hintStyle:
+                    const TextStyle(color: Color(0xFF5D5D5D), fontSize: 16),
+                border: InputBorder.none,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search, color: Color(0xFF5D5D5D)),
+                  onPressed: () => _onSearch(_searchController.text),
+                ),
+              ),
+              onSubmitted: _onSearch,
             ),
           ),
-          onSubmitted: _onSearch,
         ),
       ),
       body: Padding(
@@ -90,47 +105,78 @@ class _Searchstate extends State<Searchpage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_recentSearches.isNotEmpty) ...[
-              const Text('최근 검색어', style: TextStyle(color: Colors.white)),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _recentSearches
-                      .map((term) => Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(term,
-                                    style:
-                                        const TextStyle(color: Colors.white)),
-                                const SizedBox(width: 6),
-                                GestureDetector(
-                                  onTap: () => _removeRecentSearch(term),
-                                  child: const Icon(Icons.close,
-                                      size: 16, color: Colors.white54),
-                                ),
-                              ],
-                            ),
-                          ))
-                      .toList(),
+            const Text(
+              '최근 검색어',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            const SizedBox(height: 12),
+            ...(_recentSearches.isEmpty
+                ? [
+                    Center(
+                      child: Text(
+                        '최근 검색기록이 없습니다',
+                        style:
+                            TextStyle(color: Color(0xff828282), fontSize: 12),
+                      ),
+                    )
+                  ]
+                : [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _recentSearches
+                            .map((term) => GestureDetector(
+                                  onTap: () => _onSearch(term),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[800],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(term,
+                                            style: const TextStyle(
+                                                color: Colors.white)),
+                                        const SizedBox(width: 6),
+                                        GestureDetector(
+                                          onTap: () =>
+                                              _removeRecentSearch(term),
+                                          child: const Icon(Icons.close,
+                                              size: 16, color: Colors.white54),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  ]),
+            const SizedBox(height: 24),
+            if (_searchResults.isEmpty && !isKeyboardVisible)
+              Container(
+                width: double.infinity,
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/mic.png'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
-            ],
             if (_searchResults.isNotEmpty)
               Expanded(
                 child: ListView.builder(
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) => ListTile(
-                    title: Text(_searchResults[index],
-                        style: const TextStyle(color: Colors.white)),
+                    title: Text(
+                      _searchResults[index],
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
