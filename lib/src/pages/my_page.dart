@@ -24,13 +24,13 @@ class _Mypagestate extends State<Mypage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 26),
-          Padding(
-            padding: const EdgeInsets.only(left: 26.0, top: 22),
-            child: const Text(
+      body: Padding(
+        padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 26),
+            const Text(
               '마이페이지',
               style: TextStyle(
                 color: Colors.white,
@@ -39,43 +39,83 @@ class _Mypagestate extends State<Mypage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          _buildProfileSection(context),
-          const SizedBox(height: 32),
-          if (currentUser.role != UserRole.none) ...[
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: const Text(
-                '메뉴',
-                style: TextStyle(color: AppColors.gray1, fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              clipBehavior: Clip.antiAlias,
-              decoration: ShapeDecoration(
-                color: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    width: 1,
-                    color: AppColors.gray2,
-                  ),
+            const SizedBox(height: 16),
+            _buildProfileSection(context),
+            const SizedBox(height: 32),
+            if (currentUser.role != UserRole.none) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: const Text(
+                  '메뉴',
+                  style: TextStyle(color: AppColors.gray4, fontSize: 16),
                 ),
               ),
-              child: Center(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildLogoutButton(),
-                  ],
+              const SizedBox(height: 12),
+              if (currentUser.role == UserRole.artist) ...[
+                _buildOptionButton(
+                  '등록된 공연 관리',
+                  () {
+                    // 아티스트 관리 페이지로 이동
+                  },
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
+                const SizedBox(height: 12),
+                _buildOptionButton(
+                  '관람객 예매 확인 및 관리',
+                  () {
+                    // 관람 기록 페이지로 이동
+                  },
+                ),
+              ],
+              if (currentUser.role == UserRole.viewer) ...[
+                _buildOptionButton(
+                  '예매 확인 / 취소',
+                  () {
+                    // 관람 기록 페이지로 이동
+                  },
+                ),
+              ],
+              const SizedBox(height: 12),
+              _buildLogoutButton(),
+              const SizedBox(height: 8),
+            ],
           ],
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionButton(String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: () {
+        onTap();
+      },
+      child: Container(
+        width: 372,
+        height: 52,
+        clipBehavior: Clip.antiAlias,
+        decoration: ShapeDecoration(
+          color: const Color(0xFF232323),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 20),
+            Text(
+              text,
+              style: TextStyle(
+                color: AppColors.gray5,
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                height: 1,
+                letterSpacing: -0.32,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -88,14 +128,31 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        child: const Text(
-          '로그아웃',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Inter',
-          ),
+        width: 372,
+        height: 52,
+        clipBehavior: Clip.antiAlias,
+        decoration: ShapeDecoration(
+          color: const Color(0xFF232323),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 20),
+            const Text(
+              '로그아웃',
+              style: TextStyle(
+                color: const Color(0xFFCE3939),
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                height: 1,
+                letterSpacing: -0.32,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
       ),
     );
@@ -117,15 +174,14 @@ class _Mypagestate extends State<Mypage> {
           }
         },
         child: Container(
+          width: 372,
+          height: 138,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           clipBehavior: Clip.antiAlias,
           decoration: ShapeDecoration(
-            color: Colors.transparent,
+            color: AppColors.gray1,
             shape: RoundedRectangleBorder(
-              side: BorderSide(
-                width: 1,
-                color: AppColors.gray2,
-              ),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           child: Center(
@@ -133,19 +189,22 @@ class _Mypagestate extends State<Mypage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const CircleAvatar(
-                  backgroundColor: AppColors.gray1,
-                  radius: 35,
-                  child: Icon(Icons.person_outline, color: AppColors.gray4),
+                  backgroundColor: AppColors.gray2,
+                  radius: 50,
+                  child: Icon(
+                    Icons.person_outline,
+                    color: AppColors.gray3,
+                    size: 50,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 const Text(
                   '로그인을 해주세요.',
                   style: TextStyle(
-                    color: AppColors.gray5,
+                    color: const Color(0xFFE5E5E5),
                     fontSize: 20,
-                    decoration: TextDecoration.underline,
                     fontFamily: 'Inter',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     letterSpacing: -0.40,
                   ),
                 ),
@@ -156,18 +215,20 @@ class _Mypagestate extends State<Mypage> {
       );
     }
 
-    final badgeText = currentUser.role == UserRole.viewer ? '관람객' : '아티스트';
+    final badgeText = currentUser.role == UserRole.viewer
+        ? 'assets/images/viewer.png'
+        : 'assets/images/artist.png';
+    final userText = currentUser.role == UserRole.viewer ? '유저 ' : '네오 ';
 
     return Container(
+      width: 372,
+      height: 138,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
-        color: Colors.transparent,
+        color: AppColors.gray1,
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: AppColors.gray2,
-          ),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
       child: Center(
@@ -180,16 +241,63 @@ class _Mypagestate extends State<Mypage> {
               backgroundImage: AssetImage('assets/images/zzanggu.png'),
             ),
             const SizedBox(width: 16),
-            const Text(
-              '유저 님',
-              style: TextStyle(
-                color: AppColors.gray5,
-                fontSize: 20,
-                decoration: TextDecoration.underline,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-                letterSpacing: -0.40,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset(
+                  badgeText,
+                  width: 44,
+                  height: 18,
+                ),
+                SizedBox(height: 2),
+                Row(
+                  children: [
+                    Text(
+                      userText,
+                      style: TextStyle(
+                        color: AppColors.gray5,
+                        fontSize: 20,
+                        decoration: TextDecoration.underline,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.40,
+                      ),
+                    ),
+                    Text(
+                      '님',
+                      style: TextStyle(
+                        color: AppColors.gray5,
+                        fontSize: 20,
+                        decoration: TextDecoration.underline,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.40,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text(
+                      '프로필 변경하기',
+                      style: TextStyle(
+                        color: const Color(0xFF818181),
+                        fontSize: 14,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.28,
+                      ),
+                    ),
+                    SizedBox(width: 1),
+                    Icon(
+                      Icons.edit,
+                      color: const Color(0xFF818181),
+                      size: 14,
+                    )
+                  ],
+                )
+              ],
             ),
           ],
         ),
