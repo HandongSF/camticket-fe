@@ -151,8 +151,16 @@ class _ArtistPageState extends State<ArtistPage> {
                     builder: (context) => ArtistDetailBottomSheet(
                       name: artist['name'],
                       profile: 'assets/images/zzanggu.png',
-                      description: '설명없음',
-                      posters: [],
+                      description:
+                          '안녕하세요! 저희는 한동대학교 작사작곡 동아리 NEO입니다. 매 해 정기공연과 축제 공연, NEO카페를 통해 저희 만의 이야기를 들려드리고 있습니다.',
+                      posters: [
+                        'assets/images/poster.png',
+                        'assets/images/poster.png',
+                        'assets/images/poster.png',
+                        'assets/images/poster.png',
+                        'assets/images/poster.png',
+                        'assets/images/poster.png'
+                      ],
                     ),
                   );
                 },
@@ -211,8 +219,8 @@ class ArtistDetailBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.9,
-      maxChildSize: 0.95,
+      initialChildSize: 0.6,
+      maxChildSize: 0.6,
       minChildSize: 0.6,
       builder: (context, scrollController) => Container(
         decoration: const BoxDecoration(
@@ -237,49 +245,47 @@ class ArtistDetailBottomSheet extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     backgroundImage: AssetImage(profile),
-                    radius: 36,
+                    radius: 50,
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.subPurple,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          '아티스트',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.mainBlack,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      Image.asset(
+                        'assets/images/artist.png',
+                        width: 53,
+                        height: 18,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         name,
                         style: const TextStyle(
+                          color: const Color(0xFFE5E5E5),
                           fontSize: 20,
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.40,
                         ),
                       ),
+                      SizedBox(height: 8),
+                      SizedBox(
+                        width: 220,
+                        child: Text(
+                          description,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF818181),
+                            fontSize: 12,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.24,
+                          ),
+                        ),
+                      )
                     ],
                   )
                 ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                description,
-                style: const TextStyle(
-                  color: AppColors.gray4,
-                  fontSize: 13,
-                  height: 1.5,
-                ),
               ),
               const SizedBox(height: 20),
               GridView.builder(
@@ -288,35 +294,19 @@ class ArtistDetailBottomSheet extends StatelessWidget {
                 itemCount: posters.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 0,
+                  crossAxisSpacing: 0,
+                  childAspectRatio: 136 / 194,
                 ),
                 itemBuilder: (context, index) => Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        posters[index],
-                        fit: BoxFit.cover,
-                      ),
+                    Image.asset(
+                      posters[index],
+                      fit: BoxFit.fill,
+                      width: 136,
+                      height: 194,
                     ),
-                    const Positioned(
-                      top: 6,
-                      right: 6,
-                      child: CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.yellow,
-                        child: Text(
-                          '박',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                    )
                   ],
                 ),
               ),
