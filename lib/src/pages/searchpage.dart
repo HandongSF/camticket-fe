@@ -34,7 +34,6 @@ class _Searchstate extends State<Searchpage> {
   void _onSearch(String query) {
     if (query.trim().isEmpty) return;
 
-    // ✅ 검색창에 검색어 반영
     _searchController.text = query;
 
     setState(() {
@@ -63,8 +62,11 @@ class _Searchstate extends State<Searchpage> {
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -118,7 +120,6 @@ class _Searchstate extends State<Searchpage> {
                 child: Row(
                   children: _recentSearches
                       .map((term) => GestureDetector(
-                            // ✅ 최근 검색어 탭 시 검색 실행
                             onTap: () => _onSearch(term),
                             child: Container(
                               margin: const EdgeInsets.only(right: 8),
@@ -147,7 +148,7 @@ class _Searchstate extends State<Searchpage> {
                 ),
               ),
             const SizedBox(height: 24),
-            if (_searchResults.isEmpty)
+            if (_searchResults.isEmpty && !isKeyboardVisible)
               Container(
                 width: double.infinity,
                 height: 180,
