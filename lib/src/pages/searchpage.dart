@@ -156,7 +156,7 @@ class _Searchstate extends State<Searchpage> {
                     )
                   ]),
             const SizedBox(height: 24),
-            if (_searchResults.isEmpty && !isKeyboardVisible)
+            if (_searchResults.isEmpty)
               Container(
                 width: double.infinity,
                 height: 180,

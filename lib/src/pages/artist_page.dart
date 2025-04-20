@@ -142,36 +142,185 @@ class _ArtistPageState extends State<ArtistPage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: artists.map((artist) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 28),
-                child: Column(
-                  children: [
-                    Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        CircleAvatar(
-                          radius: 32,
-                          backgroundColor: AppColors.gray2,
-                          backgroundImage: AssetImage(artist['image']!),
-                        ),
-                      ],
+              return GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ArtistDetailBottomSheet(
+                      name: artist['name'],
+                      profile: 'assets/images/zzanggu.png',
+                      description: '설명없음',
+                      posters: [],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      artist['name']!,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        height: 1.43,
-                        letterSpacing: 0.10,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 28),
+                  child: Column(
+                    children: [
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 32,
+                            backgroundColor: AppColors.gray2,
+                            backgroundImage: AssetImage(artist['image']!),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        artist['name']!,
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          height: 1.43,
+                          letterSpacing: 0.10,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ArtistDetailBottomSheet extends StatelessWidget {
+  final String name;
+  final String profile;
+  final String description;
+  final List<String> posters;
+
+  const ArtistDetailBottomSheet({
+    Key? key,
+    required this.name,
+    required this.profile,
+    required this.description,
+    required this.posters,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.9,
+      maxChildSize: 0.95,
+      minChildSize: 0.6,
+      builder: (context, scrollController) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.mainBlack,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.close, color: AppColors.white),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage(profile),
+                    radius: 36,
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.subPurple,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          '아티스트',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.mainBlack,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                description,
+                style: const TextStyle(
+                  color: AppColors.gray4,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: posters.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                ),
+                itemBuilder: (context, index) => Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        posters[index],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const Positioned(
+                      top: 6,
+                      right: 6,
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.yellow,
+                        child: Text(
+                          '박',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
