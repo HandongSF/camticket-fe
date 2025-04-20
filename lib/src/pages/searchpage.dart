@@ -85,7 +85,8 @@ class _Searchstate extends State<Searchpage> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: '검색어를 입력하세요',
-                hintStyle: const TextStyle(color: Color(0xFF5D5D5D)),
+                hintStyle:
+                    const TextStyle(color: Color(0xFF5D5D5D), fontSize: 16),
                 border: InputBorder.none,
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -106,47 +107,54 @@ class _Searchstate extends State<Searchpage> {
           children: [
             const Text(
               '최근 검색어',
-              style: TextStyle(color: Color(0xFF5D5D5D), fontSize: 16),
+              style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             const SizedBox(height: 12),
-            if (_recentSearches.isEmpty)
-              const Text(
-                '최근 검색기록이 없습니다',
-                style: TextStyle(color: Colors.white54),
-              )
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _recentSearches
-                      .map((term) => GestureDetector(
-                            onTap: () => _onSearch(term),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[800],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(term,
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                  const SizedBox(width: 6),
-                                  GestureDetector(
-                                    onTap: () => _removeRecentSearch(term),
-                                    child: const Icon(Icons.close,
-                                        size: 16, color: Colors.white54),
+            ...(_recentSearches.isEmpty
+                ? [
+                    Center(
+                      child: Text(
+                        '최근 검색기록이 없습니다',
+                        style:
+                            TextStyle(color: Color(0xff828282), fontSize: 12),
+                      ),
+                    )
+                  ]
+                : [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _recentSearches
+                            .map((term) => GestureDetector(
+                                  onTap: () => _onSearch(term),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[800],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(term,
+                                            style: const TextStyle(
+                                                color: Colors.white)),
+                                        const SizedBox(width: 6),
+                                        GestureDetector(
+                                          onTap: () =>
+                                              _removeRecentSearch(term),
+                                          child: const Icon(Icons.close,
+                                              size: 16, color: Colors.white54),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ),
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  ]),
             const SizedBox(height: 24),
             if (_searchResults.isEmpty && !isKeyboardVisible)
               Container(
