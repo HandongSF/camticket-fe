@@ -24,7 +24,30 @@ class _HomePageState extends State<HomePage> {
     'assets/images/poster.png', // 너가 올린 포스터
     // 추가 포스터 넣고 싶으면 여기에 추가
   ];
-
+  final List<Map<String, String>> performances = [
+    {
+      'profile': 'assets/Home/Pagination.png',
+      'image': 'assets/Home/Pagination.png',
+      'title': '🔥God\'s Fellows Street Concert🔥',
+      'subtitle': '예매 기간 | 예매가 필요없는 공연\n공연 날짜 | 25.03.19 (1회)\n장소 | 학관 앞',
+      'tag': '무료 공연',
+    },
+    {
+      'profile': 'assets/Home/Pagination.png',
+      'image': 'assets/Home/Pagination.png',
+      'title': '🔥Street performance🕺',
+      'subtitle': '예매 기간 | 예매가 필요없는 공연\n공연 날짜 | 25.03.12 (1회)\n장소 | 학관 앞',
+      'tag': '무료 공연',
+    },
+    {
+      'profile': 'assets/Home/Pagination.png',
+      'image': 'assets/Home/Pagination.png',
+      'title': '🎵The Gospel : Who we are🎵',
+      'subtitle':
+          '예매 기간 | 11/18 월 - 11/21 목\n공연 날짜 | 25.11.23 (2회)\n장소 | 학관 104호',
+      'tag': '유료 공연',
+    },
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +202,142 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
+            Center(
+              child: SizedBox(
+                width: 372,
+                height: 300,
+                child: ListView.separated(
+                  itemCount: performances.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final item = performances[index];
+                    return Container(
+                      decoration: ShapeDecoration(
+                        color: AppColors.gray1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 19),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Image.asset(
+                                    item['image']!,
+                                    width: 28,
+                                    height: 28,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 12),
+                            Container(
+                              width: 80,
+                              height: 114,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: Image.asset(
+                                    item['image']!,
+                                  ).image,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 47,
+                                    height: 14,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: ShapeDecoration(
+                                      shape: RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          width: 1,
+                                          color: AppColors.subPurple,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          left: 8,
+                                          top: 2,
+                                          child: Text(
+                                            item['tag'] ?? '',
+                                            style: TextStyle(
+                                              color: const Color(0xFFE4C3FF),
+                                              fontSize: 8,
+                                              fontFamily: 'Inter',
+                                              fontWeight: FontWeight.w600,
+                                              height: 1,
+                                              letterSpacing: -0.16,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            item['title'] ?? '',
+                                            style: const TextStyle(
+                                              color: AppColors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.32,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    item['subtitle'] ?? '',
+                                    style: const TextStyle(
+                                      color: AppColors.gray4,
+                                      fontSize: 12,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),

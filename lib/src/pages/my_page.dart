@@ -1,5 +1,11 @@
+import 'package:camticket/src/pages/reservation_check.dart';
+import 'package:camticket/src/pages/ticket.dart';
+import 'package:camticket/src/pages/ticket_popup.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/navigation_provider.dart';
 
 enum UserRole { none, viewer, artist }
 
@@ -44,7 +50,7 @@ class _Mypagestate extends State<Mypage> {
             const SizedBox(height: 32),
             if (currentUser.role != UserRole.none) ...[
               Padding(
-                padding: const EdgeInsets.only(left: 20.0),
+                padding: const EdgeInsets.only(left: 0.0),
                 child: const Text(
                   '메뉴',
                   style: TextStyle(color: AppColors.gray4, fontSize: 16),
@@ -58,7 +64,7 @@ class _Mypagestate extends State<Mypage> {
                     // 아티스트 관리 페이지로 이동
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 _buildOptionButton(
                   '관람객 예매 확인 및 관리',
                   () {
@@ -68,14 +74,35 @@ class _Mypagestate extends State<Mypage> {
               ],
               if (currentUser.role == UserRole.viewer) ...[
                 _buildOptionButton(
-                  '예매 확인 / 취소',
+                  '티켓보기',
                   () {
                     // 관람 기록 페이지로 이동
+                    showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (_) => const TicketPopup(),
+                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (_) => const TicketPage()),
+                    // );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildOptionButton(
+                  '예매 확인 / 취소',
+                  () {
+                    context
+                        .read<NavigationProvider>()
+                        .setSubPage('reservation');
                   },
                 ),
               ],
-              const SizedBox(height: 12),
-              _buildLogoutButton(),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [_buildLogoutButton(), _buildSignOutButton()],
+              ),
               const SizedBox(height: 8),
             ],
           ],
@@ -128,31 +155,59 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        width: 372,
+        width: 168,
         height: 52,
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(width: 20),
-            const Text(
-              '로그아웃',
-              style: TextStyle(
-                color: const Color(0xFFCE3939),
-                fontSize: 16,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-                height: 1,
-                letterSpacing: -0.32,
-              ),
-              textAlign: TextAlign.left,
+        child: Center(
+          child: const Text(
+            '로그아웃',
+            style: TextStyle(
+              color: const Color(0xFFCE3939),
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w500,
+              height: 1,
+              letterSpacing: -0.32,
             ),
-          ],
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignOutButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          currentUser = UserInfo(role: UserRole.none);
+        });
+      },
+      child: Container(
+        width: 168,
+        height: 52,
+        clipBehavior: Clip.antiAlias,
+        decoration: ShapeDecoration(
+          color: const Color(0xFF232323),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        child: Center(
+          child: const Text(
+            '탈퇴하기',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w500,
+              height: 1,
+              letterSpacing: -0.32,
+            ),
+            textAlign: TextAlign.left,
+          ),
         ),
       ),
     );
@@ -237,7 +292,7 @@ class _Mypagestate extends State<Mypage> {
           children: [
             CircleAvatar(
               backgroundColor: AppColors.gray1,
-              radius: 35,
+              radius: 50,
               backgroundImage: AssetImage('assets/images/zzanggu.png'),
             ),
             const SizedBox(width: 16),
@@ -276,17 +331,39 @@ class _Mypagestate extends State<Mypage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                currentUser.role == UserRole.viewer
+                    ? Column(
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            '하나 910-910239-98907 ',
+                            style: TextStyle(
+                              color: const Color(0xFF818181),
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.24,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      )
+                    : SizedBox(height: 20),
                 Row(
                   children: [
                     Text(
-                      '프로필 변경하기',
-                      style: TextStyle(
-                        color: const Color(0xFF818181),
+                      currentUser.role == UserRole.viewer
+                          ? '환불계좌 / 프로필 변경하기'
+                          : '프로필 변경하기',
+                      style: const TextStyle(
+                        color: AppColors.gray4,
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
                         letterSpacing: -0.28,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.gray4,
+                        decorationThickness: 1.2, // ← 밑줄 추가
                       ),
                     ),
                     SizedBox(width: 1),
