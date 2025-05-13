@@ -1,3 +1,4 @@
+import 'package:camticket/src/pages/performance_detail_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
@@ -219,6 +220,16 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+                    child: GestureDetector(
+                      onTap: () {
+                        context
+                            .read<NavigationProvider>()
+                            .setSubPage('performanceDetail');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PerformanceDetailPage()),
+                        );
+                      },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 8),
@@ -333,6 +344,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
+                    )
                     );
                   },
                 ),

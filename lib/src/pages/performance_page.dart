@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../provider/navigation_provider.dart';
 import '../../provider/pc_provider.dart';
 import '../../utility/color.dart';
+import 'performance_detail_page.dart';
+
 
 class PerformancePage extends StatefulWidget {
   const PerformancePage({Key? key}) : super(key: key);
@@ -156,95 +159,105 @@ class _PerformancePageState extends State<PerformancePage> {
                   final item = performances[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Container(
-                      width: 372,
-                      height: 138,
-                      decoration: ShapeDecoration(
-                        color: AppColors.gray1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    child: GestureDetector(
+                      onTap: () {
+                        context
+                            .read<NavigationProvider>()
+                            .setSubPage('performanceDetail');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PerformanceDetailPage()),
+                        );
+                      },
+                      child: Container(
+                        width: 372,
+                        height: 138,
+                        decoration: ShapeDecoration(
+                          color: AppColors.gray1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 19),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(30),
-                                  child: Image.asset(
-                                    item['image']!,
-                                    width: 28,
-                                    height: 28,
+                                  const SizedBox(height: 19),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: Image.asset(
+                                      item['image']!,
+                                      width: 28,
+                                      height: 28,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(width: 12),
+                              Container(
+                                width: 80,
+                                height: 114,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: Image.asset(
+                                      item['image']!,
+                                    ).image,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                              ],
-                            ),
-                            SizedBox(width: 12),
-                            Container(
-                              width: 80,
-                              height: 114,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: Image.asset(
-                                    item['image']!,
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 47,
-                                    height: 14,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: ShapeDecoration(
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          width: 1,
-                                          color: AppColors.subPurple,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 47,
+                                      height: 14,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: ShapeDecoration(
+                                        shape: RoundedRectangleBorder(
+                                          side: BorderSide(
+                                            width: 1,
+                                            color: AppColors.subPurple,
+                                          ),
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
-                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Positioned(
-                                          left: 8,
-                                          top: 2,
-                                          child: Text(
-                                            item['tag'] ?? '',
-                                            style: TextStyle(
-                                              color: const Color(0xFFE4C3FF),
-                                              fontSize: 8,
-                                              fontFamily: 'Inter',
-                                              fontWeight: FontWeight.w600,
-                                              height: 1,
-                                              letterSpacing: -0.16,
+                                      child: Stack(
+                                        children: [
+                                          Positioned(
+                                            left: 8,
+                                            top: 2,
+                                            child: Text(
+                                              item['tag'] ?? '',
+                                              style: TextStyle(
+                                                color: const Color(0xFFE4C3FF),
+                                                fontSize: 8,
+                                                fontFamily: 'Inter',
+                                                fontWeight: FontWeight.w600,
+                                                height: 1,
+                                                letterSpacing: -0.16,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
+                                    SizedBox(height: 8),
                                   Row(
                                     children: [
                                       Expanded(
@@ -279,6 +292,7 @@ class _PerformancePageState extends State<PerformancePage> {
                           ],
                         ),
                       ),
+                    ),
                     ),
                   );
                 },
