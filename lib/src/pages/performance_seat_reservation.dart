@@ -14,6 +14,9 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
     'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
     'A8', 'A9', 'A10', 'A11', 'A12', 'C3', 'C4'
   };
+  final Set<String> _reservedSeats = {
+    'B3', 'D4', 'E10', 'E11'
+  };
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
 
@@ -63,14 +66,69 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
             ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(left: 20, bottom: 20),
-              child: const Text(
-                '1공 : 2025.11.23(토) 16시 00분',
-                style: TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                ),
+              padding: const EdgeInsets.only(left: 20, bottom: 20,right: 20),
+              child:Row(
+                children: [
+                  const Text(
+                    '1공 : 2025.11.23(토) 16시 00분',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  TextButton.icon(
+                    onPressed: () {
+                      final now = DateTime.now();
+                      final eventDate = DateTime(2026, 05, 11, 00); // 예: 1공 공연 시작 시간
+
+                      if (now.isAfter(eventDate)) {
+                        // 공연 시간이 지난 경우
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('예매가 종료된 공연입니다.'),
+                            backgroundColor:  const Color(0xFFCE3939),
+                            duration: const Duration(seconds: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                      } else {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius
+                                .circular(20)),
+                          ),
+                          builder: (BuildContext context) {
+                            return _ReservationModal();
+                          },
+                        );
+                      }
+                    },
+                    label: const Text(
+                      '회차 변경',
+                      style: TextStyle(
+                        color: AppColors.subPurple,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                      minimumSize: const Size(87, 25),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      side: const BorderSide(color: AppColors.subPurple, width: 1), // ✅ 테두리 추가
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100), // ✅ 모서리 둥글기
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Divider(
@@ -181,6 +239,7 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                               bool isAvailable = seats.contains(seatNumber);
                               bool isSelected = _selectedSeats.contains(seatId);
                               bool isDisabled = _disabledSeats.contains(seatId);
+                              bool isReserved = _reservedSeats.contains(seatId);
 
                               if (!isAvailable) {
                                 // 빈 자리
@@ -190,7 +249,7 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                                 );
                               }
                               final seatBox = GestureDetector(
-                                onTap: isDisabled
+                                onTap: (isDisabled || isReserved)
                                     ? null
                                     : () {
                                   setState(() {
@@ -227,6 +286,8 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                                         ? AppColors.gray2
                                         : isSelected
                                         ? AppColors.mainPurple
+                                        : isReserved
+                                        ? AppColors.subPurple
                                         : AppColors.gray3,
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: AppColors.gray4),
@@ -393,6 +454,154 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ReservationModal extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: MediaQuery.of(context).viewInsets, // 키보드 올라올 때 대응
+        child: Container(
+          width: 412,
+          height: 218,
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            color: const Color(0xFF232323),
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                color: const Color(0xFF3C3C3C),
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+          ),
+          child: Stack(
+            children: [
+              const Positioned(
+                left: 137,
+                top: 20,
+                child: Text(
+                  '회차를 선택해주세요.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.32,
+                  ),
+                ),
+              ),
+
+              // 👉 1공
+              Positioned(
+                left: 20,
+                top: 80,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); // 모달 닫기
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PerformanceSeatReservationPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    '1공 : 2025.11.23(토) 16시 00분',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.32,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 👉 2공
+              Positioned(
+                left: 20,
+                top: 139,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PerformanceSeatReservationPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    '2공 : 2025.11.23(토) 19시 30분',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.32,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 구분선들
+              Positioned(
+                left: 0,
+                top: 60,
+                child: Container(
+                  width: 412,
+                  decoration: const ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        strokeAlign: BorderSide.strokeAlignCenter,
+                        color: Color(0xFF3C3C3C),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                top: 119,
+                child: Container(
+                  width: 412,
+                  decoration: const ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        strokeAlign: BorderSide.strokeAlignCenter,
+                        color: Color(0xFF3C3C3C),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // 닫기 버튼
+              Positioned(
+                left: 368,
+                top: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(color: Color(0xFF232323)),
+                    child: const Icon(Icons.close, size: 20, color: Colors.white,),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
     );
   }
 }
