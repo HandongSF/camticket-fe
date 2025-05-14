@@ -1,6 +1,7 @@
 import 'package:camticket/src/pages/artist_page.dart';
 import 'package:camticket/src/pages/my_page.dart';
 import 'package:camticket/src/pages/notification_page.dart';
+import 'package:camticket/src/pages/performance_detail_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/src/pages/reservation_check.dart';
 import 'package:camticket/src/pages/searchpage.dart';
@@ -26,6 +27,9 @@ class Start extends StatelessWidget {
       navigationProvider.subPage == 'reservation'
           ? const ReservationCheckPage()
           : const Mypage(),
+      navigationProvider.subPage == 'performanceDetail'
+          ? const PerformanceDetailPage()
+          : const PerformancePage(),
     ];
 
     return Scaffold(
