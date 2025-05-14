@@ -35,7 +35,6 @@ class _Mypagestate extends State<Mypage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 26),
             const Text(
               '마이페이지',
               style: TextStyle(
@@ -382,7 +381,7 @@ class _Mypagestate extends State<Mypage> {
     );
   }
 
-  Widget _buildGradientBadge(String text) {
+  Widget buildGradientBadge(String text) {
     return Container(
       width: 64,
       height: 28,

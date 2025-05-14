@@ -33,18 +33,46 @@ class Start extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: navigationProvider.selectedIndex == 0
+      appBar: navigationProvider.selectedIndex == 0 ||
+              navigationProvider.selectedIndex == 4
           ? AppBar(
+              automaticallyImplyLeading: false,
               title: Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(width: 30),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      onPressed: () {
+                        if (navigationProvider.selectedIndex == 4) {
+                          navigationProvider.setSubPage('default');
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
                     Image.asset(
                       'assets/images/navi logo.png',
                       width: 110,
                       height: 28,
                     ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Searchpage()),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.search,
+                        size: 24,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -65,21 +93,7 @@ class Start extends StatelessWidget {
                   ),
                 ),
               ),
-              actions: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const Searchpage()),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.search,
-                    size: 24,
-                  ),
-                )
-              ],
+              actions: <Widget>[],
               toolbarHeight: 64,
               backgroundColor: Colors.black,
             )

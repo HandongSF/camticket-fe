@@ -25,15 +25,23 @@ class ReservationCheckPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.mainBlack,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            // 검색 버튼 클릭 시 동작
-            context.read<NavigationProvider>().setSubPage('default');
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+        //   onPressed: () {
+        //     // 검색 버튼 클릭 시 동작
+        //     context.read<NavigationProvider>().setSubPage('default');
+        //   },
+        // ),
         backgroundColor: AppColors.mainBlack,
-        title: const Text('예매 확인 / 취소', style: TextStyle(color: Colors.white)),
+        title: Text(
+          '예매 확인 / 취소',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         centerTitle: false,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
