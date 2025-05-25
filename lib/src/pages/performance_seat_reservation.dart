@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
 import '../../utility/color.dart';
+import 'package:camticket/src/pages/ticket_purchase.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
   const PerformanceSeatReservationPage({super.key});
 
   @override
-  State<PerformanceSeatReservationPage> createState() => _PerformanceSeatReservationPageState();
+  State<PerformanceSeatReservationPage> createState() =>
+      _PerformanceSeatReservationPageState();
 }
 
-class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservationPage> {
+class _PerformanceSeatReservationPageState
+    extends State<PerformanceSeatReservationPage> {
   final Set<String> _selectedSeats = {};
   final Set<String> _disabledSeats = {
-    'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
-    'A8', 'A9', 'A10', 'A11', 'A12', 'C3', 'C4'
+    'A1',
+    'A2',
+    'A3',
+    'A4',
+    'A5',
+    'A6',
+    'A7',
+    'A8',
+    'A9',
+    'A10',
+    'A11',
+    'A12',
+    'C3',
+    'C4'
   };
-  final Set<String> _reservedSeats = {
-    'B3', 'D4', 'E10', 'E11'
-  };
+  final Set<String> _reservedSeats = {'B3', 'D4', 'E10', 'E11'};
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
-
 
   final double seatSize = 26;
   final double seatSpacing = 2;
@@ -58,16 +70,16 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
               child: const Text(
                 '선택된 회차',
                 style: TextStyle(
-                    color: AppColors.subPurple,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                  color: AppColors.subPurple,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
               ),
             ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(left: 20, bottom: 20,right: 20),
-              child:Row(
+              padding: const EdgeInsets.only(left: 20, bottom: 20, right: 20),
+              child: Row(
                 children: [
                   const Text(
                     '1공 : 2025.11.23(토) 16시 00분',
@@ -81,14 +93,15 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                   TextButton.icon(
                     onPressed: () {
                       final now = DateTime.now();
-                      final eventDate = DateTime(2026, 05, 11, 00); // 예: 1공 공연 시작 시간
+                      final eventDate =
+                          DateTime(2026, 05, 11, 00); // 예: 1공 공연 시작 시간
 
                       if (now.isAfter(eventDate)) {
                         // 공연 시간이 지난 경우
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('예매가 종료된 공연입니다.'),
-                            backgroundColor:  const Color(0xFFCE3939),
+                            backgroundColor: const Color(0xFFCE3939),
                             duration: const Duration(seconds: 2),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -101,8 +114,8 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                           isScrollControlled: true,
                           backgroundColor: Colors.black,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius
-                                .circular(20)),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(20)),
                           ),
                           builder: (BuildContext context) {
                             return _ReservationModal();
@@ -122,7 +135,8 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                       padding: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
                       minimumSize: const Size(87, 25),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      side: const BorderSide(color: AppColors.subPurple, width: 1), // ✅ 테두리 추가
+                      side: const BorderSide(
+                          color: AppColors.subPurple, width: 1), // ✅ 테두리 추가
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(100), // ✅ 모서리 둥글기
                       ),
@@ -132,74 +146,73 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
               ),
             ),
             Divider(
-              color: AppColors.gray3,   // 선 색상
-              thickness: 0.5,         // 선 두께
+              color: AppColors.gray3, // 선 색상
+              thickness: 0.5, // 선 두께
             ),
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(left: 20, bottom: 24, top: 20),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '해당 공연장소는 ',
-                      style: TextStyle(
-                        color: const Color(0xFFE5E5E5),
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        height: 1.43,
-                        letterSpacing: -0.28,
+                width: double.infinity,
+                padding: const EdgeInsets.only(left: 20, bottom: 24, top: 20),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '해당 공연장소는 ',
+                        style: TextStyle(
+                          color: const Color(0xFFE5E5E5),
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          height: 1.43,
+                          letterSpacing: -0.28,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: '학관 104호',
-                      style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        height: 1.43,
-                        letterSpacing: -0.28,
+                      TextSpan(
+                        text: '학관 104호',
+                        style: TextStyle(
+                          color: const Color(0xFFE4C3FF),
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          height: 1.43,
+                          letterSpacing: -0.28,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: ' 입니다.\n아티스트의 정책에 따라 ',
-                      style: TextStyle(
-                        color: const Color(0xFFE5E5E5),
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        height: 1.43,
-                        letterSpacing: -0.28,
+                      TextSpan(
+                        text: ' 입니다.\n아티스트의 정책에 따라 ',
+                        style: TextStyle(
+                          color: const Color(0xFFE5E5E5),
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          height: 1.43,
+                          letterSpacing: -0.28,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: '1인 4매',
-                      style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        height: 1.43,
-                        letterSpacing: -0.28,
+                      TextSpan(
+                        text: '1인 4매',
+                        style: TextStyle(
+                          color: const Color(0xFFE4C3FF),
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          height: 1.43,
+                          letterSpacing: -0.28,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: ' 예매 가능합니다.',
-                      style: TextStyle(
-                        color: const Color(0xFFE5E5E5),
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        height: 1.43,
-                        letterSpacing: -0.28,
+                      TextSpan(
+                        text: ' 예매 가능합니다.',
+                        style: TextStyle(
+                          color: const Color(0xFFE5E5E5),
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          height: 1.43,
+                          letterSpacing: -0.28,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ),
+                    ],
+                  ),
+                )),
             Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(bottom: 12),
@@ -213,8 +226,7 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                     fontWeight: FontWeight.w400,
                     letterSpacing: -0.32,
                   ),
-                )
-            ),
+                )),
             Container(
               width: 372,
               height: 400,
@@ -244,7 +256,9 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                               if (!isAvailable) {
                                 // 빈 자리
                                 return SizedBox(
-                                  width: seatNumber == 6 ? seatSize + aisleSpacing : seatSize,
+                                  width: seatNumber == 6
+                                      ? seatSize + aisleSpacing
+                                      : seatSize,
                                   height: seatSize,
                                 );
                               }
@@ -252,31 +266,33 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                                 onTap: (isDisabled || isReserved)
                                     ? null
                                     : () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      _selectedSeats.remove(seatId);
-                                    } else {
-                                      if (_selectedSeats.length < maxSelectableSeats-alreadySelectedSeats) {
-                                        _selectedSeats.add(seatId);
-                                      } else {
-                                        // 선택 제한 알림 (선택 사항)
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            backgroundColor:  Color(0xFFCE3939),
-                                            content: Text(
-                                                '⚠ 좌석은 최대 4개까지만 선택할 수 있습니다.',
-                                                style: TextStyle(
-
+                                        setState(() {
+                                          if (isSelected) {
+                                            _selectedSeats.remove(seatId);
+                                          } else {
+                                            if (_selectedSeats.length <
+                                                maxSelectableSeats -
+                                                    alreadySelectedSeats) {
+                                              _selectedSeats.add(seatId);
+                                            } else {
+                                              // 선택 제한 알림 (선택 사항)
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  backgroundColor:
+                                                      Color(0xFFCE3939),
+                                                  content: Text(
+                                                    '⚠ 좌석은 최대 4개까지만 선택할 수 있습니다.',
+                                                    style: TextStyle(),
+                                                  ),
+                                                  duration:
+                                                      Duration(seconds: 1),
                                                 ),
-                                            ),
-                                            duration: Duration(seconds: 1),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  });
-                                },
-
+                                              );
+                                            }
+                                          }
+                                        });
+                                      },
                                 child: Container(
                                   width: seatSize,
                                   height: seatSize,
@@ -285,26 +301,23 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                                     color: isDisabled
                                         ? AppColors.gray2
                                         : isSelected
-                                        ? AppColors.mainPurple
-                                        : isReserved
-                                        ? AppColors.subPurple
-                                        : AppColors.gray3,
+                                            ? AppColors.mainPurple
+                                            : isReserved
+                                                ? AppColors.subPurple
+                                                : AppColors.gray3,
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: AppColors.gray4),
                                   ),
-                                  child: Text(
-                                    isDisabled ? 'X' : seatId,
-                                    style: TextStyle(
-                                      color: isDisabled
-                                          ? Colors.red
-                                          : isSelected
-                                          ? AppColors.gray5
-                                          : AppColors.mainBlack,
-
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    )
-                                  ),
+                                  child: Text(isDisabled ? 'X' : seatId,
+                                      style: TextStyle(
+                                        color: isDisabled
+                                            ? Colors.red
+                                            : isSelected
+                                                ? AppColors.gray5
+                                                : AppColors.mainBlack,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      )),
                                 ),
                               );
 
@@ -329,7 +342,7 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20,right: 20),
+              padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
                 children: [
                   Row(
@@ -346,14 +359,15 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                       ),
                     ],
                   ),
-                  if(_selectedSeats.length == 0)
+                  if (_selectedSeats.length == 0)
                     Container(
                       width: 372,
                       height: 56,
                       clipBehavior: Clip.antiAlias,
                       decoration: ShapeDecoration(
                         color: const Color(0xFFCE3939),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
                       ),
                       child: Stack(
                         children: [
@@ -381,7 +395,8 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                       clipBehavior: Clip.antiAlias,
                       decoration: ShapeDecoration(
                         color: AppColors.mainBlack,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
                       ),
                       child: Stack(
                         children: [
@@ -412,7 +427,8 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          backgroundColor: AppColors.subPurple, // 버튼 색상 (원하는 색으로 변경 가능)
+                          backgroundColor:
+                              AppColors.subPurple, // 버튼 색상 (원하는 색으로 변경 가능)
                         ),
                         child: const Text(
                           '선택 완료',
@@ -429,13 +445,20 @@ class _PerformanceSeatReservationPageState extends State<PerformanceSeatReservat
                       ElevatedButton(
                         onPressed: () {
                           print('선택된 좌석: $_selectedSeats');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TicketPage(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(211, 56),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          backgroundColor: AppColors.mainPurple, // 버튼 색상 (원하는 색으로 변경 가능)
+                          backgroundColor:
+                              AppColors.mainPurple, // 버튼 색상 (원하는 색으로 변경 가능)
                         ),
                         child: const Text(
                           '다음',
@@ -595,13 +618,16 @@ class _ReservationModal extends StatelessWidget {
                     width: 24,
                     height: 24,
                     decoration: const BoxDecoration(color: Color(0xFF232323)),
-                    child: const Icon(Icons.close, size: 20, color: Colors.white,),
+                    child: const Icon(
+                      Icons.close,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 }
