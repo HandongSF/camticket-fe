@@ -4,7 +4,7 @@ import '../utility/color.dart';
 
 void showRoundSelectBottomSheet(
   BuildContext context,
-  Future push,
+  VoidCallback onSelect,
 ) {
   showModalBottomSheet(
     context: context,
@@ -49,9 +49,10 @@ void showRoundSelectBottomSheet(
                 '1공 : 2025.11.23(토) 16시 00분',
                 style: TextStyle(color: AppColors.white),
               ),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                push;
+                onSelect();
+                //push;
               },
             ),
             const Divider(color: AppColors.gray2),
@@ -60,9 +61,10 @@ void showRoundSelectBottomSheet(
                 '2공 : 2025.11.23(토) 19시 30분',
                 style: TextStyle(color: AppColors.white),
               ),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                push;
+                //push;
+                onSelect();
               },
             ),
           ],

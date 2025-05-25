@@ -167,15 +167,15 @@ class _PerformanceSeatReservationPageState
                               ),
                             );
                           } else {
-                            showRoundSelectBottomSheet(
+                            showRoundSelectBottomSheet(context, () {
+                              Navigator.push(
                                 context,
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PerformanceSeatReservationPage(),
-                                  ),
-                                ));
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PerformanceSeatReservationPage(),
+                                ),
+                              );
+                            });
                           }
                         },
                         label: const Text(
@@ -403,143 +403,150 @@ class _PerformanceSeatReservationPageState
                     }).toList(),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            color: AppColors.mainPurple,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '선택한 좌석',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      if (_selectedSeats.length == 0)
-                        Container(
-                          width: 372,
-                          height: 56,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFCE3939),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4)),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                left: 31,
-                                top: 20,
-                                child: Text(
-                                  '⚠ 좌석 선택 완료 후 다음 과정으로 넘어갈 수 있어요.',
-                                  style: TextStyle(
-                                    color: const Color(0xFFE5E5E5),
-                                    fontSize: 12,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.24,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Container(
-                          width: 372,
-                          height: 56,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: ShapeDecoration(
-                            color: AppColors.mainBlack,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4)),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                top: 20,
-                                child: Text(
-                                  _selectedSeats.join(', '),
-                                  style: TextStyle(
-                                    color: AppColors.subPurple,
-                                    fontSize: 12,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -0.24,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  debugPrint('선택된 좌석: $_selectedSeats');
-                },
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(120, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor: AppColors.subPurple, // 버튼 색상 (원하는 색으로 변경 가능)
-                ),
-                child: const Text(
-                  '선택 완료',
-                  style: TextStyle(
-                    color: AppColors.mainBlack,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  print('선택된 좌석: $_selectedSeats');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TicketPage(),
+        bottomNavigationBar: SizedBox(
+          height: 200,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          color: AppColors.mainPurple,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '선택한 좌석',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(211, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor:
-                      AppColors.mainPurple, // 버튼 색상 (원하는 색으로 변경 가능)
+                    const SizedBox(height: 8),
+                    if (_selectedSeats.length == 0)
+                      Container(
+                        width: 372,
+                        height: 56,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFFCE3939),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              left: 31,
+                              top: 20,
+                              child: Text(
+                                '⚠ 좌석 선택 완료 후 다음 과정으로 넘어갈 수 있어요.',
+                                style: TextStyle(
+                                  color: const Color(0xFFE5E5E5),
+                                  fontSize: 12,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: -0.24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 372,
+                        height: 56,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: ShapeDecoration(
+                          color: AppColors.mainBlack,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: 20,
+                              child: Text(
+                                _selectedSeats.join(', '),
+                                style: TextStyle(
+                                  color: AppColors.subPurple,
+                                  fontSize: 12,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-                child: const Text(
-                  '다음',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        debugPrint('선택된 좌석: $_selectedSeats');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(120, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor:
+                            AppColors.subPurple, // 버튼 색상 (원하는 색으로 변경 가능)
+                      ),
+                      child: const Text(
+                        '선택 완료',
+                        style: TextStyle(
+                          color: AppColors.mainBlack,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        print('선택된 좌석: $_selectedSeats');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TicketPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(211, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor:
+                            AppColors.mainPurple, // 버튼 색상 (원하는 색으로 변경 가능)
+                      ),
+                      child: const Text(
+                        '다음',
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ));
   }

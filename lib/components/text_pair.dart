@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 Widget grayAndWhite(String text, String text2) {
   return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       SizedBox(
         width: 44,
@@ -19,20 +20,20 @@ Widget grayAndWhite(String text, String text2) {
           ),
         ),
       ),
-      SizedBox(width: 15),
       SizedBox(
-        width: 141,
+        width: 75,
         child: Text(
           text2,
           softWrap: false,
           style: TextStyle(
-            color: AppColors.gray1,
+            color: AppColors.gray5,
             fontSize: 12,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
             letterSpacing: -0.24,
             overflow: TextOverflow.visible,
           ),
+          textAlign: TextAlign.left,
         ),
       )
     ],

@@ -49,7 +49,6 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 children: [
                   // 공연 제목
                   SizedBox(
-                    width: 160,
                     height: 228,
                     child: Image.asset(
                       'assets/images/pitch_stage.png',
@@ -57,38 +56,38 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     ),
                   ),
 
-                  SizedBox(
-                    width: 200,
-                    height: 228,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        subPurpleBtn('유료 공연'),
-                        SizedBox(
-                          height: 4,
-                        ),
-                        SizedBox(
-                          width: 200,
-                          child: Text(
-                            '🎼 The Gospel\n: Who we are',
-                            style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 16,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.32,
-                                height: 0),
+                  Expanded(
+                    child: SizedBox(
+                      height: 228,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          subPurpleBtn('유료 공연'),
+                          SizedBox(
+                            height: 4,
                           ),
-                        ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        grayAndWhite('카테고리', '음악'),
-                        grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
-                        grayAndWhite('공연날짜', '2025.11.23 (2회)'),
-                        grayAndWhite('장소', '학관 104호'),
-                      ],
+                          SizedBox(
+                            child: Text(
+                              '🎼 The Gospel\n: Who we are',
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.32,
+                                  height: 0),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 25,
+                          ),
+                          grayAndWhite('카테고리', '음악'),
+                          grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
+                          grayAndWhite('공연날짜', '2025.11.23 (2회)'),
+                          grayAndWhite('장소', '학관 104호'),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -112,13 +111,16 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
       bottomNavigationBar: GestureDetector(
         onTap: () {
           showRoundSelectBottomSheet(
-              context,
+            context,
+            () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PerformanceSeatReservationPage(),
                 ),
-              ));
+              );
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
