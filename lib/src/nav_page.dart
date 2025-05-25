@@ -21,19 +21,19 @@ class Start extends StatelessWidget {
 
     final List<Widget> pages = [
       const HomePage(), // 홈
-      const PerformancePage(),
+      navigationProvider.subPage == 'performanceDetail'
+          ? const PerformanceDetailPage()
+          : const PerformancePage(),
       const ArtistPage(), // 아티스트
       const NotificationPage(), // 알림
       navigationProvider.subPage == 'reservation'
           ? const ReservationCheckPage()
           : const Mypage(),
-      navigationProvider.subPage == 'performanceDetail'
-          ? const PerformanceDetailPage()
-          : const PerformancePage(),
     ];
 
     return Scaffold(
       appBar: navigationProvider.selectedIndex == 0 ||
+              navigationProvider.selectedIndex == 1 ||
               navigationProvider.selectedIndex == 4
           ? AppBar(
               automaticallyImplyLeading: false,
@@ -49,6 +49,8 @@ class Start extends StatelessWidget {
                       ),
                       onPressed: () {
                         if (navigationProvider.selectedIndex == 4) {
+                          navigationProvider.setSubPage('default');
+                        } else if (navigationProvider.selectedIndex == 1) {
                           navigationProvider.setSubPage('default');
                         } else {
                           Navigator.pop(context);

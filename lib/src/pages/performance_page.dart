@@ -5,7 +5,6 @@ import '../../provider/pc_provider.dart';
 import '../../utility/color.dart';
 import 'performance_detail_page.dart';
 
-
 class PerformancePage extends StatefulWidget {
   const PerformancePage({Key? key}) : super(key: key);
 
@@ -16,7 +15,7 @@ class PerformancePage extends StatefulWidget {
 class _PerformancePageState extends State<PerformancePage> {
   int selectedSort = 0; // 등록순(0) / 최신순(1)
 
-  final List<String> categories = ['음악', '연극 / 뮤지컬', '댄스', '전시'];
+  final List<String> categories = ['전체', '음악', '연극 / 뮤지컬', '댄스', '전시'];
 
   final List<Map<String, String>> performances = [
     {
@@ -68,37 +67,41 @@ class _PerformancePageState extends State<PerformancePage> {
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(categories.length, (index) {
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                    children: List.generate(categories.length, (index) {
                   final isSelected = selectedCategory == index;
                   return GestureDetector(
                     onTap: () {
                       categoryProvider.setCategory(index);
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.subPurple
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: AppColors.gray3),
-                      ),
-                      child: Text(
-                        categories[index],
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppColors.mainBlack
-                              : AppColors.white,
-                          fontWeight: FontWeight.w500,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.subPurple
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: AppColors.gray3),
+                          ),
+                          child: Text(
+                            categories[index],
+                            style: TextStyle(
+                              color: isSelected
+                                  ? AppColors.mainBlack
+                                  : AppColors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   );
-                }),
+                })),
               ),
             ),
             const SizedBox(height: 16),
@@ -164,10 +167,6 @@ class _PerformancePageState extends State<PerformancePage> {
                         context
                             .read<NavigationProvider>()
                             .setSubPage('performanceDetail');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PerformanceDetailPage()),
-                        );
                       },
                       child: Container(
                         width: 372,
@@ -234,7 +233,8 @@ class _PerformancePageState extends State<PerformancePage> {
                                             width: 1,
                                             color: AppColors.subPurple,
                                           ),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                       ),
                                       child: Stack(
@@ -258,41 +258,41 @@ class _PerformancePageState extends State<PerformancePage> {
                                       ),
                                     ),
                                     SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          width: 100,
-                                          child: Text(
-                                            item['title'] ?? '',
-                                            style: const TextStyle(
-                                              color: AppColors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -0.32,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              item['title'] ?? '',
+                                              style: const TextStyle(
+                                                color: AppColors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: -0.32,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    item['subtitle'] ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.gray4,
-                                      fontSize: 12,
-                                      height: 1.4,
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      item['subtitle'] ?? '',
+                                      style: const TextStyle(
+                                        color: AppColors.gray4,
+                                        fontSize: 12,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                     ),
                   );
                 },

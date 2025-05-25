@@ -1,12 +1,10 @@
 import 'package:camticket/src/pages/performance_detail_page.dart';
-import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../components/buttons.dart';
 import '../../provider/navigation_provider.dart';
-import '../../provider/pc_provider.dart';
-import '../../utility/category_btn.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -178,16 +176,22 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 12),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  _buildCategoryButton(context, '음악', 0),
-                  _buildCategoryButton(context, '연극 / 뮤지컬', 1),
-                  _buildCategoryButton(context, '댄스', 2),
-                  _buildCategoryButton(context, '전시', 3),
-                ],
+              padding: const EdgeInsets.only(left: 20.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    buildCategoryButton(context, '전체', 0),
+                    SizedBox(width: 8),
+                    buildCategoryButton(context, '음악', 1),
+                    SizedBox(width: 8),
+                    buildCategoryButton(context, '연극 / 뮤지컬', 2),
+                    SizedBox(width: 8),
+                    buildCategoryButton(context, '댄스', 3),
+                    SizedBox(width: 8),
+                    buildCategoryButton(context, '전시', 4),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -214,163 +218,148 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     final item = performances[index];
                     return Container(
-                      decoration: ShapeDecoration(
-                        color: AppColors.gray1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        decoration: ShapeDecoration(
+                          color: AppColors.gray1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                    child: GestureDetector(
-                      onTap: () {
-                        context
-                            .read<NavigationProvider>()
-                            .setSubPage('performanceDetail');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PerformanceDetailPage()),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
+                        child: GestureDetector(
+                          onTap: () {
+                            context
+                                .read<NavigationProvider>()
+                                .setSubPage('performanceDetail');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PerformanceDetailPage()),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 19),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(30),
-                                  child: Image.asset(
-                                    item['image']!,
-                                    width: 28,
-                                    height: 28,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 12),
-                            Container(
-                              width: 80,
-                              height: 114,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: Image.asset(
-                                    item['image']!,
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 47,
-                                    height: 14,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: ShapeDecoration(
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          width: 1,
-                                          color: AppColors.subPurple,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
+                                Column(
+                                  children: [
+                                    Text(
+                                      '${index + 1}',
+                                      style: const TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    child: Stack(
-                                      children: [
-                                        Positioned(
-                                          left: 8,
-                                          top: 2,
-                                          child: Text(
-                                            item['tag'] ?? '',
-                                            style: TextStyle(
-                                              color: const Color(0xFFE4C3FF),
-                                              fontSize: 8,
-                                              fontFamily: 'Inter',
-                                              fontWeight: FontWeight.w600,
-                                              height: 1,
-                                              letterSpacing: -0.16,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                    const SizedBox(height: 19),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(30),
+                                      child: Image.asset(
+                                        item['image']!,
+                                        width: 28,
+                                        height: 28,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(width: 12),
+                                Container(
+                                  width: 80,
+                                  height: 114,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: Image.asset(
+                                        item['image']!,
+                                      ).image,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
-                                  Row(
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          width: 100,
-                                          child: Text(
-                                            item['title'] ?? '',
-                                            style: const TextStyle(
-                                              color: AppColors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -0.32,
+                                      Container(
+                                        width: 47,
+                                        height: 14,
+                                        clipBehavior: Clip.antiAlias,
+                                        decoration: ShapeDecoration(
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(
+                                              width: 1,
+                                              color: AppColors.subPurple,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Positioned(
+                                              left: 8,
+                                              top: 2,
+                                              child: Text(
+                                                item['tag'] ?? '',
+                                                style: TextStyle(
+                                                  color:
+                                                      const Color(0xFFE4C3FF),
+                                                  fontSize: 8,
+                                                  fontFamily: 'Inter',
+                                                  fontWeight: FontWeight.w600,
+                                                  height: 1,
+                                                  letterSpacing: -0.16,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: SizedBox(
+                                              width: 100,
+                                              child: Text(
+                                                item['title'] ?? '',
+                                                style: const TextStyle(
+                                                  color: AppColors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: -0.32,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        item['subtitle'] ?? '',
+                                        style: const TextStyle(
+                                          color: AppColors.gray4,
+                                          fontSize: 12,
+                                          height: 1.4,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    item['subtitle'] ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.gray4,
-                                      fontSize: 12,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    )
-                    );
+                          ),
+                        ));
                   },
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(BuildContext context, String label, int index) {
-    return GestureDetector(
-      onTap: () {
-        Provider.of<PerformanceCategoryProvider>(context, listen: false)
-            .setCategory(index);
-        Provider.of<NavigationProvider>(context, listen: false)
-            .setIndex(1); // PerformancePage index
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.gray3),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(label, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
