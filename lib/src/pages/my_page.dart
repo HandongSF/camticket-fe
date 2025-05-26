@@ -1,3 +1,4 @@
+import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
 import 'package:camticket/src/pages/user/reservation_check.dart';
 import 'package:camticket/src/pages/ticket.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
@@ -82,7 +83,12 @@ class _Mypagestate extends State<Mypage> {
                 _buildOptionButton(
                   '관람객 예매 확인 및 관리',
                   () {
-                    // 관람 기록 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReservationManagePage(),
+                      ),
+                    );
                   },
                 ),
               ],
