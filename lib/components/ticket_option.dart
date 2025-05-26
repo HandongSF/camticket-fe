@@ -1,0 +1,99 @@
+import 'package:camticket/components/dividers.dart';
+import 'package:camticket/utility/color.dart';
+import 'package:flutter/material.dart';
+
+class PerformanceRoundsWidget2 extends StatefulWidget {
+  const PerformanceRoundsWidget2({super.key});
+
+  @override
+  State<PerformanceRoundsWidget2> createState() =>
+      _PerformanceRoundsWidgetState();
+}
+
+class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
+  List<TextEditingController> _controllers = [TextEditingController()];
+
+  void _addRound() {
+    setState(() {
+      _controllers.add(TextEditingController());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424), // gray1
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray2), // gray2
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < _controllers.length; i++)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                  border: Border(
+                bottom: BorderSide(color: AppColors.gray2, width: 1), // gray2
+              )),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '일반',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _controllers[i],
+                          decoration: InputDecoration(
+                            hintText: '티켓 가격을 입력하세요.',
+                            hintStyle: const TextStyle(
+                                color: AppColors.gray4), // gray4
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          GestureDetector(
+            onTap: _addRound,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              child: Row(
+                children: [
+                  const SizedBox(width: 8),
+                  const Text(
+                    '+ 티켓 가격 옵션 추가',
+                    style: TextStyle(
+                      color: AppColors.gray5,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      height: 1.12,
+                      letterSpacing: -0.32,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -7,9 +7,9 @@ import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../components/input_form.dart';
-import '../../components/texts.dart';
-import 'home_page.dart';
+import '../../../components/input_form.dart';
+import '../../../components/texts.dart';
+import '../home_page.dart';
 
 class TicketCompletePage extends StatelessWidget {
   final int generalCount;

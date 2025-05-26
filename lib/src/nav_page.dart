@@ -3,7 +3,7 @@ import 'package:camticket/src/pages/my_page.dart';
 import 'package:camticket/src/pages/notification_page.dart';
 import 'package:camticket/src/pages/performance_detail_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
-import 'package:camticket/src/pages/reservation_check.dart';
+import 'package:camticket/src/pages/user/reservation_check.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';

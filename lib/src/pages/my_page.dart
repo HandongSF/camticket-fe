@@ -1,4 +1,4 @@
-import 'package:camticket/src/pages/reservation_check.dart';
+import 'package:camticket/src/pages/user/reservation_check.dart';
 import 'package:camticket/src/pages/ticket.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
 import 'package:camticket/utility/color.dart';
@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../components/buttons.dart';
 import '../../provider/navigation_provider.dart';
+import 'artist/register_performance_page.dart';
 
 enum UserRole { none, viewer, artist }
 
@@ -58,6 +59,19 @@ class _Mypagestate extends State<Mypage> {
               ),
               const SizedBox(height: 12),
               if (currentUser.role == UserRole.artist) ...[
+                _buildOptionButton(
+                  '새로운 공연 등록하기',
+                  () {
+                    // 공연 등록 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterPerformancePage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
                 _buildOptionButton(
                   '등록된 공연 관리',
                   () {
@@ -155,8 +169,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        width: 168,
-        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),
@@ -188,8 +201,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        width: 168,
-        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),

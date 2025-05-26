@@ -3,12 +3,12 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
-import 'package:camticket/src/pages/ticket_success_page.dart';
+import 'package:camticket/src/pages/user/ticket_success_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../components/texts.dart';
+import '../../../components/texts.dart';
 
 class ReservationCheckInsertPayment extends StatefulWidget {
   @override

@@ -44,7 +44,7 @@ class CamTicket extends StatelessWidget {
             bodyLarge: TextStyle(color: Colors.white),
           ),
         ),
-        initialRoute: '/splash',
+        initialRoute: '/home',
         routes: {
           '/splash': (context) => const SplashScreen(),
           '/home': (context) => const HomePage(),

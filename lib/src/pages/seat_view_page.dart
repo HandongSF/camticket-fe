@@ -147,32 +147,4 @@ class SeatViewPage extends StatelessWidget {
       ),
     );
   }
-
-  bool _isDisabled(String seat) {
-    List<String> disabled = [
-      'B1',
-      'B2',
-      'B3',
-      'B4',
-      'B5',
-      'B7',
-      'B8',
-      'B9',
-      'B10',
-      'B11',
-      'C3',
-      'C4',
-      'D3',
-      'D4',
-      'E9',
-      'E10',
-      'E11',
-      'G2',
-      'G3',
-      'G4',
-      'G5',
-      'G6'
-    ];
-    return disabled.contains(seat);
-  }
 }

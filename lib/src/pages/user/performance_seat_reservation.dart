@@ -1,10 +1,10 @@
 import 'package:camticket/components/bottomSheet.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/src/pages/searchpage.dart';
-import 'package:camticket/src/pages/ticket_purchase.dart';
+import 'package:camticket/src/pages/user/ticket_purchase.dart';
 import 'package:flutter/material.dart';
-import '../../components/seat.dart';
-import '../../utility/color.dart';
+import '../../../components/seat.dart';
+import '../../../utility/color.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
   const PerformanceSeatReservationPage({super.key});

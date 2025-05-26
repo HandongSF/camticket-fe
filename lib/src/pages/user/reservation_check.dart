@@ -1,9 +1,9 @@
 // reservation_check_page.dart
-import 'package:camticket/src/pages/reservation_info.dart';
+import 'package:camticket/src/pages/user/reservation_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../provider/navigation_provider.dart';
-import '../../utility/color.dart';
+import '../../../provider/navigation_provider.dart';
+import '../../../utility/color.dart';
 
 class ReservationCheckPage extends StatelessWidget {
   const ReservationCheckPage({super.key});

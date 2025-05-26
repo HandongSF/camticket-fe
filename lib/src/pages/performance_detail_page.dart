@@ -1,6 +1,6 @@
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/texts.dart';
-import 'package:camticket/src/pages/performance_seat_reservation.dart';
+import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 import '../../components/bottomSheet.dart';

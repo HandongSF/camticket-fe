@@ -2,9 +2,9 @@
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../provider/navigation_provider.dart';
-import '../../utility/category_btn.dart';
-import '../../utility/color.dart';
+import '../../../provider/navigation_provider.dart';
+import '../../../utility/category_btn.dart';
+import '../../../utility/color.dart';
 
 class ReservationInfoPage extends StatelessWidget {
   const ReservationInfoPage({super.key});
