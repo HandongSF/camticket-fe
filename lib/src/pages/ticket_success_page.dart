@@ -3,90 +3,44 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
-import 'package:camticket/src/pages/ticket_success_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../components/input_form.dart';
 import '../../components/texts.dart';
+import 'home_page.dart';
 
-class ReservationCheckInsertPayment extends StatefulWidget {
-  @override
-  _ReservationCheckInsertPaymentState createState() =>
-      _ReservationCheckInsertPaymentState();
-}
+class TicketCompletePage extends StatelessWidget {
+  final int generalCount;
+  final int newbieCount;
+  final String phoneNumber;
+  final bool isSuccess;
 
-class _ReservationCheckInsertPaymentState
-    extends State<ReservationCheckInsertPayment> {
-  int generalCount = 0;
-  int newbieCount = 0;
-  final int maxTickets = 3;
+  TicketCompletePage({
+    required this.generalCount,
+    required this.newbieCount,
+    required this.phoneNumber,
+    this.isSuccess = true,
+  });
 
+  int get totalPrice => generalCount * 3000 + newbieCount * 2000;
   final TextEditingController phone1 = TextEditingController();
   final TextEditingController phone2 = TextEditingController();
   final TextEditingController phone3 = TextEditingController();
-
-  bool isDepositChecked = false;
-
-  void updateCount({required bool isGeneral, required bool increment}) {
-    setState(() {
-      int total = generalCount + newbieCount;
-      if (increment) {
-        if (total < maxTickets) {
-          if (isGeneral)
-            generalCount++;
-          else
-            newbieCount++;
-        } else {
-          showError('최대 $maxTickets매까지만 예매할 수 있습니다.');
-        }
-      } else {
-        if (isGeneral && generalCount > 0) generalCount--;
-        if (!isGeneral && newbieCount > 0) newbieCount--;
-      }
-    });
-  }
-
-  int get totalPrice => generalCount * 3000 + newbieCount * 2000;
-
-  void validateAndSubmit() {
-    String p1 = phone1.text.trim();
-    String p2 = phone2.text.trim();
-    String p3 = phone3.text.trim();
-
-    if (p1.isEmpty || p2.isEmpty || p3.isEmpty) {
-      showError('연락처를 모두 입력해주세요.');
-      return;
-    }
-
-    if ((generalCount + newbieCount) != maxTickets) {
-      showError('총 $maxTickets매를 모두 선택해주세요.');
-      return;
-    }
-
-    String phoneNumber = '$p1 - $p2 - $p3';
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TicketCompletePage(
-          generalCount: generalCount,
-          newbieCount: newbieCount,
-          phoneNumber: phoneNumber,
-          isSuccess: true, // 예매 성공 여부는 실제 구현에 따라 다름
-        ),
-      ),
-    );
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final linearGradient = LinearGradient(
+      begin: Alignment(1.03, 1.82),
+      end: Alignment(-0.23, -0.56),
+      colors: [
+        Colors.white,
+        const Color(0xFFCC8DFF),
+        const Color(0xFF8414DD),
+        const Color(0xFF8A20E1)
+      ],
+    );
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -114,7 +68,7 @@ class _ReservationCheckInsertPaymentState
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Searchpage()),
+                    MaterialPageRoute(builder: (context) => Searchpage()),
                   );
                 },
                 icon: const Icon(
@@ -149,47 +103,122 @@ class _ReservationCheckInsertPaymentState
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 100),
-            child: DefaultTextStyle(
-              style: TextStyle(color: Colors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  sectionTitle('공연명'),
-                  normalText('🎭 The Gospel : Who we are'),
-                  sectionTitle('관람 회차 (일시)'),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 80),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20),
+                      Text(
+                        isSuccess
+                            ? '예매가 정상적으로\n완료되었습니다.'
+                            : '정상적으로 예매가\n이루어지지 않았습니다.',
+                        textAlign: TextAlign.center,
+                        style: isSuccess
+                            ? TextStyle(
+                                fontSize: 28,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                foreground: Paint()
+                                  ..shader = linearGradient.createShader(
+                                    const Rect.fromLTWH(100.0, 100.0, 200.0,
+                                        50.0), // 너비/높이는 적절히 조정
+                                  ),
+                              )
+                            : const TextStyle(
+                                fontSize: 28,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.white,
+                              ),
+                      ),
+                      if (!isSuccess)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '예매 실패 사유',
+                                    style: TextStyle(
+                                      color: const Color(0xFFCE3939),
+                                      fontSize: 12,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: -0.24,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' : 서버에 장애가 발생하였습니다.',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: -0.24,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            )
+                          ],
+                        ),
+                      SizedBox(height: 10),
+                      if (isSuccess)
+                        smallText('예매 상세내역은 마이페이지 ➝ 예매확인 / 취소에서\n확인하실 수 있습니다.'),
+                    ],
+                  ),
+                ),
+                if (isSuccess) ...[
+                  SizedBox(height: 30),
+                  white28('예매정보'),
+                  SizedBox(height: 20),
+                  subPurpleText('공연명'),
+                  normalText('🎼 The Gospel : Who we are'),
+                  SizedBox(height: 32),
+                  subPurpleText('관람 회차 (일시)'),
                   normalText('1공 : 2025.11.23(토) 16시 00분'),
-                  sectionTitle('좌석'),
+                  SizedBox(height: 32),
+                  subPurpleText('좌석'),
                   Row(
                     children: [
                       normalText('학관 104호 F8, F9, F10 (총 3좌석)'),
                       Spacer(),
                       GestureDetector(
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
                                 builder: (context) => SeatViewPage(
-                                      selectedSeats: [],
-                                    )));
+                                  selectedSeats: [],
+                                ),
+                              ),
+                            );
                           },
                           child: subPurpleBtn16('좌석위치보기'))
                     ],
                   ),
-                  SizedBox(height: 32),
-                  dividerGray2(),
-                  sectionTitle('티켓 수령 방법'),
-                  SizedBox(height: 8),
-                  normalText('온라인수령'),
-                  SizedBox(height: 8),
-                  smallText(
-                      '예매가 완료된 후, 해당 공연의 아티스트 측에서 관람객님의 입금 정보를 확정한 뒤 티켓 수령이 가능합니다.'),
                   SizedBox(height: 20),
                   dividerGray2(),
+                  SizedBox(height: 20),
+                  subPurpleText('티켓 수령 방법'),
+                  normalText('온라인수령'),
+                  gray412(
+                      '예매가 완료된 후, 해당 공연의 아티스트 측에서 입금 정보를 확인한 뒤 티켓 수령이 가능합니다.'),
+                  SizedBox(height: 20),
+                  dividerGray2(),
+                  SizedBox(height: 20),
                   sectionTitle('예매자 정보'),
                   SizedBox(width: 160, child: grayAndWhite16('이름', '박조이')),
+                  SizedBox(height: 8),
                   SizedBox(
                       width: 160,
-                      child: grayAndWhite16('환불계좌:', '하나 910-910239-98907')),
-                  SizedBox(height: 10),
+                      child: grayAndWhite16('환불계좌', '하나 910-910239-98907')),
+                  SizedBox(height: 8),
                   Row(
                     children: [
                       SizedBox(
@@ -253,10 +282,35 @@ class _ReservationCheckInsertPaymentState
                     ],
                   ),
                   SizedBox(height: 20),
+                  dividerGray2(),
                   sectionTitle('티켓 가격 옵션 선택 *'),
-                  normalText('3매중 ${generalCount + newbieCount}매 선택'),
-                  buildTicketOptionGroup(),
-                  SizedBox(height: 20),
+                  Card(
+                    color: Color(0xFF1E1E1E),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
+                      child: Column(
+                        children: [
+                          rowText('일반', '3,000원', '${generalCount}매'),
+                          Divider(color: Colors.white24, height: 20),
+                          rowText('새내기', '2,000원', '${newbieCount}매'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '*(주의) 일반을 제외한 일부 유형은 현장에서 티켓 확인 시 증빙자료(학생증 등)가 요구될 수 있습니다. (공연 상세 페이지 > 가격정보 참고) 증빙되지 않은 경우, 현장에서 차액 지불이 요구될 수 있습니다.',
+                    style: TextStyle(
+                      color: const Color(0xFF818181),
+                      fontSize: 12,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.24,
+                    ),
+                  ),
                   sectionTitle('결제 금액'),
                   Card(
                     color: Color(0xFF1E1E1E),
@@ -271,10 +325,11 @@ class _ReservationCheckInsertPaymentState
                           text: '총 결제금액은 ',
                           children: [
                             TextSpan(
-                              text: '${totalPrice}원',
+                              text: '$totalPrice원',
                               style: TextStyle(
-                                  color: Color(0xFFE5C4FF),
-                                  fontWeight: FontWeight.bold),
+                                color: Color(0xFFE5C4FF),
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             TextSpan(
                                 text:
@@ -285,7 +340,6 @@ class _ReservationCheckInsertPaymentState
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
                   sectionTitle('결제방법 안내'),
                   Card(
                     color: Color(0xFF1E1E1E),
@@ -385,166 +439,27 @@ class _ReservationCheckInsertPaymentState
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // 고정된 하단 버튼
-          Positioned(
-            bottom: 16,
-            left: 20,
-            right: 20,
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      backgroundColor: Color(0xFFE4C3FF),
-                      foregroundColor: Color(0xFFE4C3FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  Text(
+                    '예매가 완료된 후, 해당 공연의 아티스트 측에서 관람객님의 입금 정보를 확정한 뒤 티켓 수령이 가능합니다. (마이→티켓보기 에서 수령된 티켓 확인 가능) ※ 단, 무료 공연의 경우 입금 정보 확인 절차 없이 즉시 수령이 가능하나, 선착순 공연일 경우 조기 마감으로 인해 티켓 수령이 불가할 수 있으니 이 점 유의해 주세요.',
+                    style: TextStyle(
+                      color: const Color(0xFF818181),
+                      fontSize: 12,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.24,
                     ),
-                    child: Text(
-                      '이전',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: validateAndSubmit,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      backgroundColor: Color(0xFF9a3ae8),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      '예매 완료하기',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                  )
+                ]
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildTicketOptionGroup() {
-    return Card(
-      color: AppColors.gray1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('일반', generalCount, isGeneral: true),
-          ),
-          Divider(height: 1, color: AppColors.gray2, thickness: 1),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('새내기', newbieCount, isGeneral: false),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildTicketOption(String title, int count, {required bool isGeneral}) {
-    final int price = isGeneral ? 3000 : 2000;
-
-    return Row(
-      children: [
-        // 티켓 종류
-        Expanded(
-          flex: 2,
-          child: Text(
-            title,
-            style: TextStyle(fontSize: 16, color: AppColors.white),
-          ),
-        ),
-        // 가격
-        Expanded(
-          flex: 3,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              '${price.toString()}원',
-              style: TextStyle(fontSize: 16, color: AppColors.white),
-            ),
-          ),
-        ),
-        // 수량 조절
-        Expanded(
-          flex: 4,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: false),
-                icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
-              ),
-              Text(
-                '${count}매',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-              IconButton(
-                onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: true),
-                icon: Icon(Icons.add_circle_outline, color: Colors.white70),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget phoneInput(TextEditingController controller, {String? hint}) {
-    return SizedBox(
-      width: 85,
-      height: 24,
-      child: Center(
-        child: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          style: TextStyle(
-            fontSize: 16,
-            height: 1,
-            color: Colors.white,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: AppColors.gray5),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-            filled: true,
-            fillColor: AppColors.gray2,
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
-        ),
-      ),
+      bottomNavigationBar: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: mainPurpleBtn('홈으로')),
     );
   }
 
@@ -553,28 +468,23 @@ class _ReservationCheckInsertPaymentState
       padding: const EdgeInsets.only(top: 20.0, bottom: 4),
       child: Text(text,
           style: TextStyle(
-            fontSize: 16,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.32,
-            color: AppColors.subPurple,
-          )),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFE5C4FF))),
     );
   }
 
   Widget normalText(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: AppColors.gray5,
-          fontSize: 16,
-          fontFamily: 'Inter',
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.32,
-        ),
-      ),
+      child: Text(text,
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.white,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w400,
+            letterSpacing: -0.32,
+          )),
     );
   }
 
@@ -584,13 +494,57 @@ class _ReservationCheckInsertPaymentState
       child: Text(
         text,
         style: TextStyle(
-          color: AppColors.gray4,
           fontSize: 12,
+          color: AppColors.white,
           fontFamily: 'Inter',
           fontWeight: FontWeight.w400,
           letterSpacing: -0.24,
         ),
+        textAlign: TextAlign.center,
       ),
+    );
+  }
+
+  Widget rowText(String title, String price, String count) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: TextStyle(fontSize: 16, color: Colors.white)),
+        Row(
+          children: [
+            Text(price, style: TextStyle(color: AppColors.gray5, fontSize: 16)),
+            SizedBox(width: 10),
+            Container(
+              width: 80,
+              height: 24,
+              clipBehavior: Clip.antiAlias,
+              decoration: ShapeDecoration(
+                color: const Color(0xFF3C3C3C),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    width: 1,
+                    color: const Color(0xFF5C5C5C),
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  count,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: const Color(0xFFE5E5E5),
+                    fontSize: 13,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.26,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

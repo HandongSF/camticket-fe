@@ -13,7 +13,7 @@ class SeatStageSection extends StatelessWidget {
         '무대',
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Color(0xFFE5E5E5),
+          color: AppColors.gray5,
           fontSize: 16,
           fontFamily: 'Inter',
           fontWeight: FontWeight.w400,
@@ -29,9 +29,9 @@ class SeatMapWidget extends StatelessWidget {
   final double seatSize;
   final double seatSpacing;
   final double aisleSpacing;
-  final List<String> selectedSeats;
-  final List<String> disabledSeats;
-  final List<String> reservedSeats;
+  final Set<String> selectedSeats;
+  final Set<String> disabledSeats;
+  final Set<String> reservedSeats;
   final int maxSelectableSeats;
   final int alreadySelectedSeats;
   final void Function(String seatId) onSeatTapped;
@@ -53,8 +53,7 @@ class SeatMapWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 372,
-      height: 400,
+      width: double.infinity,
       child: Column(
         children: seatMap.entries.map((entry) {
           String row = entry.key;

@@ -5,6 +5,7 @@ import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../components/buttons.dart';
 import '../../provider/navigation_provider.dart';
 
 enum UserRole { none, viewer, artist }
@@ -443,71 +444,18 @@ class LoginSelectPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildGradientButton(
+            buildGradientButton(
               context,
               label: '아티스트',
               userInfo: UserInfo(name: '네오', role: UserRole.artist),
             ),
             const SizedBox(height: 16),
-            _buildGradientButton(
+            buildGradientButton(
               context,
               label: '관람객',
               userInfo: UserInfo(name: '박조이', role: UserRole.viewer),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGradientButton(
-    BuildContext context, {
-    required String label,
-    required UserInfo userInfo,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context, userInfo);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment(-1.0, 0.0),
-            end: Alignment(1.0, 0.0),
-            colors: [Color(0xFFFFFFFF), Color(0xFFCC8DFF), Color(0xFF8415DE)],
-            stops: [-0.1386, 0.2721, 1.5045],
-          ),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.black, width: 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              begin: Alignment(-1.0, 0.0),
-              end: Alignment(1.0, 0.0),
-              colors: [
-                Color(0xFFFFFFFF),
-                Color(0xFFCC8DFF),
-                Color(0xFF8415DE),
-              ],
-              stops: [-0.1386, 0.2721, 1.5045],
-            ).createShader(bounds),
-            blendMode: BlendMode.srcIn,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
-              ),
-            ),
-          ),
         ),
       ),
     );

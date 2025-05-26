@@ -3,6 +3,7 @@ import 'package:camticket/components/texts.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/ticket_purchase.dart';
 import 'package:flutter/material.dart';
+import '../../components/seat.dart';
 import '../../utility/color.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
@@ -202,6 +203,7 @@ class _PerformanceSeatReservationPageState
                     ],
                   ),
                 ),
+
                 Divider(
                   color: AppColors.gray3, // 선 색상
                   thickness: 0.5, // 선 두께
@@ -271,23 +273,24 @@ class _PerformanceSeatReservationPageState
                         ],
                       ),
                     )),
+                // const SeatStageSection(),
+                // SeatMapWidget(
+                //   seatMap: seatMap,
+                //   seatSize: 30,
+                //   seatSpacing: 4,
+                //   aisleSpacing: 12,
+                //   selectedSeats: _selectedSeats,
+                //   disabledSeats: _disabledSeats,
+                //   reservedSeats: _reservedSeats,
+                //   maxSelectableSeats: 4,
+                //   alreadySelectedSeats: alreadySelectedSeats,
+                //   onSeatTapped: (seatId) {
+                //     // 선택/취소 로직 처리
+                //   },
+                // ),
+                const SeatStageSection(),
+
                 Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      '무대',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: const Color(0xFFE5E5E5),
-                        fontSize: 16,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.32,
-                      ),
-                    )),
-                Container(
-                  width: 372,
-                  height: 400,
                   child: Column(
                     children: seatMap.entries.map((entry) {
                       String row = entry.key;
@@ -315,7 +318,7 @@ class _PerformanceSeatReservationPageState
                                       _reservedSeats.contains(seatId);
 
                                   if (!isAvailable) {
-                                    // 빈 자리
+// 빈 자리
                                     return SizedBox(
                                       width: seatNumber == 6
                                           ? seatSize + aisleSpacing
@@ -336,7 +339,7 @@ class _PerformanceSeatReservationPageState
                                                         alreadySelectedSeats) {
                                                   _selectedSeats.add(seatId);
                                                 } else {
-                                                  // 선택 제한 알림 (선택 사항)
+// 선택 제한 알림 (선택 사항)
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     const SnackBar(
@@ -522,7 +525,8 @@ class _PerformanceSeatReservationPageState
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TicketPage(),
+                            builder: (context) =>
+                                ReservationCheckInsertPayment(),
                           ),
                         );
                       },

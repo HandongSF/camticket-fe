@@ -26,3 +26,16 @@ Widget whiteTitleText(String text) {
     ),
   );
 }
+
+Widget gray412(String text) {
+  return Text(
+    text,
+    style: TextStyle(
+      color: AppColors.gray4,
+      fontSize: 12,
+      fontFamily: 'Inter',
+      fontWeight: FontWeight.w500,
+      letterSpacing: -0.24,
+    ),
+  );
+}
