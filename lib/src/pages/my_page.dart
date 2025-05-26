@@ -115,7 +115,11 @@ class _Mypagestate extends State<Mypage> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [_buildLogoutButton(), _buildSignOutButton()],
+                children: [
+                  Expanded(child: _buildLogoutButton()),
+                  const SizedBox(width: 8),
+                  Expanded(child: _buildSignOutButton())
+                ],
               ),
               const SizedBox(height: 8),
             ],
@@ -169,7 +173,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),
@@ -201,7 +205,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),

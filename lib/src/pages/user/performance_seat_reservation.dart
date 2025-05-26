@@ -290,121 +290,119 @@ class _PerformanceSeatReservationPageState
                 // ),
                 const SeatStageSection(),
 
-                Container(
-                  child: Column(
-                    children: seatMap.entries.map((entry) {
-                      String row = entry.key;
-                      List<int> seats = entry.value.toSet().toList();
+                Column(
+                  children: seatMap.entries.map((entry) {
+                    String row = entry.key;
+                    List<int> seats = entry.value.toSet().toList();
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 1),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Wrap(
-                                spacing: seatSpacing,
-                                runSpacing: 8,
-                                alignment: WrapAlignment.center,
-                                children: List.generate(12, (index) {
-                                  int seatNumber = index + 1;
-                                  String seatId = '$row$seatNumber';
-                                  bool isAvailable = seats.contains(seatNumber);
-                                  bool isSelected =
-                                      _selectedSeats.contains(seatId);
-                                  bool isDisabled =
-                                      _disabledSeats.contains(seatId);
-                                  bool isReserved =
-                                      _reservedSeats.contains(seatId);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 1),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              spacing: seatSpacing,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: List.generate(12, (index) {
+                                int seatNumber = index + 1;
+                                String seatId = '$row$seatNumber';
+                                bool isAvailable = seats.contains(seatNumber);
+                                bool isSelected =
+                                    _selectedSeats.contains(seatId);
+                                bool isDisabled =
+                                    _disabledSeats.contains(seatId);
+                                bool isReserved =
+                                    _reservedSeats.contains(seatId);
 
-                                  if (!isAvailable) {
-// 빈 자리
-                                    return SizedBox(
-                                      width: seatNumber == 6
-                                          ? seatSize + aisleSpacing
-                                          : seatSize,
-                                      height: seatSize,
-                                    );
-                                  }
-                                  final seatBox = GestureDetector(
-                                    onTap: (isDisabled || isReserved)
-                                        ? null
-                                        : () {
-                                            setState(() {
-                                              if (isSelected) {
-                                                _selectedSeats.remove(seatId);
-                                              } else {
-                                                if (_selectedSeats.length <
-                                                    maxSelectableSeats -
-                                                        alreadySelectedSeats) {
-                                                  _selectedSeats.add(seatId);
-                                                } else {
-// 선택 제한 알림 (선택 사항)
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      backgroundColor:
-                                                          Color(0xFFCE3939),
-                                                      content: Text(
-                                                        '⚠ 좌석은 최대 4개까지만 선택할 수 있습니다.',
-                                                        style: TextStyle(),
-                                                      ),
-                                                      duration:
-                                                          Duration(seconds: 1),
-                                                    ),
-                                                  );
-                                                }
-                                              }
-                                            });
-                                          },
-                                    child: Container(
-                                      width: seatSize,
-                                      height: seatSize,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: isDisabled
-                                            ? AppColors.gray2
-                                            : isSelected
-                                                ? AppColors.mainPurple
-                                                : isReserved
-                                                    ? AppColors.subPurple
-                                                    : AppColors.gray3,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border:
-                                            Border.all(color: AppColors.gray4),
-                                      ),
-                                      child: Text(isDisabled ? 'X' : seatId,
-                                          style: TextStyle(
-                                            color: isDisabled
-                                                ? Colors.red
-                                                : isSelected
-                                                    ? AppColors.gray5
-                                                    : AppColors.mainBlack,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    ),
+                                if (!isAvailable) {
+                                  // 빈 자리
+                                  return SizedBox(
+                                    width: seatNumber == 6
+                                        ? seatSize + aisleSpacing
+                                        : seatSize,
+                                    height: seatSize,
                                   );
+                                }
+                                final seatBox = GestureDetector(
+                                  onTap: (isDisabled || isReserved)
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            if (isSelected) {
+                                              _selectedSeats.remove(seatId);
+                                            } else {
+                                              if (_selectedSeats.length <
+                                                  maxSelectableSeats -
+                                                      alreadySelectedSeats) {
+                                                _selectedSeats.add(seatId);
+                                              } else {
+                                                // 선택 제한 알림 (선택 사항)
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    backgroundColor:
+                                                        Color(0xFFCE3939),
+                                                    content: Text(
+                                                      '⚠ 좌석은 최대 4개까지만 선택할 수 있습니다.',
+                                                      style: TextStyle(),
+                                                    ),
+                                                    duration:
+                                                        Duration(seconds: 1),
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          });
+                                        },
+                                  child: Container(
+                                    width: seatSize,
+                                    height: seatSize,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: isDisabled
+                                          ? AppColors.gray2
+                                          : isSelected
+                                              ? AppColors.mainPurple
+                                              : isReserved
+                                                  ? AppColors.subPurple
+                                                  : AppColors.gray3,
+                                      borderRadius: BorderRadius.circular(4),
+                                      border:
+                                          Border.all(color: AppColors.gray4),
+                                    ),
+                                    child: Text(isDisabled ? 'X' : seatId,
+                                        style: TextStyle(
+                                          color: isDisabled
+                                              ? Colors.red
+                                              : isSelected
+                                                  ? AppColors.gray5
+                                                  : AppColors.mainBlack,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  ),
+                                );
 
-                                  if (seatNumber == 6) {
-                                    return Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        seatBox,
-                                        SizedBox(width: aisleSpacing),
-                                      ],
-                                    );
-                                  } else {
-                                    return seatBox;
-                                  }
-                                }),
-                              ),
+                                if (seatNumber == 6) {
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      seatBox,
+                                      SizedBox(width: aisleSpacing),
+                                    ],
+                                  );
+                                } else {
+                                  return seatBox;
+                                }
+                              }),
                             ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               ],
             ),

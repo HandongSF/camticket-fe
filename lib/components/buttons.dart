@@ -7,35 +7,32 @@ import '../provider/pc_provider.dart';
 import '../src/pages/my_page.dart';
 
 Widget mainPurpleBtn(String text) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-    child: Container(
-      height: 56,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        color: AppColors.mainPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+  return SizedBox(
+    width: double.infinity,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Container(
+        height: 56,
+        clipBehavior: Clip.antiAlias,
+        decoration: ShapeDecoration(
+          color: AppColors.mainPurple,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            child: Center(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: -0.32,
-                ),
-              ),
+        child: Center(
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.32,
             ),
           ),
-        ],
+        ),
       ),
     ),
   );
@@ -195,6 +192,87 @@ Widget buildGradientButton(
               fontFamily: 'Inter',
             ),
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget subPurpleBtn4518(String text) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 18),
+    height: 56,
+    clipBehavior: Clip.antiAlias,
+    decoration: ShapeDecoration(
+      color: AppColors.subPurple,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppColors.mainBlack,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.32,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget mainPurpleBtn18107(String text) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 107.0, vertical: 18),
+    height: 56,
+    clipBehavior: Clip.antiAlias,
+    decoration: ShapeDecoration(
+      color: AppColors.mainPurple,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppColors.white,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.32,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget mainPurpleBtn1876(String text) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 76.0, vertical: 18),
+    height: 56,
+    clipBehavior: Clip.antiAlias,
+    decoration: ShapeDecoration(
+      color: AppColors.mainPurple,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppColors.white,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.32,
         ),
       ),
     ),
