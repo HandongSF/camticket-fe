@@ -200,3 +200,26 @@ Widget buildGradientButton(
     ),
   );
 }
+Widget redBtn2918(String text) {
+  return Container(
+    width: 120,
+    height: 56,
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(color: const Color(0xFFCE3939),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.black, width: 1),),
+    child: Center(
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.white,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+          height: 1.25,
+          letterSpacing: -0.32,
+        ),
+      ),
+    ),
+  );
+}
