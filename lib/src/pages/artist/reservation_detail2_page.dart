@@ -11,14 +11,14 @@ import 'package:flutter/services.dart';
 import '../../../components/textfield.dart';
 import '../../../components/texts.dart';
 
-class ReservationCheckInsertPayment extends StatefulWidget {
+class ReservationDetail2Page extends StatefulWidget {
+  const ReservationDetail2Page({super.key});
+
   @override
-  _ReservationCheckInsertPaymentState createState() =>
-      _ReservationCheckInsertPaymentState();
+  _ReservationDetail2PageState createState() => _ReservationDetail2PageState();
 }
 
-class _ReservationCheckInsertPaymentState
-    extends State<ReservationCheckInsertPayment> {
+class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
   int generalCount = 0;
   int newbieCount = 0;
   final int maxTickets = 3;
@@ -156,7 +156,7 @@ class _ReservationCheckInsertPaymentState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  white28('예매정보 확인 및 기입 / 결제'),
+                  white28('관람객 예매 상세정보'),
                   sectionTitle('공연명'),
                   normalText('🎭 The Gospel : Who we are'),
                   sectionTitle('관람 회차 (일시)'),
@@ -256,164 +256,12 @@ class _ReservationCheckInsertPaymentState
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  sectionTitle('결제방법 안내'),
-                  Card(
-                    color: Color(0xFF1E1E1E),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/images/artist.png',
-                            width: 53,
-                            height: 18,
-                          ),
-                          Row(
-                            children: [
-                              Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '피치파이프 ',
-                                      style: TextStyle(
-                                        color: AppColors.gray5,
-                                        fontSize: 18,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: -0.36,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '님',
-                                      style: TextStyle(
-                                        color: AppColors.gray5,
-                                        fontSize: 18,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: -0.36,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '의 계좌로 입금하세요.',
-                                      style: TextStyle(
-                                        color: AppColors.gray5,
-                                        fontSize: 14,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: -0.28,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text(
-                                '하나 910-910123-45678',
-                                style: TextStyle(
-                                  color: AppColors.subPurple,
-                                  fontSize: 18,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.36,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.copy,
-                                    color: AppColors.subPurple, size: 16),
-                                onPressed: () {
-                                  // 클립보드에 복사하는 기능 구현
-                                  Clipboard.setData(ClipboardData(
-                                      text: '하나 910-910123-45678')); // 예시 계좌번호
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('계좌번호가 복사되었습니다.'),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.check_box, color: AppColors.subPurple),
-                              SizedBox(width: 6),
-                              Expanded(child: normalText('입금 여부 체크')),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-                          gray412(
-                              '입금 여부 체크는 관람객님이 입금하셨는지를 스스로 확인하고 기억하실 수 있도록 돕는 기능입니다. 실제 입금 확인은 아티스트 측에서 별도로 진행되므로, 참고용으로 사용해 주세요.'),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
 
           // 고정된 하단 버튼
-          Positioned(
-            bottom: 16,
-            left: 20,
-            right: 20,
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      backgroundColor: Color(0xFFE4C3FF),
-                      foregroundColor: Color(0xFFE4C3FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      '이전',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: validateAndSubmit,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      backgroundColor: Color(0xFF9a3ae8),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      '예매 완료하기',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

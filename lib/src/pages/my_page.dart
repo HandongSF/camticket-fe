@@ -1,3 +1,4 @@
+import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
 import 'package:camticket/src/pages/user/reservation_check.dart';
 import 'package:camticket/src/pages/ticket.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
@@ -88,7 +89,12 @@ class _Mypagestate extends State<Mypage> {
                 _buildOptionButton(
                   '관람객 예매 확인 및 관리',
                   () {
-                    // 관람 기록 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReservationManagePage(),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -121,7 +127,11 @@ class _Mypagestate extends State<Mypage> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [_buildLogoutButton(), _buildSignOutButton()],
+                children: [
+                  Expanded(child: _buildLogoutButton()),
+                  const SizedBox(width: 8),
+                  Expanded(child: _buildSignOutButton())
+                ],
               ),
               const SizedBox(height: 8),
             ],
@@ -175,7 +185,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),
@@ -207,7 +217,7 @@ class _Mypagestate extends State<Mypage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 62, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF232323),

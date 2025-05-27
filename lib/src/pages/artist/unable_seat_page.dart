@@ -1,4 +1,5 @@
 import 'package:camticket/components/seat.dart';
+import 'package:camticket/src/pages/artist/register_detail_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class UnableSeatPage extends StatelessWidget {
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
   final Set<String> _selectedSeats = {};
-  final double seatSize = 24;
+  final double seatSize = 26;
   final double seatSpacing = 2;
   final double aisleSpacing = 10;
   Map<String, List<int>> generateSeatMap() {
@@ -107,44 +108,52 @@ class UnableSeatPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 32),
-            white28('예매 불가 좌석 배치'),
-            SizedBox(height: 20),
-            Text.rich(
-              TextSpan(
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextSpan(
-                    text: '해당 공연장소는 ',
-                    style: TextStyle(
-                      color: const Color(0xFFE5E5E5),
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      height: 1.43,
-                      letterSpacing: -0.28,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '학관 104호',
-                    style: TextStyle(
-                      color: const Color(0xFFE4C3FF),
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      height: 1.43,
-                      letterSpacing: -0.28,
-                    ),
-                  ),
-                  TextSpan(
-                    text:
-                        ' 입니다.\n각 좌석을 클릭하여 관람객이 예매 불가한 좌석을 지정합니다.\n(초대석, 고장난 좌석 등)',
-                    style: TextStyle(
-                      color: const Color(0xFFE5E5E5),
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      height: 1.43,
-                      letterSpacing: -0.28,
+                  SizedBox(height: 32),
+                  white28('예매 불가 좌석 배치'),
+                  SizedBox(height: 20),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '해당 공연장소는 ',
+                          style: TextStyle(
+                            color: const Color(0xFFE5E5E5),
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            height: 1.43,
+                            letterSpacing: -0.28,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '학관 104호',
+                          style: TextStyle(
+                            color: const Color(0xFFE4C3FF),
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w700,
+                            height: 1.43,
+                            letterSpacing: -0.28,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              ' 입니다.\n각 좌석을 클릭하여 관람객이 예매 불가한 좌석을 지정합니다.\n(초대석, 고장난 좌석 등)',
+                          style: TextStyle(
+                            color: const Color(0xFFE5E5E5),
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            height: 1.43,
+                            letterSpacing: -0.28,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -155,7 +164,7 @@ class UnableSeatPage extends StatelessWidget {
             SizedBox(height: 10),
             SeatMapWidget(
               seatMap: seatMap,
-              seatSize: 30,
+              seatSize: 28,
               seatSpacing: seatSpacing,
               aisleSpacing: aisleSpacing,
               selectedSeats: _selectedSeats,
@@ -167,27 +176,38 @@ class UnableSeatPage extends StatelessWidget {
                 // 선택/취소 로직 처리
               },
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  onTap: () {
-                    // 예매하기 버튼 클릭 시 처리 로직
-                    // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
-                    Navigator.pop(context, selectedSeats);
-                  },
-                  child: mainPurpleBtn(
-                    '확인',
-                  ),
-                ),
-              ),
-            )
+            SizedBox(height: 200),
           ],
         ),
       ),
-      bottomNavigationBar: Row(
-        children: [],
+      bottomNavigationBar: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+              onTap: () {
+                // 예매 하기 버튼 클릭 시 처리 로직
+                // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
+                Navigator.pop(context, selectedSeats);
+              },
+              child: subPurpleBtn4518(
+                '이전',
+              ),
+            ),
+            GestureDetector(
+                onTap: () {
+                  // 예매 취소 버튼 클릭 시 처리 로직
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegisterDetailPage(),
+                    ),
+                  );
+                },
+                child: mainPurpleBtn18107('다음')),
+          ],
+        ),
       ),
     );
   }

@@ -106,15 +106,18 @@ class SeatViewPage extends StatelessWidget {
         toolbarHeight: 64,
         backgroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 16),
-          SeatStageSection(),
-          SizedBox(height: 10),
-          Expanded(
-            child: SeatMapWidget(
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            white28('좌석위치보기'),
+            SizedBox(height: 16),
+            SeatStageSection(),
+            SizedBox(height: 10),
+            SeatMapWidget(
               seatMap: seatMap,
-              seatSize: 30,
+              seatSize: 26,
               seatSpacing: seatSpacing,
               aisleSpacing: aisleSpacing,
               selectedSeats: _selectedSeats,
@@ -126,24 +129,24 @@ class SeatViewPage extends StatelessWidget {
                 // 선택/취소 로직 처리
               },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              width: double.infinity,
-              child: GestureDetector(
-                onTap: () {
-                  // 예매하기 버튼 클릭 시 처리 로직
-                  // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
-                  Navigator.pop(context, selectedSeats);
-                },
-                child: mainPurpleBtn(
-                  '확인',
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () {
+                    // 예매하기 버튼 클릭 시 처리 로직
+                    // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
+                    Navigator.pop(context, selectedSeats);
+                  },
+                  child: mainPurpleBtn(
+                    '확인',
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
