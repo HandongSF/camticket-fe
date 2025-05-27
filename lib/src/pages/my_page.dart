@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../components/buttons.dart';
 import '../../provider/navigation_provider.dart';
+import 'artist/manage_registered_page.dart';
 import 'artist/register_performance_page.dart';
 
 enum UserRole { none, viewer, artist }
@@ -76,7 +77,12 @@ class _Mypagestate extends State<Mypage> {
                 _buildOptionButton(
                   '등록된 공연 관리',
                   () {
-                    // 아티스트 관리 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ManageRegisteredPage(),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 8),

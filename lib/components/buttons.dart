@@ -24,7 +24,7 @@ Widget mainPurpleBtn(String text) {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontFamily: 'Inter',
@@ -54,7 +54,7 @@ Widget buildCategoryButton(BuildContext context, String label, int index) {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.white,
           fontSize: 14,
           fontFamily: 'Inter',
@@ -74,10 +74,7 @@ Widget subPurpleBtn(String text) {
     clipBehavior: Clip.antiAlias,
     decoration: ShapeDecoration(
       shape: RoundedRectangleBorder(
-        side: BorderSide(
-          width: 1,
-          color: const Color(0xFFE4C3FF),
-        ),
+        side: const BorderSide(width: 1, color: Color(0xFFE4C3FF)),
         borderRadius: BorderRadius.circular(20),
       ),
     ),
@@ -110,10 +107,7 @@ Widget subPurpleBtn16(String text) {
     clipBehavior: Clip.antiAlias,
     decoration: ShapeDecoration(
       shape: RoundedRectangleBorder(
-        side: BorderSide(
-          width: 1,
-          color: const Color(0xFFE4C3FF),
-        ),
+        side: const BorderSide(width: 1, color: Color(0xFFE4C3FF)),
         borderRadius: BorderRadius.circular(20),
       ),
     ),
@@ -192,6 +186,32 @@ Widget buildGradientButton(
               fontFamily: 'Inter',
             ),
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget redBtn2918(String text) {
+  return Container(
+    width: 120,
+    height: 56,
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(
+      color: const Color(0xFFCE3939),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.black, width: 1),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.white,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+          height: 1.25,
+          letterSpacing: -0.32,
         ),
       ),
     ),
