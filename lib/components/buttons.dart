@@ -38,6 +38,35 @@ Widget mainPurpleBtn(String text) {
   );
 }
 
+Widget mainPurpleBtn6018(String text) {
+  return Container(
+    height: 56,
+    padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 18),
+    clipBehavior: Clip.antiAlias,
+    decoration: ShapeDecoration(
+      color: AppColors.mainPurple,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        softWrap: false,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.32,
+        ),
+        overflow: TextOverflow.visible,
+      ),
+    ),
+  );
+}
+
 Widget buildCategoryButton(BuildContext context, String label, int index) {
   return GestureDetector(
     onTap: () {
@@ -194,16 +223,17 @@ Widget buildGradientButton(
 
 Widget redBtn2918(String text) {
   return Container(
-    width: 120,
     height: 56,
+    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
     clipBehavior: Clip.antiAlias,
     decoration: BoxDecoration(
-      color: const Color(0xFFCE3939),
+      color: const Color(0xFFCF3939),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: Colors.black, width: 1),
     ),
     child: Center(
       child: Text(
+        softWrap: false,
         text,
         style: TextStyle(
           color: AppColors.white,

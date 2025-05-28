@@ -1,14 +1,15 @@
 import 'package:camticket/components/seat.dart';
+import 'package:camticket/src/pages/artist/register_detail2_page.dart';
 import 'package:camticket/src/pages/artist/register_detail_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 
 import '../../../components/buttons.dart';
 
-class UnableSeatPage extends StatelessWidget {
+class EditUnableSeatPage extends StatelessWidget {
   final List<String> selectedSeats;
 
-  UnableSeatPage({required this.selectedSeats});
+  EditUnableSeatPage({required this.selectedSeats});
   final Set<String> _disabledSeats = {
     'A1',
     'A2',
@@ -117,7 +118,7 @@ class UnableSeatPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 32),
-                        white28('예매 불가 좌석 배치'),
+                        white28('예매 불가 좌석 배치 수정'),
                         SizedBox(height: 20),
                         Text.rich(
                           TextSpan(
@@ -205,7 +206,7 @@ class UnableSeatPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RegisterDetailPage(),
+                          builder: (context) => RegisterDetail2Page(),
                         ),
                       );
                     },

@@ -13,10 +13,12 @@ class ArtistPerformanceDetailPage extends StatefulWidget {
   const ArtistPerformanceDetailPage({super.key});
 
   @override
-  State<ArtistPerformanceDetailPage> createState() => _ArtistPerformanceDetailPageState();
+  State<ArtistPerformanceDetailPage> createState() =>
+      _ArtistPerformanceDetailPageState();
 }
 
-class _ArtistPerformanceDetailPageState extends State<ArtistPerformanceDetailPage> {
+class _ArtistPerformanceDetailPageState
+    extends State<ArtistPerformanceDetailPage> {
   int _selectedTabIndex = 0;
   final bool isExpired = true; // 만료 여부
   @override
@@ -97,38 +99,36 @@ class _ArtistPerformanceDetailPageState extends State<ArtistPerformanceDetailPag
                     ),
                   ),
 
-                  Expanded(
-                    child: SizedBox(
-                      height: 228,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          subPurpleBtn('유료 공연'),
-                          SizedBox(
-                            height: 4,
+                  SizedBox(
+                    height: 228,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        subPurpleBtn('유료 공연'),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        SizedBox(
+                          child: Text(
+                            '🎼 The Gospel\n: Who we are',
+                            style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 16,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.32,
+                                height: 0),
                           ),
-                          SizedBox(
-                            child: Text(
-                              '🎼 The Gospel\n: Who we are',
-                              style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 16,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: -0.32,
-                                  height: 0),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 25,
-                          ),
-                          grayAndWhite('카테고리', '음악'),
-                          grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
-                          grayAndWhite('공연날짜', '2025.11.23 (2회)'),
-                          grayAndWhite('장소', '학관 104호'),
-                        ],
-                      ),
+                        ),
+                        SizedBox(
+                          height: 25,
+                        ),
+                        grayAndWhite('카테고리', '음악'),
+                        grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
+                        grayAndWhite('공연날짜', '2025.11.23 (2회)'),
+                        grayAndWhite('장소', '학관 104호'),
+                      ],
                     ),
                   ),
                 ],
@@ -154,56 +154,54 @@ class _ArtistPerformanceDetailPageState extends State<ArtistPerformanceDetailPag
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 🔴 공연 삭제 버튼
-            GestureDetector(
-              onTap: isExpired
-                  ? () {
-                // 삭제 로직 수행
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('공연 삭제'),
-                    content: const Text('이 공연을 정말 삭제하시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('취소'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // 삭제 처리 로직
-                          Navigator.pop(context); // 다이얼로그 닫기
-                        },
-                        child: const Text('삭제'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-                  : null,
-              child: Opacity(
-                opacity: isExpired ? 1.0 : 0.4,
-                child: redBtn2918('공연 삭제'),
+            Expanded(
+              flex: 1,
+              child: GestureDetector(
+                onTap: isExpired
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('공연 삭제'),
+                            content: const Text('이 공연을 정말 삭제하시겠습니까?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('취소'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // 삭제 처리 로직
+                                },
+                                child: const Text('삭제'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    : null,
+                child: redBtn2918('삭제'),
               ),
             ),
-
-            // 🟣 공연 정보 수정 버튼
-            GestureDetector(
-              onTap: () {
-                // 수정 페이지로 이동
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PerformanceEditPage(), // ← 여기에 수정 화면 위젯
-                  ),
-                );
-              },
-              child: mainPurpleBtn('공연 정보 수정하기'),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PerformanceEditPage(),
+                    ),
+                  );
+                },
+                child: mainPurpleBtn6018('공연 수정하기'),
+              ),
             ),
           ],
         ),
       ),
-
     );
   }
 
@@ -368,7 +366,7 @@ class _ArtistPerformanceDetailPageState extends State<ArtistPerformanceDetailPag
                     ),
                     TextSpan(
                       text:
-                      '이 가능합니다.  ※ 단, 무료 공연의 경우 입금 정보 확인 절차 없이 즉시 수령이 가능하나, 선착순 공연일 경우 조기 마감으로 인해 티켓 수령이 불가할 수 있으니 이 점 유의해 주세요.\n\n캠티켓 앱은 무단 캡쳐 및 도용을 방지하기 위해, 실시간으로 움직이는 ',
+                          '이 가능합니다.  ※ 단, 무료 공연의 경우 입금 정보 확인 절차 없이 즉시 수령이 가능하나, 선착순 공연일 경우 조기 마감으로 인해 티켓 수령이 불가할 수 있으니 이 점 유의해 주세요.\n\n캠티켓 앱은 무단 캡쳐 및 도용을 방지하기 위해, 실시간으로 움직이는 ',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -389,7 +387,7 @@ class _ArtistPerformanceDetailPageState extends State<ArtistPerformanceDetailPag
                     ),
                     TextSpan(
                       text:
-                      '을 적용하고 있습니다. 따라서 티켓을 캡쳐하거나 도용하여 사용하는 일이 없도록 각별히 주의해 주시기 바랍니다.',
+                          '을 적용하고 있습니다. 따라서 티켓을 캡쳐하거나 도용하여 사용하는 일이 없도록 각별히 주의해 주시기 바랍니다.',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,

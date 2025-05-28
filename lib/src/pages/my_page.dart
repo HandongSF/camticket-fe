@@ -1,6 +1,4 @@
 import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
-import 'package:camticket/src/pages/user/reservation_check.dart';
-import 'package:camticket/src/pages/ticket.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
@@ -36,106 +34,108 @@ class _Mypagestate extends State<Mypage> {
       backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '마이페이지',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildProfileSection(context),
-            const SizedBox(height: 32),
-            if (currentUser.role != UserRole.none) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 0.0),
-                child: const Text(
-                  '메뉴',
-                  style: TextStyle(color: AppColors.gray4, fontSize: 16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '마이페이지',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
-              if (currentUser.role == UserRole.artist) ...[
-                _buildOptionButton(
-                  '새로운 공연 등록하기',
-                  () {
-                    // 공연 등록 페이지로 이동
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RegisterPerformancePage(),
-                      ),
-                    );
-                  },
+              const SizedBox(height: 16),
+              _buildProfileSection(context),
+              const SizedBox(height: 32),
+              if (currentUser.role != UserRole.none) ...[
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0),
+                  child: const Text(
+                    '메뉴',
+                    style: TextStyle(color: AppColors.gray4, fontSize: 16),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                _buildOptionButton(
-                  '등록된 공연 관리',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ManageRegisteredPage(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildOptionButton(
-                  '관람객 예매 확인 및 관리',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ReservationManagePage(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-              if (currentUser.role == UserRole.viewer) ...[
-                _buildOptionButton(
-                  '티켓보기',
-                  () {
-                    // 관람 기록 페이지로 이동
-                    showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      builder: (_) => const TicketPopup(),
-                    );
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (_) => const TicketPage()),
-                    // );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildOptionButton(
-                  '예매 확인 / 취소',
-                  () {
-                    context
-                        .read<NavigationProvider>()
-                        .setSubPage('reservation');
-                  },
-                ),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: _buildLogoutButton()),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildSignOutButton())
+                const SizedBox(height: 12),
+                if (currentUser.role == UserRole.artist) ...[
+                  _buildOptionButton(
+                    '새로운 공연 등록하기',
+                    () {
+                      // 공연 등록 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterPerformancePage(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildOptionButton(
+                    '등록된 공연 관리',
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManageRegisteredPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildOptionButton(
+                    '관람객 예매 확인 및 관리',
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ReservationManagePage(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
-              ),
-              const SizedBox(height: 8),
+                if (currentUser.role == UserRole.viewer) ...[
+                  _buildOptionButton(
+                    '티켓보기',
+                    () {
+                      // 관람 기록 페이지로 이동
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (_) => const TicketPopup(),
+                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (_) => const TicketPage()),
+                      // );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildOptionButton(
+                    '예매 확인 / 취소',
+                    () {
+                      context
+                          .read<NavigationProvider>()
+                          .setSubPage('reservation');
+                    },
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: _buildLogoutButton()),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildSignOutButton())
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
