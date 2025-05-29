@@ -75,7 +75,7 @@ class _TicketPageState extends State<TicketPage>
                               child: Image.asset(
                                 ticketImages[index],
                                 width: screenWidth * 0.7,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fitWidth,
                               ),
                             ),
                             Positioned(

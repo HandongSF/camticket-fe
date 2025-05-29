@@ -38,6 +38,11 @@ dependencies:
   flutter_native_splash: ^2.4.4
   shared_preferences: ^2.5.3
   flutter_svg: ^2.1.0
+  flutter_secure_storage: ^9.2.4
+  jwt_decoder: ^2.0.1
+  webview_flutter: ^4.13.0
+  kakao_flutter_sdk_user: ^1.9.7+3
+  permission_handler: ^12.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +83,7 @@ flutter:
      - assets/images/mark.svg
      - assets/images/gospel.png
      - assets/images/pitch_stage.png
+     - assets/kakao_login_large_narrow.png
      
 
   # An image asset can refer to one or more resolution-specific "variants", see

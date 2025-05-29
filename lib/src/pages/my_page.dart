@@ -304,8 +304,6 @@ class _Mypagestate extends State<Mypage> {
     final userText = currentUser.role == UserRole.viewer ? '유저 ' : '네오 ';
 
     return Container(
-      width: 372,
-      height: 138,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(

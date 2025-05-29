@@ -1,3 +1,5 @@
+import 'package:camticket/auth/login.dart';
+import 'package:camticket/provider/jwt_provider.dart';
 import 'package:camticket/provider/navigation_provider.dart';
 import 'package:camticket/provider/pc_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
@@ -19,6 +21,9 @@ class CamTicket extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => NavigationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => JwtProvider(),
         ),
       ],
       child: MaterialApp(
@@ -44,12 +49,13 @@ class CamTicket extends StatelessWidget {
             bodyLarge: TextStyle(color: Colors.white),
           ),
         ),
-        initialRoute: '/start',
+        initialRoute: '/login',
         routes: {
           '/splash': (context) => const SplashScreen(),
           '/home': (context) => const HomePage(),
           '/performance': (context) => const PerformancePage(),
           '/start': (context) => const Start(),
+          '/login': (context) => const LoginPage(),
         },
       ),
     );

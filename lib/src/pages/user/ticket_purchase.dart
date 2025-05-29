@@ -55,10 +55,10 @@ class _ReservationCheckInsertPaymentState
     String p2 = phone2.text.trim();
     String p3 = phone3.text.trim();
 
-    if (p1.isEmpty || p2.isEmpty || p3.isEmpty) {
-      showError('연락처를 모두 입력해주세요.');
-      return;
-    }
+    // if (p1.isEmpty || p2.isEmpty || p3.isEmpty) {
+    //   showError('연락처를 모두 입력해주세요.');
+    //   return;
+    // }
 
     if ((generalCount + newbieCount) != maxTickets) {
       showError('총 $maxTickets매를 모두 선택해주세요.');
