@@ -2,15 +2,20 @@ import 'package:camticket/auth/login.dart';
 import 'package:camticket/provider/jwt_provider.dart';
 import 'package:camticket/provider/navigation_provider.dart';
 import 'package:camticket/provider/pc_provider.dart';
+import 'package:camticket/provider/performance_provider.dart';
+import 'package:camticket/provider/performance_upload_provider.dart';
+import 'package:camticket/provider/seat_provider.dart';
+import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'src/pages/home_page.dart';
 import 'src/splash.dart';
 import 'src/nav_page.dart';
 
 class CamTicket extends StatelessWidget {
-  const CamTicket({Key? key}) : super(key: key);
+  const CamTicket({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +30,30 @@ class CamTicket extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => JwtProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => PerformanceProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SeatProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SelectedPerformanceProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PerformanceUploadProvider(),
+        ),
       ],
       child: MaterialApp(
+        locale: const Locale('ko'),
+        supportedLocales: const [
+          Locale('en'), // 영어
+          Locale('ko'), // 한국어
+        ],
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: const Color(0xFF9B3BE9),

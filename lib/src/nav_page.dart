@@ -1,7 +1,6 @@
 import 'package:camticket/src/pages/artist_page.dart';
 import 'package:camticket/src/pages/my_page.dart';
 import 'package:camticket/src/pages/notification_page.dart';
-import 'package:camticket/src/pages/performance_detail_page.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:camticket/src/pages/user/reservation_check.dart';
 import 'package:camticket/src/pages/searchpage.dart';
@@ -13,7 +12,7 @@ import '../provider/navigation_provider.dart';
 import 'pages/home_page.dart';
 
 class Start extends StatelessWidget {
-  const Start({Key? key}) : super(key: key);
+  const Start({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +20,7 @@ class Start extends StatelessWidget {
 
     final List<Widget> pages = [
       const HomePage(), // 홈
-      navigationProvider.subPage == 'performanceDetail'
-          ? const PerformanceDetailPage()
-          : const PerformancePage(),
+      const PerformancePage(),
       const ArtistPage(), // 아티스트
       const NotificationPage(), // 알림
       navigationProvider.subPage == 'reservation'

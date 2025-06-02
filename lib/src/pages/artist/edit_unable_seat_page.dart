@@ -1,6 +1,5 @@
 import 'package:camticket/components/seat.dart';
 import 'package:camticket/src/pages/artist/register_detail2_page.dart';
-import 'package:camticket/src/pages/artist/register_detail_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +8,7 @@ import '../../../components/buttons.dart';
 class EditUnableSeatPage extends StatelessWidget {
   final List<String> selectedSeats;
 
-  EditUnableSeatPage({required this.selectedSeats});
+  EditUnableSeatPage({super.key, required this.selectedSeats});
   final Set<String> _disabledSeats = {
     'A1',
     'A2',

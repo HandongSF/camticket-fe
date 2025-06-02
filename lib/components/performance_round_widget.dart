@@ -1,9 +1,15 @@
-import 'package:camticket/components/dividers.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
+import '../model/performance_create/schedule_request.dart';
+
 class PerformanceRoundsWidget extends StatefulWidget {
-  const PerformanceRoundsWidget({super.key});
+  final void Function(List<ScheduleRequest>) onChanged;
+
+  const PerformanceRoundsWidget({
+    super.key,
+    required this.onChanged,
+  });
 
   @override
   State<PerformanceRoundsWidget> createState() =>
@@ -11,7 +17,48 @@ class PerformanceRoundsWidget extends StatefulWidget {
 }
 
 class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
-  List<TextEditingController> _controllers = [TextEditingController()];
+  final Map<DateTime, List<String>> _scheduleMap = {}; // key: 날짜, value: 회차 리스트
+
+  final List<TextEditingController> _controllers = [TextEditingController()];
+  Future<void> _addSchedule(int i) async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2030),
+    );
+
+    if (pickedDate == null) return;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime == null) return;
+
+    final formattedTime = pickedTime.format(context);
+
+    setState(() {
+      _controllers[i].text =
+          '${pickedDate.year}-${pickedDate.month}-${pickedDate.day} $formattedTime';
+      final dateKey =
+          DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+      if (!_scheduleMap.containsKey(dateKey)) {
+        _scheduleMap[dateKey] = [];
+      }
+      _scheduleMap[dateKey]!.add(formattedTime);
+
+      _notifyParent();
+    });
+  }
+
+  void _notifyParent() {
+    final result = _scheduleMap.entries.map((entry) {
+      return ScheduleRequest(date: entry.key, rounds: entry.value);
+    }).toList();
+    widget.onChanged(result);
+  }
 
   void _addRound() {
     setState(() {
@@ -52,6 +99,10 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
                       Expanded(
                         child: TextField(
                           controller: _controllers[i],
+                          readOnly: true,
+                          onTap: () {
+                            _addSchedule(i);
+                          },
                           decoration: InputDecoration(
                             hintText: '공연 날짜와 시간을 선택하세요.',
                             hintStyle: const TextStyle(

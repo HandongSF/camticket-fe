@@ -1,4 +1,3 @@
-import 'package:camticket/src/pages/performance_detail_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +6,7 @@ import '../../components/buttons.dart';
 import '../../provider/navigation_provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -229,12 +228,12 @@ class _HomePageState extends State<HomePage> {
                             context
                                 .read<NavigationProvider>()
                                 .setSubPage('performanceDetail');
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PerformanceDetailPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) =>
+                            //           const PerformanceDetailPage()),
+                            // );
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(

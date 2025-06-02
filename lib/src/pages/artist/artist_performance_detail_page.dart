@@ -1,13 +1,10 @@
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/src/pages/artist/performance_edit_page.dart';
-import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
-import '../../../components/bottomSheet.dart';
 import '../../../components/text_pair.dart';
 import '../../../utility/color.dart';
-import 'package:camticket/src/pages/performance_detail_page.dart';
 
 class ArtistPerformanceDetailPage extends StatefulWidget {
   const ArtistPerformanceDetailPage({super.key});
@@ -317,7 +314,7 @@ class _ArtistPerformanceDetailPageState
                     TextSpan(
                       text: '‘마이 → 티켓 보기’',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -337,7 +334,7 @@ class _ArtistPerformanceDetailPageState
                     TextSpan(
                       text: '아티스트 측에서 관람객님의 입금 정보를 확정',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -357,7 +354,7 @@ class _ArtistPerformanceDetailPageState
                     TextSpan(
                       text: '티켓 수령',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -378,7 +375,7 @@ class _ArtistPerformanceDetailPageState
                     TextSpan(
                       text: '‘스크린샷 방지 씰’',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,

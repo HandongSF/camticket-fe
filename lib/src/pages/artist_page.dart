@@ -209,12 +209,12 @@ class ArtistDetailBottomSheet extends StatelessWidget {
   final List<String> posters;
 
   const ArtistDetailBottomSheet({
-    Key? key,
+    super.key,
     required this.name,
     required this.profile,
     required this.description,
     required this.posters,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +260,7 @@ class ArtistDetailBottomSheet extends StatelessWidget {
                       Text(
                         name,
                         style: const TextStyle(
-                          color: const Color(0xFFE5E5E5),
+                          color: Color(0xFFE5E5E5),
                           fontSize: 20,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,

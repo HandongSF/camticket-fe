@@ -1,19 +1,107 @@
+import 'dart:io';
+
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/performance_round_widget.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/components/ticket_option.dart';
+import 'package:camticket/model/performance_create/performance_post_create_request.dart';
 import 'package:camticket/src/pages/artist/unable_seat_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../../../model/performance_create/schedule_request.dart';
+import '../../../provider/performance_upload_provider.dart';
 import '../searchpage.dart';
 
-class RegisterPerformancePage extends StatelessWidget {
+class RegisterPerformancePage extends StatefulWidget {
   const RegisterPerformancePage({super.key});
 
   @override
+  State<RegisterPerformancePage> createState() =>
+      _RegisterPerformancePageState();
+}
+
+class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
+  XFile? _image; //이미지를 담을 변수 선언
+  final ImagePicker picker = ImagePicker(); //ImagePicker 초기화
+  PerformanceCategory _category = PerformanceCategory.ETC; // 기본값은 기타
+  DateTime? _reservationStartAt;
+  DateTime? _reservationEndAt;
+  List<ScheduleRequest> _schedules = []; // PerformanceRoundsWidget에서 설정 필요
+  PerformanceLocation _location =
+      PerformanceLocation.HAKGWAN_104; // 기본값은 학관 104호
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+  final TextEditingController _maxTicketsController =
+      TextEditingController(); // 최대 티켓 수 입력 필드
+  final TextEditingController _bankAccountController =
+      TextEditingController(); // 백계좌 정보 입력 필드
+  TicketType ticketType = TicketType.PAID; // 유료 공연 여부
+
+  bool _isFree = false; // 무료 공연 여부
+
+  int _selectedCategoryIndex = 0; // 카테고리 선택을 위한 인덱스
+
+  //이미지를 가져오는 함수
+  Future getImage(ImageSource imageSource) async {
+    //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
+    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    if (pickedFile != null) {
+      setState(() {
+        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
+      });
+    }
+  }
+
+  Future<void> _pickDateTime({
+    required bool isStart,
+  }) async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2030),
+    );
+
+    if (pickedDate == null) return;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime == null) return;
+
+    final selectedDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    setState(() {
+      if (isStart) {
+        _reservationStartAt = selectedDateTime;
+        _startDateController.text =
+            '${selectedDateTime.year}.${selectedDateTime.month.toString().padLeft(2, '0')}.${selectedDateTime.day.toString().padLeft(2, '0')} ${pickedTime.format(context)}';
+      } else {
+        _reservationEndAt = selectedDateTime;
+        _endDateController.text =
+            '${selectedDateTime.year}.${selectedDateTime.month.toString().padLeft(2, '0')}.${selectedDateTime.day.toString().padLeft(2, '0')} ${pickedTime.format(context)}';
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = context.read<PerformanceUploadProvider>();
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus(); // 키보드 숨기기
@@ -113,23 +201,30 @@ class RegisterPerformancePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    getImage(ImageSource.gallery);
+                  },
                   child: Container(
                     height: 530,
                     padding: const EdgeInsets.all(20),
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(color: AppColors.gray1),
                     child: Center(
-                      child: Text(
-                        '이곳을 눌러 포스터 이미지를 추가해주세요.',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: -0.24,
-                        ),
-                      ),
+                      child: _image == null
+                          ? Text(
+                              '이곳을 눌러 포스터 이미지를 추가해주세요.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -0.24,
+                              ),
+                            )
+                          : Image.file(
+                              File(_image!.path),
+                              fit: BoxFit.fitHeight,
+                            ),
                     ),
                   )),
               const SizedBox(height: 24),
@@ -161,6 +256,7 @@ class RegisterPerformancePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextField(
+                controller: _titleController,
                 decoration: InputDecoration(
                   hintText: '공연명을 입력해주세요.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -206,10 +302,10 @@ class RegisterPerformancePage extends StatelessWidget {
                 child: Row(
                   spacing: 8,
                   children: [
-                    _chip('음악'),
-                    _chip('연극 / 뮤지컬'),
-                    _chip('댄스'),
-                    _chip('전시'),
+                    _chip('음악', 0),
+                    _chip('연극 / 뮤지컬', 1),
+                    _chip('댄스', 2),
+                    _chip('전시', 3),
                   ],
                 ),
               ),
@@ -244,6 +340,9 @@ class RegisterPerformancePage extends StatelessWidget {
               white16('예매 시작 날짜 / 시간'),
               const SizedBox(height: 8),
               TextField(
+                controller: _startDateController,
+                readOnly: true,
+                onTap: () => _pickDateTime(isStart: true),
                 decoration: InputDecoration(
                   hintText: '예매 시작 날짜와 시간을 선택해주세요.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -260,6 +359,9 @@ class RegisterPerformancePage extends StatelessWidget {
               white16('예매 종료 날짜 / 시간'),
               const SizedBox(height: 8),
               TextField(
+                controller: _endDateController,
+                readOnly: true,
+                onTap: () => _pickDateTime(isStart: false),
                 decoration: InputDecoration(
                   hintText: '예매 종료 날짜와 시간을 선택해주세요.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -300,7 +402,13 @@ class RegisterPerformancePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              PerformanceRoundsWidget(),
+              PerformanceRoundsWidget(
+                onChanged: (scheduleList) {
+                  setState(() {
+                    _schedules = scheduleList;
+                  });
+                },
+              ),
               const SizedBox(height: 24),
               Text.rich(
                 TextSpan(
@@ -349,7 +457,7 @@ class RegisterPerformancePage extends StatelessWidget {
                             TextSpan(
                               text: '선택한 공연 장소를 사전에 대여 완료했습니다. ',
                               style: TextStyle(
-                                color: const Color(0xFFE5E5E5),
+                                color: Color(0xFFE5E5E5),
                                 fontSize: 16,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w400,
@@ -359,7 +467,7 @@ class RegisterPerformancePage extends StatelessWidget {
                             TextSpan(
                               text: '*',
                               style: TextStyle(
-                                color: const Color(0xFF9A3AE8),
+                                color: Color(0xFF9A3AE8),
                                 fontSize: 16,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
@@ -431,6 +539,7 @@ class RegisterPerformancePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextField(
+                controller: _maxTicketsController,
                 decoration: InputDecoration(
                   hintText: '숫자만 입력 가능합니다.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -478,17 +587,27 @@ class RegisterPerformancePage extends StatelessWidget {
                   Expanded(
                       child: RadioListTile(
                           activeColor: AppColors.mainPurple,
-                          value: false,
+                          value: _isFree,
                           groupValue: true,
-                          onChanged: (_) {},
+                          onChanged: (_) {
+                            setState(() {
+                              _isFree = true;
+                              ticketType = TicketType.FREE;
+                            });
+                          },
                           title: const Text('무료 공연',
                               style: TextStyle(color: Colors.white)))),
                   Expanded(
                       child: RadioListTile(
                           activeColor: AppColors.mainPurple,
-                          value: true,
+                          value: !_isFree,
                           groupValue: true,
-                          onChanged: (_) {},
+                          onChanged: (_) {
+                            setState(() {
+                              _isFree = false;
+                              ticketType = TicketType.PAID;
+                            });
+                          },
                           title: const Text('유료 공연',
                               style: TextStyle(color: Colors.white)))),
                 ],
@@ -513,6 +632,7 @@ class RegisterPerformancePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextField(
+                controller: _bankAccountController,
                 decoration: InputDecoration(
                   hintText: '은행명과 계좌번호를 정확하게 입력해주세요.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -523,7 +643,7 @@ class RegisterPerformancePage extends StatelessWidget {
                     borderSide: const BorderSide(color: AppColors.gray2),
                   ),
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 style: const TextStyle(color: Colors.white),
               ),
               SizedBox(height: 8),
@@ -540,30 +660,86 @@ class RegisterPerformancePage extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: GestureDetector(
-            onTap: () {
-              // Perform the action for the next button
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UnableSeatPage(selectedSeats: []),
-                ),
-              );
-            },
-            child: mainPurpleBtn('다음')),
+        bottomNavigationBar: SizedBox(
+          height: 80,
+          child: Column(
+            children: [
+              GestureDetector(
+                  onTap: () {
+                    final provider = context.read<PerformanceUploadProvider>();
+
+                    if (_image == null ||
+                        _titleController.text.isEmpty ||
+                        _reservationStartAt == null ||
+                        _reservationEndAt == null ||
+                        _schedules.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('모든 필수 항목을 입력해주세요.')),
+                      );
+                      return;
+                    }
+
+                    provider.setPage1Info(
+                      profileImage: File(_image!.path),
+                      title: _titleController.text,
+                      category: _category,
+                      reservationStartAt: _reservationStartAt!,
+                      reservationEndAt: _reservationEndAt!,
+                      schedules: _schedules,
+                      location: _location,
+                      maxTicketsPerUser: int.parse(_maxTicketsController.text),
+                      ticketType: ticketType,
+                      ticketOptionRequest: [],
+                      bankAccount: _bankAccountController.text,
+                    );
+
+                    // Perform the action for the next button
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UnableSeatPage(selectedSeats: []),
+                      ),
+                    );
+                  },
+                  child: mainPurpleBtn('다음')),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _chip(String label) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.gray1,
-          border: Border.all(color: AppColors.gray3, width: 1),
-          borderRadius: BorderRadius.circular(20),
+  Widget _chip(String label, int index) => GestureDetector(
+        onTap: () {
+          setState(() {
+            if (label == '음악') {
+              _category = PerformanceCategory.MUSIC;
+              _selectedCategoryIndex = 0;
+            } else if (label == '연극 / 뮤지컬') {
+              _category = PerformanceCategory.ACT_MUSICAL;
+              _selectedCategoryIndex = 1;
+            } else if (label == '댄스') {
+              _category = PerformanceCategory.DANCE;
+              _selectedCategoryIndex = 2;
+            } else if (label == '전시') {
+              _category = PerformanceCategory.ETC;
+              _selectedCategoryIndex = 3;
+            }
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          decoration: BoxDecoration(
+            color: _selectedCategoryIndex == index
+                ? AppColors.mainPurple
+                : AppColors.gray1,
+            border: Border.all(color: AppColors.gray3, width: 1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(label,
+              style: const TextStyle(color: AppColors.white, fontSize: 14)),
         ),
-        child: Text(label,
-            style: const TextStyle(color: AppColors.white, fontSize: 14)),
       );
 
   Widget _dateField(String hint) => TextField(

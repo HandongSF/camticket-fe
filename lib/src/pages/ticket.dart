@@ -1,10 +1,9 @@
-import 'dart:math' as math;
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TicketPage extends StatefulWidget {
-  const TicketPage({Key? key}) : super(key: key);
+  const TicketPage({super.key});
 
   @override
   State<TicketPage> createState() => _TicketPageState();

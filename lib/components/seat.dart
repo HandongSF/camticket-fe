@@ -24,7 +24,7 @@ class SeatStageSection extends StatelessWidget {
   }
 }
 
-class SeatMapWidget extends StatelessWidget {
+class SeatMapWidget extends StatefulWidget {
   final Map<String, List<int>> seatMap;
   final double seatSize;
   final double seatSpacing;
@@ -51,11 +51,16 @@ class SeatMapWidget extends StatelessWidget {
   });
 
   @override
+  State<SeatMapWidget> createState() => _SeatMapWidgetState();
+}
+
+class _SeatMapWidgetState extends State<SeatMapWidget> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
-        children: seatMap.entries.map((entry) {
+        children: widget.seatMap.entries.map((entry) {
           String row = entry.key;
           List<int> seats = entry.value.toSet().toList();
 
@@ -66,33 +71,33 @@ class SeatMapWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Wrap(
-                    spacing: seatSpacing,
+                    spacing: widget.seatSpacing,
                     runSpacing: 8,
                     alignment: WrapAlignment.center,
                     children: List.generate(12, (index) {
                       int seatNumber = index + 1;
                       String seatId = '$row$seatNumber';
                       bool isAvailable = seats.contains(seatNumber);
-                      bool isSelected = selectedSeats.contains(seatId);
-                      bool isDisabled = disabledSeats.contains(seatId);
-                      bool isReserved = reservedSeats.contains(seatId);
+                      bool isSelected = widget.selectedSeats.contains(seatId);
+                      bool isDisabled = widget.disabledSeats.contains(seatId);
+                      bool isReserved = widget.reservedSeats.contains(seatId);
 
                       if (!isAvailable) {
                         return SizedBox(
                           width: seatNumber == 6
-                              ? seatSize + aisleSpacing
-                              : seatSize,
-                          height: seatSize,
+                              ? widget.seatSize + widget.aisleSpacing
+                              : widget.seatSize,
+                          height: widget.seatSize,
                         );
                       }
 
                       final seatBox = GestureDetector(
                         onTap: (isDisabled || isReserved)
                             ? null
-                            : () => onSeatTapped(seatId),
+                            : () => widget.onSeatTapped(seatId),
                         child: Container(
-                          width: seatSize,
-                          height: seatSize,
+                          width: widget.seatSize,
+                          height: widget.seatSize,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: isDisabled
@@ -125,7 +130,7 @@ class SeatMapWidget extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             seatBox,
-                            SizedBox(width: aisleSpacing),
+                            SizedBox(width: widget.aisleSpacing),
                           ],
                         );
                       } else {

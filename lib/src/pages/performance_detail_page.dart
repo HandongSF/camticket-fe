@@ -1,26 +1,83 @@
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/texts.dart';
-import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
+import 'package:camticket/model/performanceDetail.dart';
+import 'package:camticket/model/performance_overview_model.dart';
+import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/src/pages/searchpage.dart';
+import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../components/bottomSheet.dart';
 import '../../components/text_pair.dart';
+import '../../provider/performance_provider.dart';
 import '../../utility/color.dart';
-import 'package:camticket/src/pages/performance_detail_page.dart';
 
 class PerformanceDetailPage extends StatefulWidget {
-  const PerformanceDetailPage({super.key});
-
+  final PerformanceOverview item;
+  const PerformanceDetailPage({super.key, required this.item});
   @override
   State<PerformanceDetailPage> createState() => _PerformanceDetailPageState();
 }
 
 class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
   int _selectedTabIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PerformanceProvider>(context, listen: false)
+          .fetchPerformanceDetail(widget.item.postId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final performanceProvider =
+        Provider.of<PerformanceProvider>(context, listen: false);
+    final performanceDetails = performanceProvider.performanceDetails;
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              Image.asset(
+                'assets/images/navi logo.png',
+                width: 110,
+                height: 28,
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Searchpage()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.search,
+                  size: 24,
+                  color: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
+        backgroundColor: Colors.black,
+        elevation: 0,
+      ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Column(
@@ -33,8 +90,8 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 child: ClipRect(
                   child: Align(
                     alignment: Alignment.topCenter, // 상단 정렬
-                    child: Image.asset(
-                      'assets/images/pitch_stage.png',
+                    child: Image.network(
+                      widget.item.profileImageUrl,
                       width: MediaQuery.of(context).size.width,
                       fit: BoxFit.cover, // 이미지 확대해서 자르기 (높이 채우기)
                     ),
@@ -48,14 +105,16 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // 공연 제목
-                  SizedBox(
-                    height: 228,
-                    child: Image.asset(
-                      'assets/images/pitch_stage.png',
-                      fit: BoxFit.cover,
+                  Expanded(
+                    child: SizedBox(
+                      height: 228,
+                      child: Image.network(
+                        widget.item.profileImageUrl,
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
                   ),
-
+                  SizedBox(width: 12), // 간격 조정
                   Expanded(
                     child: SizedBox(
                       height: 228,
@@ -69,7 +128,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                           ),
                           SizedBox(
                             child: Text(
-                              '🎼 The Gospel\n: Who we are',
+                              widget.item.title,
                               style: TextStyle(
                                   color: AppColors.white,
                                   fontSize: 16,
@@ -82,10 +141,14 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                           SizedBox(
                             height: 25,
                           ),
-                          grayAndWhite('카테고리', '음악'),
-                          grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
-                          grayAndWhite('공연날짜', '2025.11.23 (2회)'),
-                          grayAndWhite('장소', '학관 104호'),
+                          grayAndWhite('카테고리', widget.item.category),
+                          grayAndWhite('예매 기간',
+                              '${DateFormat('MM.dd ').format(widget.item.reservationStartAt)} ~ ${DateFormat('MM.dd').format(widget.item.reservationEndAt)}'),
+                          grayAndWhite(
+                              '공연날짜',
+                              DateFormat('MM.dd HH:mm')
+                                  .format(widget.item.firstScheduleStartTime)),
+                          grayAndWhite('장소', widget.item.location),
                         ],
                       ),
                     ),
@@ -104,22 +167,27 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 ],
               ),
             ),
-            _buildTabContent()
+            _buildTabContent(performanceDetails),
           ],
         ),
       ),
       bottomNavigationBar: GestureDetector(
         onTap: () {
+          Provider.of<SelectedPerformanceProvider>(context, listen: false)
+              .setSelectedPerformance(performanceDetails);
           showRoundSelectBottomSheet(
             context,
-            () {
+            (Schedule selectedSchedule) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PerformanceSeatReservationPage(),
+                  builder: (context) => PerformanceSeatReservationPage(
+                    schedule: selectedSchedule,
+                  ),
                 ),
               );
             },
+            performanceDetails.schedules,
           );
         },
         child: Padding(
@@ -163,7 +231,13 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
     );
   }
 
-  Widget _buildTabContent() {
+  String formatDateWithWeekday(DateTime date) {
+    // "11월 23일 토요일" 형식
+    final formatted = DateFormat('M월 d일 EEEE', 'ko').format(date);
+    return formatted;
+  }
+
+  Widget _buildTabContent(PerformanceDetail performanceDetails) {
     switch (_selectedTabIndex) {
       case 0:
         return Padding(
@@ -171,10 +245,11 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              subPurpleText('유료 공연'),
+              subPurpleText('공연 시간'),
               SizedBox(height: 8),
               Text(
-                '이 공연은 현대 복음 음악과 연극이 결합된 창작 뮤지컬입니다. 각기 다른 사연을 가진 인물들이 음악을 통해 치유받는 여정을 그립니다.',
+                DateFormat('M월 d일 EEEE', 'ko')
+                    .format(widget.item.firstScheduleStartTime),
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
@@ -242,7 +317,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     TextSpan(
                       text: '‘마이 → 티켓 보기’',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -262,7 +337,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     TextSpan(
                       text: '아티스트 측에서 관람객님의 입금 정보를 확정',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -282,7 +357,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     TextSpan(
                       text: '티켓 수령',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -303,7 +378,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     TextSpan(
                       text: '‘스크린샷 방지 씰’',
                       style: TextStyle(
-                        color: const Color(0xFFE4C3FF),
+                        color: Color(0xFFE4C3FF),
                         fontSize: 14,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -375,32 +450,32 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('공연장 위치',
+            children: [
+              const Text('공연장 위치',
                   style: TextStyle(
                       color: Color(0xFFE4C3FF),
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                '학관 104호',
-                style: TextStyle(color: Colors.white),
+                widget.item.location,
+                style: const TextStyle(color: Colors.white),
               ),
-              SizedBox(height: 20),
-              Divider(
+              const SizedBox(height: 20),
+              const Divider(
                 color: AppColors.gray4, // 선 색상
                 thickness: 0.5, // 선 두께
               ),
-              SizedBox(height: 20),
-              Text('찾아오는 길',
+              const SizedBox(height: 20),
+              const Text('찾아오는 길',
                   style: TextStyle(
                       color: Color(0xFFE4C3FF),
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('걸어서', style: TextStyle(color: Colors.white)),
-              SizedBox(height: 20),
-              Divider(
+              const SizedBox(height: 8),
+              const Text('걸어서', style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 20),
+              const Divider(
                 color: AppColors.gray4, // 선 색상
                 thickness: 0.5, // 선 두께
               ),

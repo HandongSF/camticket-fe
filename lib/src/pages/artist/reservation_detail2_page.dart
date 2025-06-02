@@ -6,7 +6,6 @@ import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/src/pages/user/ticket_success_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../components/textfield.dart';
 import '../../../components/texts.dart';
@@ -34,10 +33,11 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
       int total = generalCount + newbieCount;
       if (increment) {
         if (total < maxTickets) {
-          if (isGeneral)
+          if (isGeneral) {
             generalCount++;
-          else
+          } else {
             newbieCount++;
+          }
         } else {
           showError('최대 $maxTickets매까지만 예매할 수 있습니다.');
         }
@@ -242,7 +242,7 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                           text: '총 결제금액은 ',
                           children: [
                             TextSpan(
-                              text: '${totalPrice}원',
+                              text: '$totalPrice원',
                               style: TextStyle(
                                   color: Color(0xFFE5C4FF),
                                   fontWeight: FontWeight.bold),
@@ -324,7 +324,7 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                 icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
               ),
               Text(
-                '${count}매',
+                '$count매',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               IconButton(

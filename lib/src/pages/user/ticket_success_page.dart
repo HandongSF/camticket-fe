@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 
 import '../../../components/input_form.dart';
 import '../../../components/texts.dart';
-import '../home_page.dart';
 
 class TicketCompletePage extends StatelessWidget {
   final int generalCount;
@@ -17,7 +16,7 @@ class TicketCompletePage extends StatelessWidget {
   final String phoneNumber;
   final bool isSuccess;
 
-  TicketCompletePage({
+  TicketCompletePage({super.key, 
     required this.generalCount,
     required this.newbieCount,
     required this.phoneNumber,
@@ -294,9 +293,9 @@ class TicketCompletePage extends StatelessWidget {
                           vertical: 12, horizontal: 16),
                       child: Column(
                         children: [
-                          rowText('일반', '3,000원', '${generalCount}매'),
+                          rowText('일반', '3,000원', '$generalCount매'),
                           Divider(color: Colors.white24, height: 20),
-                          rowText('새내기', '2,000원', '${newbieCount}매'),
+                          rowText('새내기', '2,000원', '$newbieCount매'),
                         ],
                       ),
                     ),

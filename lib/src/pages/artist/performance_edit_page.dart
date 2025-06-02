@@ -3,7 +3,6 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/performance_round_widget.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/components/ticket_option.dart';
-import 'package:camticket/src/pages/artist/unable_seat_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
@@ -302,7 +301,9 @@ class PerformanceEditPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    PerformanceRoundsWidget(),
+                    PerformanceRoundsWidget(
+                      onChanged: (_) {},
+                    ),
                     const SizedBox(height: 24),
                     Text.rich(
                       TextSpan(
@@ -351,7 +352,7 @@ class PerformanceEditPage extends StatelessWidget {
                                   TextSpan(
                                     text: '선택한 공연 장소를 사전에 대여 완료했습니다. ',
                                     style: TextStyle(
-                                      color: const Color(0xFFE5E5E5),
+                                      color: Color(0xFFE5E5E5),
                                       fontSize: 16,
                                       fontFamily: 'Inter',
                                       fontWeight: FontWeight.w400,
@@ -361,7 +362,7 @@ class PerformanceEditPage extends StatelessWidget {
                                   TextSpan(
                                     text: '*',
                                     style: TextStyle(
-                                      color: const Color(0xFF9A3AE8),
+                                      color: Color(0xFF9A3AE8),
                                       fontSize: 16,
                                       fontFamily: 'Inter',
                                       fontWeight: FontWeight.w700,

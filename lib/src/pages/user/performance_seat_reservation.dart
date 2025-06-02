@@ -3,11 +3,15 @@ import 'package:camticket/components/texts.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/user/ticket_purchase.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../components/seat.dart';
+import '../../../model/performanceDetail.dart';
+import '../../../provider/seat_provider.dart';
 import '../../../utility/color.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
-  const PerformanceSeatReservationPage({super.key});
+  final Schedule? schedule;
+  const PerformanceSeatReservationPage({super.key, this.schedule});
 
   @override
   State<PerformanceSeatReservationPage> createState() =>
@@ -35,7 +39,7 @@ class _PerformanceSeatReservationPageState
   };
   final Set<String> _reservedSeats = {'B3', 'D4', 'E10', 'E11'};
   final int maxSelectableSeats = 4;
-  final int alreadySelectedSeats = 2;
+  final int alreadySelectedSeats = 0;
 
   final double seatSize = 26;
   final double seatSpacing = 2;
@@ -57,6 +61,7 @@ class _PerformanceSeatReservationPageState
   @override
   Widget build(BuildContext context) {
     final seatMap = generateSeatMap();
+    final selectedSeat = context.watch<SeatProvider>().selectedSeat;
 
     return Scaffold(
         backgroundColor: AppColors.mainBlack,
@@ -125,7 +130,7 @@ class _PerformanceSeatReservationPageState
               children: [
                 whiteTitleText('좌석선택'),
                 const SizedBox(height: 20),
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: const Text(
                     '선택된 회차',
@@ -136,12 +141,14 @@ class _PerformanceSeatReservationPageState
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: Row(
                     children: [
-                      const Text(
-                        '1공 : 2025.11.23(토) 16시 00분',
+                      Text(
+                        widget.schedule != null
+                            ? '${widget.schedule!.scheduleIndex} 공 : ${widget.schedule!.startTime}'
+                            : '선택된 회차가 없습니다.',
                         style: TextStyle(
                           color: AppColors.white,
                           fontWeight: FontWeight.w400,
@@ -168,7 +175,8 @@ class _PerformanceSeatReservationPageState
                               ),
                             );
                           } else {
-                            showRoundSelectBottomSheet(context, () {
+                            showRoundSelectBottomSheet(context,
+                                (Schedule selectedSchedule) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -176,7 +184,12 @@ class _PerformanceSeatReservationPageState
                                       const PerformanceSeatReservationPage(),
                                 ),
                               );
-                            });
+                            },
+                                Schedule(
+                                  startTime:
+                                      DateTime(2025, 11, 23, 16, 00).toString(),
+                                  scheduleIndex: 0,
+                                ) as List<Schedule>);
                           }
                         },
                         label: const Text(
@@ -203,7 +216,6 @@ class _PerformanceSeatReservationPageState
                     ],
                   ),
                 ),
-
                 Divider(
                   color: AppColors.gray3, // 선 색상
                   thickness: 0.5, // 선 두께
@@ -273,23 +285,7 @@ class _PerformanceSeatReservationPageState
                         ],
                       ),
                     )),
-                // const SeatStageSection(),
-                // SeatMapWidget(
-                //   seatMap: seatMap,
-                //   seatSize: 30,
-                //   seatSpacing: 4,
-                //   aisleSpacing: 12,
-                //   selectedSeats: _selectedSeats,
-                //   disabledSeats: _disabledSeats,
-                //   reservedSeats: _reservedSeats,
-                //   maxSelectableSeats: 4,
-                //   alreadySelectedSeats: alreadySelectedSeats,
-                //   onSeatTapped: (seatId) {
-                //     // 선택/취소 로직 처리
-                //   },
-                // ),
                 const SeatStageSection(),
-
                 Column(
                   children: seatMap.entries.map((entry) {
                     String row = entry.key;
@@ -431,7 +427,7 @@ class _PerformanceSeatReservationPageState
                       ],
                     ),
                     const SizedBox(height: 8),
-                    if (_selectedSeats.length == 0)
+                    if (_selectedSeats.isEmpty)
                       Container(
                         width: 372,
                         height: 56,
@@ -520,6 +516,7 @@ class _PerformanceSeatReservationPageState
                     ElevatedButton(
                       onPressed: () {
                         print('선택된 좌석: $_selectedSeats');
+                        context.read<SeatProvider>().selectSeat(_selectedSeats);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

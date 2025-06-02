@@ -19,7 +19,7 @@ class UserInfo {
 }
 
 class Mypage extends StatefulWidget {
-  const Mypage({Key? key}) : super(key: key);
+  const Mypage({super.key});
 
   @override
   _Mypagestate createState() => _Mypagestate();
@@ -195,7 +195,7 @@ class _Mypagestate extends State<Mypage> {
           child: const Text(
             '로그아웃',
             style: TextStyle(
-              color: const Color(0xFFCE3939),
+              color: Color(0xFFCE3939),
               fontSize: 16,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w500,
@@ -284,7 +284,7 @@ class _Mypagestate extends State<Mypage> {
                 const Text(
                   '로그인을 해주세요.',
                   style: TextStyle(
-                    color: const Color(0xFFE5E5E5),
+                    color: Color(0xFFE5E5E5),
                     fontSize: 20,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,

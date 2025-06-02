@@ -1,8 +1,6 @@
 // reservation_info_page.dart
-import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../components/buttons.dart';
 import '../../../provider/navigation_provider.dart';
 import '../../../utility/category_btn.dart';
 import '../../../utility/color.dart';
@@ -503,7 +501,7 @@ class ReservationInfoPage extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                      color: const Color(0xFFE5E5E5),
+                      color: Color(0xFFE5E5E5),
                       fontSize: 16,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
@@ -569,7 +567,7 @@ class ReservationInfoPage extends StatelessWidget {
                 Text(
                   label2,
                   style: const TextStyle(
-                      color: const Color(0xFFE5E5E5),
+                      color: Color(0xFFE5E5E5),
                       fontSize: 16,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,

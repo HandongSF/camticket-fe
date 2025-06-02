@@ -1,17 +1,26 @@
+/*
+    provider 호출은 해놓았으니
+    맞게 연결만 하면 됩니다.
+ */
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
+import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/src/pages/user/ticket_success_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../components/textfield.dart';
 import '../../../components/texts.dart';
+import '../../../provider/seat_provider.dart';
 
 class ReservationCheckInsertPayment extends StatefulWidget {
+  const ReservationCheckInsertPayment({super.key});
+
   @override
   _ReservationCheckInsertPaymentState createState() =>
       _ReservationCheckInsertPaymentState();
@@ -19,6 +28,16 @@ class ReservationCheckInsertPayment extends StatefulWidget {
 
 class _ReservationCheckInsertPaymentState
     extends State<ReservationCheckInsertPayment> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<SelectedPerformanceProvider>(context, listen: false)
+    //       .fetchSelectedPerformance();
+    // });
+  }
+
   int generalCount = 0;
   int newbieCount = 0;
   final int maxTickets = 3;
@@ -34,10 +53,11 @@ class _ReservationCheckInsertPaymentState
       int total = generalCount + newbieCount;
       if (increment) {
         if (total < maxTickets) {
-          if (isGeneral)
+          if (isGeneral) {
             generalCount++;
-          else
+          } else {
             newbieCount++;
+          }
         } else {
           showError('최대 $maxTickets매까지만 예매할 수 있습니다.');
         }
@@ -88,6 +108,9 @@ class _ReservationCheckInsertPaymentState
 
   @override
   Widget build(BuildContext context) {
+    final selectedPerformance =
+        Provider.of<SelectedPerformanceProvider>(context).selectedPerformance;
+    final selectedSeats = Provider.of<SeatProvider>(context).selectedSeat;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -164,7 +187,10 @@ class _ReservationCheckInsertPaymentState
                   sectionTitle('좌석'),
                   Row(
                     children: [
-                      normalText('학관 104호 F8, F9, F10 (총 3좌석)'),
+                      Expanded(
+                        child: normalText(
+                            '학관 104호 $selectedSeats (총 ${selectedSeats?.length.toString()}좌석)'),
+                      ),
                       Spacer(),
                       GestureDetector(
                           onTap: () {
@@ -180,7 +206,7 @@ class _ReservationCheckInsertPaymentState
                   dividerGray2(),
                   sectionTitle('티켓 수령 방법'),
                   SizedBox(height: 8),
-                  normalText('온라인수령'),
+                  normalText(selectedPerformance!.priceNotice),
                   SizedBox(height: 8),
                   smallText(
                       '예매가 완료된 후, 해당 공연의 아티스트 측에서 관람객님의 입금 정보를 확정한 뒤 티켓 수령이 가능합니다.'),
@@ -242,7 +268,7 @@ class _ReservationCheckInsertPaymentState
                           text: '총 결제금액은 ',
                           children: [
                             TextSpan(
-                              text: '${totalPrice}원',
+                              text: '$totalPrice원',
                               style: TextStyle(
                                   color: Color(0xFFE5C4FF),
                                   fontWeight: FontWeight.bold),
@@ -476,7 +502,7 @@ class _ReservationCheckInsertPaymentState
                 icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
               ),
               Text(
-                '${count}매',
+                '$count매',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               IconButton(
@@ -544,6 +570,7 @@ class _ReservationCheckInsertPaymentState
           fontFamily: 'Inter',
           fontWeight: FontWeight.w400,
           letterSpacing: -0.32,
+          overflow: TextOverflow.visible,
         ),
       ),
     );

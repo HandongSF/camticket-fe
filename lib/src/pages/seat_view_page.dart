@@ -7,7 +7,7 @@ import '../../components/buttons.dart';
 class SeatViewPage extends StatelessWidget {
   final List<String> selectedSeats;
 
-  SeatViewPage({required this.selectedSeats});
+  SeatViewPage({super.key, required this.selectedSeats});
   final Set<String> _disabledSeats = {
     'A1',
     'A2',

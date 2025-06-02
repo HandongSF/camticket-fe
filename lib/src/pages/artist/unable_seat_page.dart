@@ -5,24 +5,16 @@ import 'package:flutter/material.dart';
 
 import '../../../components/buttons.dart';
 
-class UnableSeatPage extends StatelessWidget {
+class UnableSeatPage extends StatefulWidget {
   final List<String> selectedSeats;
 
-  UnableSeatPage({required this.selectedSeats});
-  final Set<String> _disabledSeats = {
-    'A1',
-    'A2',
-    'A3',
-    'A4',
-    'A5',
-    'A6',
-    'A7',
-    'A8',
-    'A9',
-    'A10',
-    'A11',
-    'A12',
-  };
+  UnableSeatPage({super.key, required this.selectedSeats});
+  @override
+  State<UnableSeatPage> createState() => _UnableSeatPageState();
+}
+
+class _UnableSeatPageState extends State<UnableSeatPage> {
+  final Set<String> _disabledSeats = {};
   final Set<String> _reservedSeats = {};
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
@@ -176,7 +168,16 @@ class UnableSeatPage extends StatelessWidget {
                     maxSelectableSeats: maxSelectableSeats,
                     alreadySelectedSeats: alreadySelectedSeats,
                     onSeatTapped: (seatId) {
-                      // 선택/취소 로직 처리
+                      setState(() {
+                        if (_disabledSeats.contains(seatId)) {
+                          _disabledSeats.remove(seatId);
+                        } else {
+                          _disabledSeats.add(seatId);
+                        }
+                      });
+                      //
+                      // // 상태 업데이트
+                      // (context as Element).markNeedsBuild();
                     },
                   ),
                   SizedBox(height: 200),
@@ -193,7 +194,7 @@ class UnableSeatPage extends StatelessWidget {
                   onTap: () {
                     // 예매 하기 버튼 클릭 시 처리 로직
                     // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
-                    Navigator.pop(context, selectedSeats);
+                    Navigator.pop(context, widget.selectedSeats);
                   },
                   child: subPurpleBtn4518(
                     '이전',

@@ -1,7 +1,4 @@
-import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../provider/navigation_provider.dart';
 import '../searchpage.dart';
 import 'artist_performance_detail_page.dart';
 

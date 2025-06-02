@@ -1,4 +1,3 @@
-import 'package:camticket/components/dividers.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +10,7 @@ class PerformanceRoundsWidget2 extends StatefulWidget {
 }
 
 class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
-  List<TextEditingController> _controllers = [TextEditingController()];
+  final List<TextEditingController> _controllers = [TextEditingController()];
 
   void _addRound() {
     setState(() {

@@ -1,0 +1,67 @@
+import 'schedule_request.dart';
+import 'ticket_option_request.dart';
+import 'seat_unavailable_schedule_request.dart';
+
+class PerformancePostCreateRequest {
+  final String title;
+  final PerformanceLocation location;
+  final PerformanceCategory category;
+  final DateTime reservationStartAt;
+  final DateTime reservationEndAt;
+  final String backAccount;
+  final String timeNotice;
+  final String priceNotice;
+  final String reservationNotice;
+
+  final int maxTicketsPerUser; // 최대 티켓 수
+  final List<ScheduleRequest> schedules;
+  final List<TicketOptionRequest> ticketOptions;
+  final List<SeatUnavailableScheduleRequest> seatUnavailableSchedules;
+  final TicketType ticketType;
+
+  PerformancePostCreateRequest({
+    required this.title,
+    required this.location,
+    required this.reservationStartAt,
+    required this.reservationEndAt,
+    required this.schedules,
+    required this.ticketOptions,
+    required this.maxTicketsPerUser,
+    required this.seatUnavailableSchedules,
+    required this.ticketType, // 기본값은 일반 티켓
+    required this.category,
+    required this.backAccount,
+    required this.timeNotice,
+    required this.priceNotice,
+    required this.reservationNotice,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'location': location.toString().split('.').last, // Enum을 문자열로 변환
+        'reservationStartAt': reservationStartAt.toIso8601String(),
+        'reservationEndAt': reservationEndAt.toIso8601String(),
+        'schedules': schedules.map((s) => s.toJson()).toList(),
+        'ticketOptions': ticketOptions.map((t) => t.toJson()).toList(),
+        'maxTicketsPerUser': maxTicketsPerUser,
+        'seatUnavailableSchedules':
+            seatUnavailableSchedules.map((s) => s.toJson()).toList(),
+        'ticketType': ticketType.toString().split('.').last, // Enum을 문자열로 변환
+        'category': category.toString().split('.').last, // Enum을 문자열로 변환
+        'backAccount': backAccount,
+        'timeNotice': timeNotice,
+        'priceNotice': priceNotice,
+        'reservationNotice': reservationNotice,
+      };
+}
+
+enum PerformanceCategory { ACT_MUSICAL, CONCERT, PLAY, MUSIC, DANCE, ETC }
+
+enum PerformanceLocation {
+  HAKGWAN_104, //("학관 104호"),
+  BUSAN, //("BUSAN"),
+  INCHEON, //("INCHEON"),
+  ETC, //("기타");
+}
+
+enum TicketType { PAID, FREE }
