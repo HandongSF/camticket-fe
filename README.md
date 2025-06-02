@@ -1,20 +1,48 @@
-<<<<<<< HEAD
-# camticket
+# 🎫 CamTicket - Campus Performance Ticketing System
+A backend API system for booking performances and events on the Handong Global University campus.
 
-A new Flutter project.
+## 📋 Project Overview
+CamTicket is a ticketing system designed to manage various on-campus performances such as musicals, plays, and concerts. It enables club managers to register performances and provides students with a convenient booking experience.
 
-## Getting Started
+## 🚀 Key Features
+### 🎭 Performance Management
+- Register Performances: Club managers can create and manage performance posts.
+  
+- Session Management: Supports multiple performance sessions and schedules.
 
-This project is a starting point for a Flutter application.
+- Seat Management: Supports both assigned and open seating formats.
 
-A few resources to get you started if this is your first Flutter project:
+- Image Management: Upload profile and detail images via AWS S3 integration.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 🎟️ Booking System
+- Multiple Ticket Options: Allows simultaneous booking of various ticket types (e.g., General, Freshman).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# CamTicket
->>>>>>> 25521741b93ed1134eadb9c92be6dc2d1c2cb0d5
+- Seat Selection: Real-time seat availability checking and selection.
+
+- Reservation Status Flow: Transitions between PENDING → APPROVED → REFUNDED.
+
+- Bank Account Information: Collects account details for payment verification.
+
+### 👥 User Management
+- Kakao Login: OAuth2-based easy login with Kakao.
+
+- Role Management: Roles include general user, club manager, and system admin.
+
+- Profile Management: Users can edit nickname, bio, and profile image.
+
+### 📊 Admin Features
+- Reservation Overview: View reservation requests per performance.
+
+- Approve/Reject Reservations: Change status based on payment verification.
+
+- Refund Management: Approve or deny refund requests.
+
+## 🛠️ Tech Stack
+Frontend
+Language: Dart
+
+Framework: Flutter
+
+Version Control: Git & GitHub
+---
+CamTicket – For a Better Campus Performance Culture 🎭✨
