@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:camticket/model/manage_overview.dart';
 import 'package:camticket/utility/endpoint.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
@@ -171,6 +172,75 @@ class ApiService {
       print("공연 등록 중 예외 발생: $e");
       print("StackTrace: $stackTrace");
       return null;
+    }
+  }
+
+  Future<List<ManageOverview>> fetchManageOverviewImage() async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    // debugPrint('저장된 액세스 토큰: $accessToken');
+    // debugPrint('이미지 URL 가져오기: userId=$userId');
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management/overview'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('API 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final data = jsonMap['data'];
+      if (data.isNotEmpty) {
+        debugPrint('데이터가 비어있지 않습니다. profileImageUrl이 있는지 확인합니다.');
+        try {
+          List<ManageOverview> manageOverviewList =
+              data.map<ManageOverview>((e) {
+            try {
+              return ManageOverview.fromJson(e);
+            } catch (e) {
+              debugPrint('fromJson 변환 중 오류 발생: $e\n데이터: $e');
+              rethrow;
+            }
+          }).toList();
+
+          debugPrint('성공적으로 데이터를 가져왔습니다: ${manageOverviewList.length}개 항목');
+          return manageOverviewList;
+        } catch (e) {
+          debugPrint('데이터 파싱 실패: $e');
+          throw Exception('ManageOverview 리스트 생성 중 오류');
+        }
+        // 각 항목에 대해 이미지 URL을 가져오는 비동기 작업 수행
+      } else {
+        throw Exception('데이터가 비어있거나 profileImageUrl이 없음');
+      }
+    } else {
+      throw Exception('프로필 이미지 요청 실패: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deletePerformance(int postId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    final response = await http.delete(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('API 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      debugPrint('공연 삭제 성공: $postId');
+    } else {
+      throw Exception('공연 삭제 실패: ${response.statusCode}');
     }
   }
 }

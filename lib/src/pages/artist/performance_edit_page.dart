@@ -3,15 +3,24 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/performance_round_widget.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/components/ticket_option.dart';
+import 'package:camticket/model/performanceDetail.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
 import '../searchpage.dart';
 import 'edit_unable_seat_page.dart';
 
-class PerformanceEditPage extends StatelessWidget {
-  const PerformanceEditPage({super.key});
+class PerformanceEditPage extends StatefulWidget {
+  final int postId;
+  final PerformanceDetail performanceDetails;
+  const PerformanceEditPage(
+      {super.key, required this.postId, required this.performanceDetails});
 
+  @override
+  State<PerformanceEditPage> createState() => _PerformanceEditPageState();
+}
+
+class _PerformanceEditPageState extends State<PerformanceEditPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -115,24 +124,20 @@ class PerformanceEditPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    GestureDetector(
-                        onTap: () {
-                          // 여기에 추후 이미지 선택 기능 구현 가능
-                        },
-                        child: Container(
-                          height: 530,
-                          padding: const EdgeInsets.all(20),
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(color: AppColors.gray1),
-                          child: Center(
-                            child: Image.asset(
-                              'assets/images/pitch_stage.png',
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                            ),
-                          ),
-                        )),
+                    Container(
+                      height: 530,
+                      padding: const EdgeInsets.all(20),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: AppColors.gray1),
+                      child: Center(
+                        child: Image.network(
+                          widget.performanceDetails.profileImageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     Text.rich(
                       TextSpan(

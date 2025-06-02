@@ -1,5 +1,6 @@
 import 'package:camticket/auth/login.dart';
 import 'package:camticket/provider/jwt_provider.dart';
+import 'package:camticket/provider/manage_overview_provider.dart';
 import 'package:camticket/provider/navigation_provider.dart';
 import 'package:camticket/provider/pc_provider.dart';
 import 'package:camticket/provider/performance_provider.dart';
@@ -41,6 +42,9 @@ class CamTicket extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => PerformanceUploadProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ManageOverviewProvider(),
         ),
       ],
       child: MaterialApp(

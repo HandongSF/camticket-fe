@@ -1,4 +1,7 @@
+import 'package:camticket/model/manage_overview.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../provider/manage_overview_provider.dart';
 import '../searchpage.dart';
 import 'artist_performance_detail_page.dart';
 
@@ -10,7 +13,29 @@ class ManageRegisteredPage extends StatefulWidget {
 
 class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ManageOverviewProvider>(context, listen: false)
+          .fetchManageOverview();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final manageOverviewProvider =
+        Provider.of<ManageOverviewProvider>(context, listen: true);
+    final now = DateTime.now();
+
+    final ongoingPerformances = manageOverviewProvider.performances
+        .where((p) => p.lastScheduleDateTime.isAfter(now))
+        .toList();
+
+    final expiredPerformances = manageOverviewProvider.performances
+        .where((p) => p.lastScheduleDateTime.isBefore(now))
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -72,10 +97,10 @@ class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
               child: ListView(
                 children: [
                   _buildSectionTitle('진행 중인 공연'),
-                  _buildPosterGrid(3),
+                  _buildPosterGrid(ongoingPerformances),
                   _buildDivider(),
                   _buildSectionTitle('만료된 공연'),
-                  _buildPosterGrid(7),
+                  _buildPosterGrid(expiredPerformances),
                 ],
               ),
             ),
@@ -100,11 +125,11 @@ class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
     );
   }
 
-  Widget _buildPosterGrid(int count) {
+  Widget _buildPosterGrid(List<ManageOverview> performances) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // ListView와 충돌 방지
-      itemCount: count,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: performances.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         mainAxisSpacing: 2,
@@ -112,14 +137,15 @@ class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
         childAspectRatio: 136 / 194,
       ),
       itemBuilder: (context, index) {
+        final item = performances[index];
         return GestureDetector(
-          onTap:  () {
-            // 여기서 원하는 동작 실행
-            debugPrint('포스터 $index 클릭됨');
+          onTap: () {
+            debugPrint('포스터 ${item.postId} 클릭됨');
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ArtistPerformanceDetailPage(),
+                builder: (_) =>
+                    ArtistPerformanceDetailPage(postId: item.postId),
               ),
             );
           },
@@ -127,12 +153,12 @@ class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
             decoration: BoxDecoration(
               color: const Color(0xFF5C5C5C),
               borderRadius: BorderRadius.circular(2),
-              image: const DecorationImage(
-                image: AssetImage('assets/images/poster.png'),
+              image: DecorationImage(
+                image: NetworkImage(item.profileImageUrl),
                 fit: BoxFit.cover,
               ),
             ),
-          )
+          ),
         );
       },
     );
