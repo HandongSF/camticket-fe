@@ -91,11 +91,6 @@ class ApiService {
 
   Future<PerformanceDetail> fetchPerformanceDetail(int postId) async {
     final accessToken = await secureStorage.readToken("x-access-token");
-    debugPrint('저장된 액세스 토큰: $accessToken');
-    debugPrint(
-      'API 호출: ${ApiConstants.baseUrl}/camticket/api/performance-management/$postId',
-    );
-
     final response = await http.get(
       Uri.parse(
           '${ApiConstants.baseUrl}/camticket/api/performance-management/$postId'),
@@ -125,37 +120,56 @@ class ApiService {
     required File profileImage,
     List<File> detailImages = const [],
   }) async {
-    final accessToken = await secureStorage.readToken("x-access-token");
+    try {
+      debugPrint('requestData: ${requestData.toJson()}');
 
-    final uri = Uri.parse(
-        '${ApiConstants.baseUrl}/camticket/api/performance-management');
+      final accessToken = await secureStorage.readToken("x-access-token");
 
-    var request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $accessToken'
-      ..fields['request'] = jsonEncode(requestData.toJson())
-      ..files.add(await http.MultipartFile.fromPath(
+      final uri = Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management');
+
+      var request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $accessToken';
+
+      final jsonPart = http.MultipartFile.fromString(
+        'request',
+        jsonEncode(requestData.toJson()),
+        contentType: MediaType('application', 'json'),
+      );
+      request.files.add(jsonPart);
+
+      request.files.add(await http.MultipartFile.fromPath(
         'profileImage',
         profileImage.path,
-        contentType:
-            MediaType('image', lookupMimeType(profileImage.path) ?? 'jpeg'),
+        contentType: MediaType(
+          'image',
+          lookupMimeType(profileImage.path) ?? 'jpeg',
+        ),
       ));
+      for (var img in detailImages) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'detailImages',
+          img.path,
+          contentType: MediaType(
+            'image',
+            lookupMimeType(img.path) ?? 'jpeg',
+          ),
+        ));
+      }
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-    for (var img in detailImages) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'detailImages',
-        img.path,
-        contentType: MediaType('image', lookupMimeType(img.path) ?? 'jpeg'),
-      ));
-    }
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return data['data']; // postId 반환
-    } else {
-      print("공연 등록 실패: ${response.statusCode} ${response.body}");
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        print("공연 등록 성공: postId = ${data['data']}");
+        return data['data']; // postId 반환
+      } else {
+        print("공연 등록 실패: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e, stackTrace) {
+      print("공연 등록 중 예외 발생: $e");
+      print("StackTrace: $stackTrace");
       return null;
     }
   }

@@ -1,8 +1,11 @@
+import 'package:camticket/model/performance_create/ticket_option_request.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 
 class PerformanceRoundsWidget2 extends StatefulWidget {
-  const PerformanceRoundsWidget2({super.key});
+  final void Function(List<TicketOptionRequest>) onChanged;
+
+  const PerformanceRoundsWidget2({super.key, required this.onChanged});
 
   @override
   State<PerformanceRoundsWidget2> createState() =>
@@ -16,6 +19,20 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
     setState(() {
       _controllers.add(TextEditingController());
     });
+  }
+
+  void _notifyParent() {
+    final ticketOptions = _controllers
+        .asMap()
+        .entries
+        .where((entry) => entry.value.text.trim().isNotEmpty)
+        .map((entry) => TicketOptionRequest(
+              name: entry.value == 0 ? '일반' : '새내기', // 고정된 옵션 이름 (필요 시 수정 가능)
+              price: int.tryParse(entry.value.text.trim()) ?? 0,
+            ))
+        .toList();
+
+    widget.onChanged(ticketOptions);
   }
 
   @override
@@ -41,7 +58,7 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
                   Row(
                     children: [
                       Text(
-                        '일반',
+                        i == 0 ? '일반' : '새내기',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -70,7 +87,10 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
               ),
             ),
           GestureDetector(
-            onTap: _addRound,
+            onTap: () {
+              _addRound();
+              _notifyParent(); // 새로운 항목 추가 후도 갱신
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               child: Row(

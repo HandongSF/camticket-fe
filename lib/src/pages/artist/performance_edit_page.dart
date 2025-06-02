@@ -497,7 +497,9 @@ class PerformanceEditPage extends StatelessWidget {
                                     style: TextStyle(color: Colors.white)))),
                       ],
                     ),
-                    PerformanceRoundsWidget2(),
+                    PerformanceRoundsWidget2(
+                      onChanged: (_) {},
+                    ),
                     SizedBox(
                       height: 8,
                     ),

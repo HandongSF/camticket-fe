@@ -92,9 +92,7 @@ class _SeatMapWidgetState extends State<SeatMapWidget> {
                       }
 
                       final seatBox = GestureDetector(
-                        onTap: (isDisabled || isReserved)
-                            ? null
-                            : () => widget.onSeatTapped(seatId),
+                        onTap: () => widget.onSeatTapped(seatId),
                         child: Container(
                           width: widget.seatSize,
                           height: widget.seatSize,
