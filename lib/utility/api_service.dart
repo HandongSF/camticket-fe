@@ -187,6 +187,8 @@ class ApiService {
         'Authorization': 'Bearer $accessToken',
       },
     );
+
+    debugPrint('response : ${response.bodyBytes}');
     if (response.statusCode == 200) {
       final jsonMap = json.decode(utf8.decode(response.bodyBytes));
       final data = jsonMap['data'];
@@ -194,6 +196,64 @@ class ApiService {
       return User.fromJson(data);
     } else {
       throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
+  Future<User> updateUserInfoForManager({
+    required int userId,
+    required String nickName,
+    required String introduction,
+    }) async {
+        final accessToken = await secureStorage.readToken("x-access-token");
+        debugPrint("accessToken: $accessToken");
+        final url = Uri.parse('${ApiConstants.baseUrl}/users/$userId');
+        final body = {
+          'nickName': nickName,
+          'introduction': introduction,
+    };
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('아티스트 정보 업데이트 실패: ${response.statusCode}');
+    }
+  }
+
+  Future<User> updateUserInfoForUser({
+    required int userId,
+    required String nickName,
+    required String bankAccount,
+  }) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/users/$userId');
+    final accessToken = await secureStorage.readToken("x-access-token");
+    debugPrint("accessToken: $accessToken");
+    final body = {
+      'nickName': nickName,
+      'bankAccount': bankAccount,
+    };
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('관람객 정보 업데이트 실패: ${response.statusCode}');
     }
   }
 

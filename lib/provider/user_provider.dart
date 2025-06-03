@@ -39,4 +39,53 @@ class UserProvider with ChangeNotifier {
       debugPrint('error : $e');
     }
   }
+
+  void updateUserInfo({
+    required String name,
+    String? introduction,
+    String? bankAccount
+  }) async {
+    if (_user == null) return;
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final role = _user!.role;
+      final userId = _user!.id;
+      if (userId == null) {
+        _error = 'User ID가 null입니다. 업데이트할 수 없습니다.';
+        debugPrint(_error);
+        return;
+      }
+      User updatedUser;
+
+      if (role == 'ROLE_MANAGER') {
+        updatedUser = await ApiService().updateUserInfoForManager(
+          userId: userId,
+          nickName: name,
+          introduction: introduction ?? _user!.introduction ?? '',
+        );
+      } else if (role == 'ROLE_USER') {
+        updatedUser = await ApiService().updateUserInfoForUser(
+          userId: userId,
+          nickName: name,
+          bankAccount: bankAccount ?? _user!.bankAccount ?? '',
+        );
+      } else {
+        // 기타 역할 처리
+        updatedUser = _user!;
+      }
+
+      _user = updatedUser;
+      notifyListeners();
+    } catch (e) {
+      _error = '업데이트 중 오류 발생: $e';
+      debugPrint(_error);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 }
