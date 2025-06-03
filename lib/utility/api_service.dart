@@ -11,6 +11,7 @@ import '../model/performanceDetail.dart';
 import '../model/performance_create/performance_post_create_request.dart';
 import '../model/performance_overview_model.dart';
 import 'package:http/http.dart' as http;
+import '../model/user.dart';
 
 class ApiService {
   final SecureStorage secureStorage = SecureStorage();
@@ -175,6 +176,27 @@ class ApiService {
     }
   }
 
+  Future<User> fetchUserInfo(int userId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/camticket/api/user/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final data = jsonMap['data'];
+
+      return User.fromJson(data);
+    } else {
+      throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
   Future<List<ManageOverview>> fetchManageOverviewImage() async {
     final accessToken = await secureStorage.readToken("x-access-token");
     // debugPrint('저장된 액세스 토큰: $accessToken');
@@ -183,13 +205,12 @@ class ApiService {
     final response = await http.get(
       Uri.parse(
           '${ApiConstants.baseUrl}/camticket/api/performance-management/overview'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
     );
-
     debugPrint('API 응답: ${response.statusCode} : ${response.body}');
 
     if (response.statusCode == 200) {

@@ -10,8 +10,11 @@ import '../../../provider/seat_provider.dart';
 import '../../../utility/color.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
+  final List<SeatUnavailable> seatUnavailable;
   final Schedule? schedule;
-  const PerformanceSeatReservationPage({super.key, this.schedule});
+
+  
+  const PerformanceSeatReservationPage({super.key, this.schedule, required this.seatUnavailable,});
 
   @override
   State<PerformanceSeatReservationPage> createState() =>
@@ -20,22 +23,16 @@ class PerformanceSeatReservationPage extends StatefulWidget {
 
 class _PerformanceSeatReservationPageState
     extends State<PerformanceSeatReservationPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _disabledSeats.addAll(widget.seatUnavailable[widget.schedule!.scheduleIndex].codes);
+  }
+
   final Set<String> _selectedSeats = {};
   final Set<String> _disabledSeats = {
-    'A1',
-    'A2',
-    'A3',
-    'A4',
-    'A5',
-    'A6',
-    'A7',
-    'A8',
-    'A9',
-    'A10',
-    'A11',
-    'A12',
-    'C3',
-    'C4'
+
   };
   final Set<String> _reservedSeats = {'B3', 'D4', 'E10', 'E11'};
   final int maxSelectableSeats = 4;
@@ -156,7 +153,7 @@ class _PerformanceSeatReservationPageState
                         ),
                       ),
                       const SizedBox(width: 30),
-                      TextButton.icon(
+                     /* TextButton.icon(
                         onPressed: () {
                           final now = DateTime.now();
                           final eventDate =
@@ -212,7 +209,7 @@ class _PerformanceSeatReservationPageState
                                 BorderRadius.circular(100), // ✅ 모서리 둥글기
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

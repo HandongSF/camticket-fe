@@ -146,7 +146,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                               '${DateFormat('MM.dd ').format(widget.item.reservationStartAt)} ~ ${DateFormat('MM.dd').format(widget.item.reservationEndAt)}'),
                           grayAndWhite(
                               '공연날짜',
-                              DateFormat('MM.dd HH:mm')
+                              DateFormat('MM.dd')
                                   .format(widget.item.firstScheduleStartTime)),
                           grayAndWhite('장소', widget.item.location),
                         ],
@@ -183,6 +183,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 MaterialPageRoute(
                   builder: (context) => PerformanceSeatReservationPage(
                     schedule: selectedSchedule,
+                    seatUnavailable: performanceDetails.seatUnavailableCodesPerSchedule,
                   ),
                 ),
               );
@@ -264,7 +265,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('모든 관람객 3,000원\n새내기일 경우 1,000원 할인하여 2,000원! (현장 학생증 지참)',
+              Text('${performanceDetails.priceNotice}\n',
                   style: TextStyle(color: Colors.white)),
               SizedBox(height: 20),
               Divider(
@@ -278,7 +279,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('11/18 월요일 오후 2시 - 5시 오프라인 티켓 예매 가능합니다.\n1인 4매까지 예매 가능합니다.',
+              Text('${performanceDetails.reservationNotice}',
                   style: TextStyle(color: Colors.white)),
               SizedBox(height: 20),
               Divider(
@@ -473,7 +474,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text('걸어서', style: TextStyle(color: Colors.white)),
+              Text( widget.item.location, style: TextStyle(color: Colors.white)),
               const SizedBox(height: 20),
               const Divider(
                 color: AppColors.gray4, // 선 색상
