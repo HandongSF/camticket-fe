@@ -17,10 +17,9 @@ class PerformanceRoundsWidget extends StatefulWidget {
 }
 
 class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
-  final Map<DateTime, List<String>> _scheduleMap = {}; // key: 날짜, value: 회차 리스트
-
   final List<TextEditingController> _controllers = [TextEditingController()];
-  Future<void> _addSchedule(int i) async {
+  final List<DateTime?> _dateTimes = [null];
+  Future<void> _pickSchedule(int index) async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -37,32 +36,41 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
 
     if (pickedTime == null) return;
 
-    final formattedTime = pickedTime.format(context);
+    final dateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
 
     setState(() {
-      _controllers[i].text =
-          '${pickedDate.year}-${pickedDate.month}-${pickedDate.day} $formattedTime';
-      final dateKey =
-          DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
-      if (!_scheduleMap.containsKey(dateKey)) {
-        _scheduleMap[dateKey] = [];
-      }
-      _scheduleMap[dateKey]!.add(formattedTime);
+      _dateTimes[index] = dateTime;
+      _controllers[index].text =
+          '${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')} '
+          '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
 
       _notifyParent();
     });
   }
 
   void _notifyParent() {
-    final result = _scheduleMap.entries.map((entry) {
-      return ScheduleRequest(date: entry.key, rounds: entry.value);
-    }).toList();
+    final result = <ScheduleRequest>[];
+
+    for (int i = 0; i < _dateTimes.length; i++) {
+      final dt = _dateTimes[i];
+      if (dt != null) {
+        result.add(ScheduleRequest(scheduleIndex: i, startTime: dt));
+      }
+    }
+
     widget.onChanged(result);
   }
 
   void _addRound() {
     setState(() {
       _controllers.add(TextEditingController());
+      _dateTimes.add(null);
     });
   }
 
@@ -101,7 +109,7 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
                           controller: _controllers[i],
                           readOnly: true,
                           onTap: () {
-                            _addSchedule(i);
+                            _pickSchedule(i);
                           },
                           decoration: InputDecoration(
                             hintText: '공연 날짜와 시간을 선택하세요.',
@@ -122,7 +130,10 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget> {
               ),
             ),
           GestureDetector(
-            onTap: _addRound,
+            onTap: () {
+              _addRound();
+              _notifyParent(); // 새로운 항목 추가 후도 갱신
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               child: Row(

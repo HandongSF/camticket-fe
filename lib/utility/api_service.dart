@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:camticket/model/manage_overview.dart';
 import 'package:camticket/utility/endpoint.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
@@ -92,11 +93,6 @@ class ApiService {
 
   Future<PerformanceDetail> fetchPerformanceDetail(int postId) async {
     final accessToken = await secureStorage.readToken("x-access-token");
-    debugPrint('저장된 액세스 토큰: $accessToken');
-    debugPrint(
-      'API 호출: ${ApiConstants.baseUrl}/camticket/api/performance-management/$postId',
-    );
-
     final response = await http.get(
       Uri.parse(
           '${ApiConstants.baseUrl}/camticket/api/performance-management/$postId'),
@@ -126,37 +122,56 @@ class ApiService {
     required File profileImage,
     List<File> detailImages = const [],
   }) async {
-    final accessToken = await secureStorage.readToken("x-access-token");
+    try {
+      debugPrint('requestData: ${requestData.toJson()}');
 
-    final uri = Uri.parse(
-        '${ApiConstants.baseUrl}/camticket/api/performance-management');
+      final accessToken = await secureStorage.readToken("x-access-token");
 
-    var request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $accessToken'
-      ..fields['request'] = jsonEncode(requestData.toJson())
-      ..files.add(await http.MultipartFile.fromPath(
+      final uri = Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management');
+
+      var request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $accessToken';
+
+      final jsonPart = http.MultipartFile.fromString(
+        'request',
+        jsonEncode(requestData.toJson()),
+        contentType: MediaType('application', 'json'),
+      );
+      request.files.add(jsonPart);
+
+      request.files.add(await http.MultipartFile.fromPath(
         'profileImage',
         profileImage.path,
-        contentType:
-            MediaType('image', lookupMimeType(profileImage.path) ?? 'jpeg'),
+        contentType: MediaType(
+          'image',
+          lookupMimeType(profileImage.path) ?? 'jpeg',
+        ),
       ));
+      for (var img in detailImages) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'detailImages',
+          img.path,
+          contentType: MediaType(
+            'image',
+            lookupMimeType(img.path) ?? 'jpeg',
+          ),
+        ));
+      }
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-    for (var img in detailImages) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'detailImages',
-        img.path,
-        contentType: MediaType('image', lookupMimeType(img.path) ?? 'jpeg'),
-      ));
-    }
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return data['data']; // postId 반환
-    } else {
-      print("공연 등록 실패: ${response.statusCode} ${response.body}");
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        print("공연 등록 성공: postId = ${data['data']}");
+        return data['data']; // postId 반환
+      } else {
+        print("공연 등록 실패: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e, stackTrace) {
+      print("공연 등록 중 예외 발생: $e");
+      print("StackTrace: $stackTrace");
       return null;
     }
   }
@@ -172,7 +187,6 @@ class ApiService {
         'Authorization': 'Bearer $accessToken',
       },
     );
-
     if (response.statusCode == 200) {
       final jsonMap = json.decode(utf8.decode(response.bodyBytes));
       final data = jsonMap['data'];
@@ -180,6 +194,74 @@ class ApiService {
       return User.fromJson(data);
     } else {
       throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
+  Future<List<ManageOverview>> fetchManageOverviewImage() async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    // debugPrint('저장된 액세스 토큰: $accessToken');
+    // debugPrint('이미지 URL 가져오기: userId=$userId');
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management/overview'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+    );
+    debugPrint('API 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final data = jsonMap['data'];
+      if (data.isNotEmpty) {
+        debugPrint('데이터가 비어있지 않습니다. profileImageUrl이 있는지 확인합니다.');
+        try {
+          List<ManageOverview> manageOverviewList =
+              data.map<ManageOverview>((e) {
+            try {
+              return ManageOverview.fromJson(e);
+            } catch (e) {
+              debugPrint('fromJson 변환 중 오류 발생: $e\n데이터: $e');
+              rethrow;
+            }
+          }).toList();
+
+          debugPrint('성공적으로 데이터를 가져왔습니다: ${manageOverviewList.length}개 항목');
+          return manageOverviewList;
+        } catch (e) {
+          debugPrint('데이터 파싱 실패: $e');
+          throw Exception('ManageOverview 리스트 생성 중 오류');
+        }
+        // 각 항목에 대해 이미지 URL을 가져오는 비동기 작업 수행
+      } else {
+        throw Exception('데이터가 비어있거나 profileImageUrl이 없음');
+      }
+    } else {
+      throw Exception('프로필 이미지 요청 실패: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deletePerformance(int postId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    final response = await http.delete(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('API 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      debugPrint('공연 삭제 성공: $postId');
+    } else {
+      throw Exception('공연 삭제 실패: ${response.statusCode}');
     }
   }
 }

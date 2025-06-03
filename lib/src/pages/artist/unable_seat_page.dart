@@ -1,9 +1,12 @@
 import 'package:camticket/components/seat.dart';
+import 'package:camticket/model/performance_create/seat_unavailable_schedule_request.dart';
 import 'package:camticket/src/pages/artist/register_detail_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../components/buttons.dart';
+import '../../../provider/performance_upload_provider.dart';
 
 class UnableSeatPage extends StatefulWidget {
   final List<String> selectedSeats;
@@ -14,6 +17,10 @@ class UnableSeatPage extends StatefulWidget {
 }
 
 class _UnableSeatPageState extends State<UnableSeatPage> {
+  late final List<String> _roundKeys; // '날짜|시간' 형식
+  String? _selectedRoundKey;
+  final Map<String, Set<String>> _disabledSeatsMap = {};
+
   final Set<String> _disabledSeats = {};
   final Set<String> _reservedSeats = {};
   final int maxSelectableSeats = 4;
@@ -33,6 +40,19 @@ class _UnableSeatPageState extends State<UnableSeatPage> {
       }
     }
     return seatMap;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final schedules = context.read<PerformanceUploadProvider>().schedules;
+
+    _roundKeys = schedules
+        .map((schedule) =>
+            '${schedule.scheduleIndex}|${schedule.startTime.toIso8601String()}')
+        .toList();
+    debugPrint('Round Keys: $_roundKeys');
+    _selectedRoundKey = _roundKeys.first;
   }
 
   @override
@@ -154,6 +174,42 @@ class _UnableSeatPageState extends State<UnableSeatPage> {
                       ],
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: DropdownButton<String>(
+                      value: _selectedRoundKey,
+                      dropdownColor: Colors.grey[900],
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white),
+                      items: _roundKeys.map((key) {
+                        final parts = key.split('|');
+                        if (parts.length < 2) {
+                          return DropdownMenuItem(
+                            value: key,
+                            child: Text('Invalid Key Format'),
+                          );
+                        }
+
+                        final scheduleIndex = parts[0];
+                        final dateStr = parts[1];
+                        final date = DateTime.tryParse(dateStr);
+
+                        return DropdownMenuItem(
+                          value: key,
+                          child: Text(
+                            date != null
+                                ? '회차 $scheduleIndex / ${date.toLocal().toString().split(' ')[0]}'
+                                : 'Invalid Date',
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRoundKey = value;
+                        });
+                      },
+                    ),
+                  ),
                   SizedBox(height: 24),
                   SeatStageSection(),
                   SizedBox(height: 10),
@@ -163,21 +219,20 @@ class _UnableSeatPageState extends State<UnableSeatPage> {
                     seatSpacing: seatSpacing,
                     aisleSpacing: aisleSpacing,
                     selectedSeats: _selectedSeats,
-                    disabledSeats: _disabledSeats,
+                    disabledSeats: _disabledSeatsMap[_selectedRoundKey] ?? {},
                     reservedSeats: _reservedSeats,
                     maxSelectableSeats: maxSelectableSeats,
                     alreadySelectedSeats: alreadySelectedSeats,
                     onSeatTapped: (seatId) {
                       setState(() {
-                        if (_disabledSeats.contains(seatId)) {
-                          _disabledSeats.remove(seatId);
+                        final seats = _disabledSeatsMap.putIfAbsent(
+                            _selectedRoundKey!, () => <String>{});
+                        if (seats.contains(seatId)) {
+                          seats.remove(seatId);
                         } else {
-                          _disabledSeats.add(seatId);
+                          seats.add(seatId);
                         }
                       });
-                      //
-                      // // 상태 업데이트
-                      // (context as Element).markNeedsBuild();
                     },
                   ),
                   SizedBox(height: 200),
@@ -192,8 +247,6 @@ class _UnableSeatPageState extends State<UnableSeatPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // 예매 하기 버튼 클릭 시 처리 로직
-                    // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
                     Navigator.pop(context, widget.selectedSeats);
                   },
                   child: subPurpleBtn4518(
@@ -202,11 +255,39 @@ class _UnableSeatPageState extends State<UnableSeatPage> {
                 ),
                 GestureDetector(
                     onTap: () {
-                      // 예매 취소 버튼 클릭 시 처리 로직
+                      final provider =
+                          context.read<PerformanceUploadProvider>();
+                      final schedules = provider.schedules;
+
+                      final List<SeatUnavailableScheduleRequest> results = [];
+
+                      for (final schedule in schedules) {
+                        final key =
+                            '${schedule.scheduleIndex}|${schedule.startTime.toIso8601String()}';
+                        final seatIds = _disabledSeatsMap[key];
+                        if (seatIds != null && seatIds.isNotEmpty) {
+                          results.add(SeatUnavailableScheduleRequest(
+                            scheduleIndex: schedule.scheduleIndex,
+                            codes: seatIds.toList(),
+                          ));
+                        }
+                      }
+
+                      if (results.length < _roundKeys.length) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("모든 회차에 대해 좌석을 지정해주세요.")),
+                        );
+                        return;
+                      }
+
+                      provider.setPage2UnavailableSeats(results);
+
+                      //provider.showPage2UnavailableSeats();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RegisterDetailPage(),
+                          builder: (context) => const RegisterDetailPage(),
                         ),
                       );
                     },

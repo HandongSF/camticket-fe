@@ -2,12 +2,19 @@ import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/src/pages/artist/performance_edit_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
+import 'package:camticket/utility/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../components/text_pair.dart';
+import '../../../model/performanceDetail.dart';
+import '../../../provider/performance_provider.dart';
 import '../../../utility/color.dart';
 
 class ArtistPerformanceDetailPage extends StatefulWidget {
-  const ArtistPerformanceDetailPage({super.key});
+  final int postId;
+
+  const ArtistPerformanceDetailPage({super.key, required this.postId});
 
   @override
   State<ArtistPerformanceDetailPage> createState() =>
@@ -17,9 +24,23 @@ class ArtistPerformanceDetailPage extends StatefulWidget {
 class _ArtistPerformanceDetailPageState
     extends State<ArtistPerformanceDetailPage> {
   int _selectedTabIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PerformanceProvider>(context, listen: false)
+          .fetchPerformanceDetail(widget.postId);
+    });
+  }
+
   final bool isExpired = true; // 만료 여부
   @override
   Widget build(BuildContext context) {
+    final performanceProvider =
+        Provider.of<PerformanceProvider>(context, listen: false);
+    final performanceDetails = performanceProvider.performanceDetails;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -73,8 +94,8 @@ class _ArtistPerformanceDetailPageState
                 child: ClipRect(
                   child: Align(
                     alignment: Alignment.topCenter, // 상단 정렬
-                    child: Image.asset(
-                      'assets/images/pitch_stage.png',
+                    child: Image.network(
+                      performanceDetails.profileImageUrl,
                       width: MediaQuery.of(context).size.width,
                       fit: BoxFit.cover, // 이미지 확대해서 자르기 (높이 채우기)
                     ),
@@ -88,44 +109,55 @@ class _ArtistPerformanceDetailPageState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // 공연 제목
-                  SizedBox(
-                    height: 228,
-                    child: Image.asset(
-                      'assets/images/pitch_stage.png',
-                      fit: BoxFit.cover,
+                  Expanded(
+                    child: SizedBox(
+                      height: 228,
+                      child: Image.network(
+                        performanceDetails.profileImageUrl,
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
                   ),
-
-                  SizedBox(
-                    height: 228,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        subPurpleBtn('유료 공연'),
-                        SizedBox(
-                          height: 4,
-                        ),
-                        SizedBox(
-                          child: Text(
-                            '🎼 The Gospel\n: Who we are',
-                            style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 16,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.32,
-                                height: 0),
+                  SizedBox(width: 12), // 간격 조정
+                  Expanded(
+                    child: SizedBox(
+                      height: 228,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          subPurpleBtn('유료 공연'),
+                          SizedBox(
+                            height: 4,
                           ),
-                        ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        grayAndWhite('카테고리', '음악'),
-                        grayAndWhite('예매 기간', '11/18 월- 11/21 목'),
-                        grayAndWhite('공연날짜', '2025.11.23 (2회)'),
-                        grayAndWhite('장소', '학관 104호'),
-                      ],
+                          SizedBox(
+                            child: Text(
+                              performanceDetails.title,
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.32,
+                                  height: 0),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 25,
+                          ),
+                          grayAndWhite('카테고리', performanceDetails.category),
+                          grayAndWhite(
+                            '예매 기간',
+                            '${DateFormat('MM.dd ').format(DateTime.parse(performanceDetails.reservationStartAt))} ~ ${DateFormat('MM.dd').format(DateTime.parse(performanceDetails.reservationEndAt))}',
+                          ),
+                          grayAndWhite(
+                            '공연날짜',
+                            DateFormat('MM.dd HH:mm').format(DateTime.parse(
+                                performanceDetails.schedules.first.startTime)),
+                          ),
+                          grayAndWhite('장소', performanceDetails.location),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -142,7 +174,7 @@ class _ArtistPerformanceDetailPageState
                 ],
               ),
             ),
-            _buildTabContent()
+            _buildTabContent(performanceDetails),
           ],
         ),
       ),
@@ -168,8 +200,9 @@ class _ArtistPerformanceDetailPageState
                               ),
                               TextButton(
                                 onPressed: () {
+                                  ApiService().deletePerformance(widget.postId);
                                   Navigator.pop(context);
-                                  // 삭제 처리 로직
+                                  Navigator.pop(context); // 이전 페이지로 돌아가기
                                 },
                                 child: const Text('삭제'),
                               ),
@@ -189,7 +222,10 @@ class _ArtistPerformanceDetailPageState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PerformanceEditPage(),
+                      builder: (context) => PerformanceEditPage(
+                        postId: widget.postId,
+                        performanceDetails: performanceDetails,
+                      ),
                     ),
                   );
                 },
@@ -235,7 +271,7 @@ class _ArtistPerformanceDetailPageState
     );
   }
 
-  Widget _buildTabContent() {
+  Widget _buildTabContent(PerformanceDetail performanceDetails) {
     switch (_selectedTabIndex) {
       case 0:
         return Padding(
@@ -243,10 +279,11 @@ class _ArtistPerformanceDetailPageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              subPurpleText('유료 공연'),
+              subPurpleText('공연 시간'),
               SizedBox(height: 8),
               Text(
-                '이 공연은 현대 복음 음악과 연극이 결합된 창작 뮤지컬입니다. 각기 다른 사연을 가진 인물들이 음악을 통해 치유받는 여정을 그립니다.',
+                DateFormat('MM.dd HH:mm').format(DateTime.parse(
+                    performanceDetails.schedules.first.startTime)),
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
@@ -447,32 +484,32 @@ class _ArtistPerformanceDetailPageState
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('공연장 위치',
+            children: [
+              const Text('공연장 위치',
                   style: TextStyle(
                       color: Color(0xFFE4C3FF),
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                '학관 104호',
-                style: TextStyle(color: Colors.white),
+                performanceDetails.location,
+                style: const TextStyle(color: Colors.white),
               ),
-              SizedBox(height: 20),
-              Divider(
+              const SizedBox(height: 20),
+              const Divider(
                 color: AppColors.gray4, // 선 색상
                 thickness: 0.5, // 선 두께
               ),
-              SizedBox(height: 20),
-              Text('찾아오는 길',
+              const SizedBox(height: 20),
+              const Text('찾아오는 길',
                   style: TextStyle(
                       color: Color(0xFFE4C3FF),
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('걸어서', style: TextStyle(color: Colors.white)),
-              SizedBox(height: 20),
-              Divider(
+              const SizedBox(height: 8),
+              const Text('걸어서', style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 20),
+              const Divider(
                 color: AppColors.gray4, // 선 색상
                 thickness: 0.5, // 선 두께
               ),

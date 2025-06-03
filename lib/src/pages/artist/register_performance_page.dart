@@ -9,12 +9,12 @@ import 'package:camticket/model/performance_create/performance_post_create_reque
 import 'package:camticket/src/pages/artist/unable_seat_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/performance_create/schedule_request.dart';
+import '../../../model/performance_create/ticket_option_request.dart';
 import '../../../provider/performance_upload_provider.dart';
 import '../searchpage.dart';
 
@@ -43,18 +43,16 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
   final TextEditingController _bankAccountController =
       TextEditingController(); // 백계좌 정보 입력 필드
   TicketType ticketType = TicketType.PAID; // 유료 공연 여부
-
+  List<TicketOptionRequest> _ticket = [];
   bool _isFree = false; // 무료 공연 여부
 
   int _selectedCategoryIndex = 0; // 카테고리 선택을 위한 인덱스
 
-  //이미지를 가져오는 함수
   Future getImage(ImageSource imageSource) async {
-    //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
     if (pickedFile != null) {
       setState(() {
-        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
+        _image = XFile(pickedFile.path);
       });
     }
   }
@@ -101,7 +99,6 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.read<PerformanceUploadProvider>();
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus(); // 키보드 숨기기
@@ -407,6 +404,9 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                   setState(() {
                     _schedules = scheduleList;
                   });
+                  debugPrint(
+                    'Selected schedules: ${_schedules.map((e) => e.toJson()).toList()}',
+                  );
                 },
               ),
               const SizedBox(height: 24),
@@ -612,7 +612,13 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                               style: TextStyle(color: Colors.white)))),
                 ],
               ),
-              PerformanceRoundsWidget2(),
+              PerformanceRoundsWidget2(
+                onChanged: (options) {
+                  setState(() {
+                    _ticket = options;
+                  });
+                },
+              ),
               SizedBox(
                 height: 8,
               ),
@@ -689,9 +695,11 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                       location: _location,
                       maxTicketsPerUser: int.parse(_maxTicketsController.text),
                       ticketType: ticketType,
-                      ticketOptionRequest: [],
+                      ticketOptionRequest: _ticket,
                       bankAccount: _bankAccountController.text,
                     );
+
+                    //provider.showPage1Info();
 
                     // Perform the action for the next button
                     Navigator.push(
@@ -742,19 +750,6 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
         ),
       );
 
-  Widget _dateField(String hint) => TextField(
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFFE5E5EA)),
-          filled: true,
-          fillColor: Color(0xFF3D3D3D),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none),
-        ),
-        style: const TextStyle(color: Colors.white),
-      );
-
   Widget _dropdownField(String hint) => DropdownButtonFormField<String>(
         dropdownColor: const Color(0xFF3D3D3D),
         decoration: InputDecoration(
@@ -770,49 +765,15 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                 value: e,
                 child: Text(e, style: const TextStyle(color: Colors.white))))
             .toList(),
-        onChanged: (_) {},
-      );
-
-  Widget _addButton(String label) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: const Color(0xFF9B3BE9), shape: BoxShape.circle),
-              child: const Text('박', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: Colors.white)),
-          ],
-        ),
-      );
-
-  Widget _ticketOptionField(String label, String hint) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-                child:
-                    Text(label, style: const TextStyle(color: Colors.white))),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: hint,
-                  hintStyle: const TextStyle(color: Color(0xFFE5E5EA)),
-                  filled: true,
-                  fillColor: const Color(0xFF3D3D3D),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
-          ],
-        ),
+        onChanged: (_) {
+          setState(() {
+            // 선택된 공연 장소에 따라 _location 값을 업데이트
+            if (_ == '학관 104호') {
+              _location = PerformanceLocation.HAKGWAN_104;
+            } else {
+              _location = PerformanceLocation.ETC; // 기타로 설정
+            }
+          });
+        },
       );
 }
