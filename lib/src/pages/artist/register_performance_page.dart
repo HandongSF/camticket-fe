@@ -5,7 +5,7 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/performance_round_widget.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/components/ticket_option.dart';
-import 'package:camticket/model/performance_create/performance_post_create_request.dart';
+import 'package:camticket/model/performance_update/performance_post_update_request.dart';
 import 'package:camticket/src/pages/artist/unable_seat_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';

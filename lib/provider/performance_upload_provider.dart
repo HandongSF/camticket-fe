@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:camticket/model/performanceDetail.dart';
 import 'package:flutter/material.dart';
 
-import '../model/performance_create/performance_post_create_request.dart';
+import '../model/performance_update/performance_post_update_request.dart';
 import '../model/performance_create/schedule_request.dart';
 import '../model/performance_create/seat_unavailable_schedule_request.dart';
 import '../model/performance_create/ticket_option_request.dart';

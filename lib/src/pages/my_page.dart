@@ -1,3 +1,4 @@
+import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
 import 'package:camticket/utility/color.dart';
@@ -26,10 +27,20 @@ class Mypage extends StatefulWidget {
 }
 
 class _Mypagestate extends State<Mypage> {
-  UserInfo currentUser = UserInfo(role: UserRole.none); // 초기 상태: 비로그인
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserProvider>(context, listen: false).fetchUser();
+    });
+  }
 
+  UserInfo currentUser = UserInfo(role: UserRole.none); // 초기 상태: 비로그인
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<UserProvider>(context, listen: true);
+    final user = provider.user;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Padding(

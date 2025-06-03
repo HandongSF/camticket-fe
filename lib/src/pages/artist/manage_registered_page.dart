@@ -14,7 +14,6 @@ class ManageRegisteredPage extends StatefulWidget {
 class _ManageRegisteredPageState extends State<ManageRegisteredPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ManageOverviewProvider>(context, listen: false)
