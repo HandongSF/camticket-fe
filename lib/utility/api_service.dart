@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:camticket/model/manage_overview.dart';
+import 'package:camticket/model/reservation_list_model.dart';
 import 'package:camticket/utility/endpoint.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import '../auth/secure_storage.dart';
 import '../model/performanceDetail.dart';
+import '../model/performance_create/performance_post_create_request.dart';
 import '../model/performance_update/performance_post_update_request.dart';
 import '../model/performance_overview_model.dart';
 import 'package:http/http.dart' as http;
@@ -176,6 +178,57 @@ class ApiService {
     }
   }
 
+  Future<bool> updatePerformancePost({
+    required PerformancePostUpdateRequest requestData,
+    List<File> detailImages = const [],
+    required int postId,
+  }) async {
+    try {
+      debugPrint('requestData: ${requestData.toJson()}');
+
+      final accessToken = await secureStorage.readToken("x-access-token");
+
+      final uri = Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance-management/$postId');
+
+      var request = http.MultipartRequest('PUT', uri)
+        ..headers['Authorization'] = 'Bearer $accessToken';
+
+      final jsonPart = http.MultipartFile.fromString(
+        'request',
+        jsonEncode(requestData.toJson()),
+        contentType: MediaType('application', 'json'),
+      );
+      request.files.add(jsonPart);
+
+      for (var img in detailImages) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'newDetailImages',
+          img.path,
+          contentType: MediaType(
+            'image',
+            lookupMimeType(img.path) ?? 'jpeg',
+          ),
+        ));
+      }
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        print("공연 등록 성공: postId = ${data['data']}");
+        return true; // postId 반환
+      } else {
+        print("공연 등록 실패: ${response.statusCode} ${response.body}");
+        return false;
+      }
+    } catch (e, stackTrace) {
+      print("공연 등록 중 예외 발생: $e");
+      print("StackTrace: $stackTrace");
+      return false;
+    }
+  }
+
   Future<User> fetchUserInfo(int userId) async {
     final accessToken = await secureStorage.readToken("x-access-token");
 
@@ -192,6 +245,36 @@ class ApiService {
       final data = jsonMap['data'];
 
       return User.fromJson(data);
+    } else {
+      throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
+  Future<List<ReservationData>> fetchReservationList(int postId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/reservation/management/performance/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    //debugPrint('response.bodyBytes : ${response.headers}');
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final data = jsonMap['data'];
+/*
+List<PerformanceOverview> overviewList =
+          data.map((e) => PerformanceOverview.fromJson(e)).toList();
+ */
+      List<ReservationData> reservationList = (jsonMap['data'] as List)
+          .map((e) => ReservationData.fromJson(e))
+          .toList();
+      debugPrint(reservationList.length.toString());
+      return reservationList;
     } else {
       throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
     }

@@ -1,12 +1,16 @@
+import 'package:camticket/model/reservation_list_model.dart';
+import 'package:camticket/utility/api_service.dart';
 import 'package:flutter/material.dart';
 
 class ReservationProvider with ChangeNotifier {
-  // Set<String>? _selectedReservation;
-  //
-  // Set<String>? get selectedReservation => _selectedReservation;
-  //
-  // void selectReservation(Set<String>? seat) {
-  //   _selectedReservation = seat;
-  //   notifyListeners();
-  // }
+  List<ReservationData> reservationList = [];
+
+  Future<void> fetchReservationList(int postId) async {
+    try {
+      reservationList = await ApiService().fetchReservationList(postId);
+    } catch (e) {
+      debugPrint('error : $e');
+      return;
+    }
+  }
 }

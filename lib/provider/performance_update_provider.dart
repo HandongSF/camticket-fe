@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../model/performance_create/performance_post_create_request.dart';
+import '../model/performance_update/performance_post_update_request.dart';
 import '../model/performance_create/schedule_request.dart';
 import '../model/performance_create/seat_unavailable_schedule_request.dart';
 import '../model/performance_create/ticket_option_request.dart';
 import '../utility/api_service.dart';
 
-class PerformanceUploadProvider with ChangeNotifier {
+class PerformanceUpdateProvider with ChangeNotifier {
   // 1페이지: 메인 이미지, 공연명, 카테고리, 예약 날짜/시간, 관람회차, 장소
   File? _profileImage;
   String _title = '';
@@ -51,12 +51,16 @@ class PerformanceUploadProvider with ChangeNotifier {
   String get timeNotice => _timeNotice; // 공연 시간 안내 문구
   List<File> get detailImages => _detailImages;
 
+  int postId = 0;
+
   // ===== Setter =====
+  void setPostId(int id) {
+    postId = id;
+  }
 
   // 1페이지
   void setPage1Info(
-      {required File profileImage,
-      required String title,
+      {required String title,
       required PerformanceCategory category,
       required DateTime reservationStartAt,
       required DateTime reservationEndAt,
@@ -66,7 +70,6 @@ class PerformanceUploadProvider with ChangeNotifier {
       TicketType ticketType = TicketType.PAID, // 기본값은 일반 티켓
       required List<TicketOptionRequest> ticketOptionRequest, // 티켓 옵션
       required String bankAccount}) {
-    _profileImage = profileImage;
     _title = title;
     _category = category;
     _reservationStartAt = reservationStartAt;
@@ -138,8 +141,9 @@ class PerformanceUploadProvider with ChangeNotifier {
   }
 
   // 요청 객체 생성
-  PerformancePostCreateRequest buildRequest() {
-    return PerformancePostCreateRequest(
+  PerformancePostUpdateRequest buildRequest() {
+    return PerformancePostUpdateRequest(
+      id: 0,
       title: _title, // 여러 문구를 content에 통합
       location: _location,
       reservationStartAt: _reservationStartAt!,
@@ -157,19 +161,19 @@ class PerformanceUploadProvider with ChangeNotifier {
     );
   }
 
-  Future<bool> uploadPerformance() async {
+  Future<bool> uploadPerformance(int postId) async {
     final request = buildRequest();
 
     try {
       print('[업로드 시작] 공연명: ${request.title}');
 
-      final postId = await ApiService().createPerformancePost(
+      final post = await ApiService().updatePerformancePost(
         requestData: request,
-        profileImage: _profileImage!,
         detailImages: _detailImages,
+        postId: postId,
       );
 
-      if (postId != null) {
+      if (post) {
         print('[업로드 성공] 등록된 공연 ID: $postId');
         return true;
       } else {

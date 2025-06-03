@@ -34,10 +34,6 @@ class _ReservationManagePageState extends State<ReservationManagePage> {
         .where((p) => p.lastScheduleDateTime.isAfter(now))
         .toList();
 
-    final expiredPerformances = manageOverviewProvider.performances
-        .where((p) => p.lastScheduleDateTime.isBefore(now))
-        .toList();
-
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
@@ -118,13 +114,6 @@ class _ReservationManagePageState extends State<ReservationManagePage> {
                       ],
                     ),
                   ),
-                  // Image.asset(
-                  //   'assets/images/pitch_stage.png',
-                  //   width: MediaQuery.of(context).size.width / 3,
-                  //   height: 200,
-                  //   fit: BoxFit.cover,
-                  // ),
-                  // 여기에 예약 관리 관련 위젯 추가
                 ],
               ),
             )));
@@ -149,7 +138,8 @@ class _ReservationManagePageState extends State<ReservationManagePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const ReservationDetailPage()),
+                  builder: (context) =>
+                      ReservationDetailPage(postId: item.postId)),
             );
           },
           child: Container(
