@@ -6,6 +6,7 @@ import 'package:camticket/provider/performance_provider.dart';
 import 'package:camticket/provider/performance_upload_provider.dart';
 import 'package:camticket/provider/seat_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
+import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -41,6 +42,9 @@ class CamTicket extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => PerformanceUploadProvider(),
+        ),
+        ChangeNotifierProvider(
+            create: (_) => UserProvider(),
         ),
       ],
       child: MaterialApp(
