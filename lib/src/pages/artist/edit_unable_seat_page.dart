@@ -2,27 +2,26 @@ import 'package:camticket/components/seat.dart';
 import 'package:camticket/src/pages/artist/register_detail2_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../components/buttons.dart';
+import '../../../model/performance_create/seat_unavailable_schedule_request.dart';
+import '../../../provider/performance_update_provider.dart';
 
-class EditUnableSeatPage extends StatelessWidget {
+class EditUnableSeatPage extends StatefulWidget {
   final List<String> selectedSeats;
 
   EditUnableSeatPage({super.key, required this.selectedSeats});
-  final Set<String> _disabledSeats = {
-    'A1',
-    'A2',
-    'A3',
-    'A4',
-    'A5',
-    'A6',
-    'A7',
-    'A8',
-    'A9',
-    'A10',
-    'A11',
-    'A12',
-  };
+  @override
+  State<EditUnableSeatPage> createState() => _EditUnableSeatPageState();
+}
+
+class _EditUnableSeatPageState extends State<EditUnableSeatPage> {
+  late final List<String> _roundKeys; // '날짜|시간' 형식
+  String? _selectedRoundKey;
+  final Map<String, Set<String>> _disabledSeatsMap = {};
+
+  final Set<String> _disabledSeats = {};
   final Set<String> _reservedSeats = {};
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
@@ -41,6 +40,19 @@ class EditUnableSeatPage extends StatelessWidget {
       }
     }
     return seatMap;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final schedules = context.read<PerformanceUpdateProvider>().schedules;
+
+    _roundKeys = schedules
+        .map((schedule) =>
+            '${schedule.scheduleIndex}|${schedule.startTime.toIso8601String()}')
+        .toList();
+    debugPrint('Round Keys: $_roundKeys');
+    _selectedRoundKey = _roundKeys.first;
   }
 
   @override
@@ -162,6 +174,42 @@ class EditUnableSeatPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: DropdownButton<String>(
+                      value: _selectedRoundKey,
+                      dropdownColor: Colors.grey[900],
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white),
+                      items: _roundKeys.map((key) {
+                        final parts = key.split('|');
+                        if (parts.length < 2) {
+                          return DropdownMenuItem(
+                            value: key,
+                            child: Text('Invalid Key Format'),
+                          );
+                        }
+
+                        final scheduleIndex = parts[0];
+                        final dateStr = parts[1];
+                        final date = DateTime.tryParse(dateStr);
+
+                        return DropdownMenuItem(
+                          value: key,
+                          child: Text(
+                            date != null
+                                ? '회차 $scheduleIndex / ${date.toLocal().toString().split(' ')[0]}'
+                                : 'Invalid Date',
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRoundKey = value;
+                        });
+                      },
+                    ),
+                  ),
                   SizedBox(height: 24),
                   SeatStageSection(),
                   SizedBox(height: 10),
@@ -171,12 +219,20 @@ class EditUnableSeatPage extends StatelessWidget {
                     seatSpacing: seatSpacing,
                     aisleSpacing: aisleSpacing,
                     selectedSeats: _selectedSeats,
-                    disabledSeats: _disabledSeats,
+                    disabledSeats: _disabledSeatsMap[_selectedRoundKey] ?? {},
                     reservedSeats: _reservedSeats,
                     maxSelectableSeats: maxSelectableSeats,
                     alreadySelectedSeats: alreadySelectedSeats,
                     onSeatTapped: (seatId) {
-                      // 선택/취소 로직 처리
+                      setState(() {
+                        final seats = _disabledSeatsMap.putIfAbsent(
+                            _selectedRoundKey!, () => <String>{});
+                        if (seats.contains(seatId)) {
+                          seats.remove(seatId);
+                        } else {
+                          seats.add(seatId);
+                        }
+                      });
                     },
                   ),
                   SizedBox(height: 200),
@@ -191,9 +247,7 @@ class EditUnableSeatPage extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // 예매 하기 버튼 클릭 시 처리 로직
-                    // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
-                    Navigator.pop(context, selectedSeats);
+                    Navigator.pop(context, widget.selectedSeats);
                   },
                   child: subPurpleBtn4518(
                     '이전',
@@ -201,6 +255,33 @@ class EditUnableSeatPage extends StatelessWidget {
                 ),
                 GestureDetector(
                     onTap: () {
+                      final provider =
+                          context.read<PerformanceUpdateProvider>();
+                      final schedules = provider.schedules;
+
+                      final List<SeatUnavailableScheduleRequest> results = [];
+
+                      for (final schedule in schedules) {
+                        final key =
+                            '${schedule.scheduleIndex}|${schedule.startTime.toIso8601String()}';
+                        final seatIds = _disabledSeatsMap[key];
+                        if (seatIds != null && seatIds.isNotEmpty) {
+                          results.add(SeatUnavailableScheduleRequest(
+                            scheduleIndex: schedule.scheduleIndex,
+                            codes: seatIds.toList(),
+                          ));
+                        }
+                      }
+
+                      if (results.length < _roundKeys.length) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("모든 회차에 대해 좌석을 지정해주세요.")),
+                        );
+                        return;
+                      }
+
+                      provider.setPage2UnavailableSeats(results);
                       // 예매 취소 버튼 클릭 시 처리 로직
                       Navigator.push(
                         context,

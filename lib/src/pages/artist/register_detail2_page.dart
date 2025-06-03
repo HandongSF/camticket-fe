@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/textfield.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
+import '../../../provider/performance_update_provider.dart';
 import '../searchpage.dart';
 
 class RegisterDetail2Page extends StatefulWidget {
@@ -15,6 +20,17 @@ class RegisterDetail2Page extends StatefulWidget {
 }
 
 class _RegisterDetail2PageState extends State<RegisterDetail2Page> {
+  List<File> _selectedImages = [];
+
+  Future<void> pickImages() async {
+    final ImagePicker picker = ImagePicker();
+    final List<XFile> files = await picker.pickMultiImage();
+
+    setState(() {
+      _selectedImages = files.take(4).map((f) => File(f.path)).toList();
+    });
+  }
+
   TextEditingController timeController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController noticeController = TextEditingController();
@@ -187,63 +203,72 @@ class _RegisterDetail2PageState extends State<RegisterDetail2Page> {
               const SizedBox(height: 32),
               subPurpleText('이미지 첨부 (팜플렛, 그 이외의 정보) -  최대 4장'),
               const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: AppColors.subPurple,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      width: 1,
-                      color: AppColors.gray2,
+              GestureDetector(
+                onTap: () async {
+                  await pickImages();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  clipBehavior: Clip.antiAlias,
+                  decoration: ShapeDecoration(
+                    color: AppColors.subPurple,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: AppColors.gray2,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.image_outlined,
+                        color: AppColors.mainBlack,
+                        size: 18,
+                      ),
+                      Text(
+                        '+ 새로운 이미지 첨부하기',
+                        style: TextStyle(
+                          color: AppColors.mainBlack,
+                          fontSize: 16,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          height: 1.12,
+                          letterSpacing: -0.32,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.image_outlined,
-                      color: AppColors.mainBlack,
-                      size: 18,
-                    ),
-                    Text(
-                      '+ 새로운 이미지 첨부하기',
-                      style: TextStyle(
-                        color: AppColors.mainBlack,
-                        fontSize: 16,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        height: 1.12,
-                        letterSpacing: -0.32,
+              ),
+              const SizedBox(height: 8),
+              if (_selectedImages.isNotEmpty)
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: _selectedImages.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.gray3,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                  ],
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.file(
+                        _selectedImages[index],
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
                 ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.gray3,
-                  //borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(
-                  'assets/images/poster.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.gray3,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(
-                  'assets/images/poster.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
               SizedBox(height: 24),
               dividerGray2(),
               const SizedBox(height: 24),
@@ -285,9 +310,30 @@ class _RegisterDetail2PageState extends State<RegisterDetail2Page> {
                     ),
                   ),
                   GestureDetector(
-                      onTap: () {
-                        // 예매 취소 버튼 클릭 시 처리 로직
-                        showPerformanceCompleteDialog(context);
+                      onTap: () async {
+                        final provider =
+                            context.read<PerformanceUpdateProvider>();
+
+                        provider.setPage3Details(
+                          timeNotice: timeController.text,
+                          ticketInfoText: priceController.text,
+                          noticeText: noticeController.text,
+                          detailImages: _selectedImages, // 빈 리스트여도 괜찮음
+                        );
+
+                        provider.showAll(); // 디버깅용
+
+                        if (await provider.uploadPerformance(provider.postId)) {
+                          // 업로드 성공 시
+                          showPerformanceCompleteDialog(context);
+                        } else {
+                          // 업로드 실패 시
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('공연 등록에 실패했습니다.'),
+                            ),
+                          );
+                        }
                       },
                       child: mainPurpleBtn1876('공연 등록하기')),
                 ],

@@ -5,7 +5,7 @@ import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/performance_round_widget.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/components/ticket_option.dart';
-import 'package:camticket/model/performance_update/performance_post_update_request.dart';
+import 'package:camticket/model/performance_create/performance_post_create_request.dart';
 import 'package:camticket/src/pages/artist/unable_seat_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
@@ -638,7 +638,6 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
               ),
               const SizedBox(height: 8),
               TextField(
-                controller: _bankAccountController,
                 decoration: InputDecoration(
                   hintText: '은행명과 계좌번호를 정확하게 입력해주세요.',
                   hintStyle: const TextStyle(color: AppColors.gray4),
@@ -649,7 +648,7 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                     borderSide: const BorderSide(color: AppColors.gray2),
                   ),
                 ),
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.number,
                 style: const TextStyle(color: Colors.white),
               ),
               SizedBox(height: 8),

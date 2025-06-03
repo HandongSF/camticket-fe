@@ -2,7 +2,8 @@ import '../performance_create/schedule_request.dart';
 import '../performance_create/ticket_option_request.dart';
 import '../performance_create/seat_unavailable_schedule_request.dart';
 
-class PerformancePostCreateRequest {
+class PerformancePostUpdateRequest {
+  final int id;
   final String title; //
   final PerformanceCategory category; //
   final PerformanceLocation location; //
@@ -20,7 +21,8 @@ class PerformancePostCreateRequest {
   final List<TicketOptionRequest> ticketOptions;
   final List<SeatUnavailableScheduleRequest> seatUnavailableCodesPerSchedule;
 
-  PerformancePostCreateRequest({
+  PerformancePostUpdateRequest({
+    required this.id,
     required this.title,
     required this.location,
     required this.reservationStartAt,
@@ -38,6 +40,7 @@ class PerformancePostCreateRequest {
   });
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'title': title,
         'location': location.toString().split('.').last, // Enum을 문자열로 변환
         'reservationStartAt': reservationStartAt.toIso8601String(),

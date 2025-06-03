@@ -298,7 +298,7 @@ class _ArtistPerformanceDetailPageState
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('모든 관람객 3,000원\n새내기일 경우 1,000원 할인하여 2,000원! (현장 학생증 지참)',
+              Text(performanceDetails.priceNotice,
                   style: TextStyle(color: Colors.white)),
               SizedBox(height: 20),
               Divider(
@@ -312,7 +312,7 @@ class _ArtistPerformanceDetailPageState
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('11/18 월요일 오후 2시 - 5시 오프라인 티켓 예매 가능합니다.\n1인 4매까지 예매 가능합니다.',
+              Text(performanceDetails.reservationNotice,
                   style: TextStyle(color: Colors.white)),
               SizedBox(height: 20),
               Divider(

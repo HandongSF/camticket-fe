@@ -4,7 +4,9 @@ import 'package:camticket/provider/manage_overview_provider.dart';
 import 'package:camticket/provider/navigation_provider.dart';
 import 'package:camticket/provider/pc_provider.dart';
 import 'package:camticket/provider/performance_provider.dart';
+import 'package:camticket/provider/performance_update_provider.dart';
 import 'package:camticket/provider/performance_upload_provider.dart';
+import 'package:camticket/provider/reservation_provider.dart';
 import 'package:camticket/provider/seat_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/provider/user_provider.dart';
@@ -45,10 +47,16 @@ class CamTicket extends StatelessWidget {
           create: (_) => PerformanceUploadProvider(),
         ),
         ChangeNotifierProvider(
-            create: (_) => UserProvider(),
+          create: (_) => PerformanceUpdateProvider(),
         ),
         ChangeNotifierProvider(
-              create: (_) => ManageOverviewProvider(),
+          create: (_) => UserProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ManageOverviewProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationProvider(),
         ),
       ],
       child: MaterialApp(
