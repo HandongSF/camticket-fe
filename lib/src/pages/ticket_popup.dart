@@ -1,8 +1,14 @@
+import 'dart:ui';
+
+import 'package:camticket/components/buttons.dart';
+import 'package:camticket/provider/user_provider.dart';
+import 'package:camticket/utility/category_btn.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../components/dashed_divider.dart';
 import '../../provider/ticket_provider.dart';
 
 class TicketPopup extends StatefulWidget {
@@ -18,7 +24,6 @@ class _TicketPopupState extends State<TicketPopup>
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -28,6 +33,7 @@ class _TicketPopupState extends State<TicketPopup>
     )..repeat();
     Future.microtask(
         () => context.read<ReservationOverviewProvider>().fetchReservations());
+    Future.microtask(() => context.read<UserProvider>().fetchUser());
   }
 
   @override
@@ -52,6 +58,8 @@ class _TicketPopupState extends State<TicketPopup>
     final double screenWidth = MediaQuery.of(context).size.width;
     final reservationProvider = context.watch<ReservationOverviewProvider>();
     final reservations = reservationProvider.reservations;
+    final userProvider = context.watch<UserProvider>();
+    final user = userProvider.user;
 
     return Stack(
       children: [
@@ -71,9 +79,9 @@ class _TicketPopupState extends State<TicketPopup>
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: reservationProvider.isLoading
+            child: reservationProvider.isLoading && userProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : reservationProvider.error != null
+                : reservationProvider.error != null || userProvider.isLoading
                     ? Center(
                         child: Text(
                           reservationProvider.error!,
@@ -114,6 +122,9 @@ class _TicketPopupState extends State<TicketPopup>
                                       },
                                       itemBuilder: (context, index) {
                                         final ticket = reservations[index];
+                                        final bool isPast = ticket
+                                            .performanceDate
+                                            .isBefore(DateTime.now());
                                         return ClipPath(
                                           clipper: TicketClipper(),
                                           child: Stack(
@@ -142,65 +153,188 @@ class _TicketPopupState extends State<TicketPopup>
                                               Container(
                                                 width: screenWidth * 0.7,
                                                 height: screenWidth * 5,
-                                                color: Colors.black.withOpacity(0.4),
+                                                color: Colors.black.withOpacity(
+                                                    isPast ? 0.6 : 0.4),
                                               ),
-                                              Positioned(
-                                                top: 20,
-                                                right: 20,
-                                                child: RotationTransition(
-                                                  turns: _rotationController,
-                                                  child: Stack(
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      SvgPicture.asset(
-                                                        'assets/images/mark.svg',
-                                                        width: 60,
-                                                        height: 60,
+                                              if (isPast) ...[
+                                                // 배경을 흐리게 처리 (Blur)
+                                                Positioned.fill(
+                                                  child: ClipRect(
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                          sigmaX: 5.5,
+                                                          sigmaY: 5.5),
+                                                      child: Container(
+                                                        color:
+                                                            Colors.transparent,
                                                       ),
-                                                      Image.asset(
-                                                        'assets/images/sticker.png',
-                                                        width: 30,
-                                                        height: 30,
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                                // 가운데에 약간 돌린 sold.png 오버레이
+                                                Center(
+                                                  child: Transform.rotate(
+                                                    angle:
+                                                        -0.22, // 라디안 단위 (약 -12도)
+                                                    child: Image.asset(
+                                                      'assets/sold.png', // 또는 'assets/images/sold.png'
+                                                      width: screenWidth * 0.45,
+                                                      opacity:
+                                                          const AlwaysStoppedAnimation(
+                                                              0.90),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+
+                                              ticket.performanceDate
+                                                      .isAfter(DateTime.now())
+                                                  ? Positioned(
+                                                      top: 20,
+                                                      right: 20,
+                                                      child: RotationTransition(
+                                                        turns:
+                                                            _rotationController,
+                                                        child: Stack(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          children: [
+                                                            SvgPicture.asset(
+                                                              'assets/images/mark.svg',
+                                                              width: 60,
+                                                              height: 60,
+                                                            ),
+                                                            Image.asset(
+                                                              'assets/images/sticker.png',
+                                                              width: 30,
+                                                              height: 30,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
                                               Positioned.fill(
                                                 child: Padding(
-                                                  padding: const EdgeInsets.all(16),
+                                                  padding:
+                                                      const EdgeInsets.all(16),
                                                   child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
                                                     children: [
                                                       // 중간: 좌석 정보, 예매자
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                                        children: [
-                                                          const Text('좌석정보',
-                                                              style: TextStyle(color: AppColors.mainPurple, fontSize: 14)),
-                                                          Text('${ticket.selectedSeats}',
-                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
-                                                          const SizedBox(height: 4),
-                                                          const Text('예매자 정보',
-                                                              style: TextStyle(color: AppColors.mainPurple, fontSize: 14)),
-                                                          Text('${ticket.ticketOptionName}',
-                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
-                                                        ],
+
+                                                      SizedBox(
+                                                        height: 50,
                                                       ),
                                                       Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
                                                         children: [
-                                                          Text('${ticket.artistName}',
-                                                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                                                          const SizedBox(height: 4),
-                                                          Text('${ticket.performanceTitle}',
-                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
-                                                          const SizedBox(height: 4),
-                                                          Text('${ticket.performanceDate}',
-                                                              style: const TextStyle(color: AppColors.gray4, fontSize: 14)),
-                                                          const SizedBox(height: 4),
-                                                          Text('${ticket.location}',
-                                                              style: const TextStyle(color: AppColors.gray4, fontSize: 14)),
+                                                          const Text('좌석정보',
+                                                              style: TextStyle(
+                                                                  color: AppColors
+                                                                      .mainPurple,
+                                                                  fontSize:
+                                                                      14)),
+                                                          Text(
+                                                              '${ticket.selectedSeats}',
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      14)),
+                                                          const SizedBox(
+                                                              height: 4),
+                                                          const Text('예매자 정보',
+                                                              style: TextStyle(
+                                                                  color: AppColors
+                                                                      .mainPurple,
+                                                                  fontSize:
+                                                                      14)),
+                                                          Text(
+                                                              '${user!.name} ${ticket.ticketOptionName}',
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      14)),
+                                                        ],
+                                                      ),
+                                                      DashedDivider(
+                                                        height: 2, // 두께
+                                                        dashWidth:
+                                                            15, // 한 줄의 길이 (이미지처럼 길게)
+                                                        dashSpace:
+                                                            20, // 줄과 줄 사이 간격
+                                                        color: Color(
+                                                            0xFF828282), // 밝은 회색 (이미지 참고)
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              buildGradientBadge(
+                                                                '아티스트',
+                                                              ),
+                                                              SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              Text(
+                                                                  ticket
+                                                                      .artistName,
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          14,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold)),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 4),
+                                                          Text(
+                                                              '${ticket.performanceTitle}',
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      14)),
+                                                          const SizedBox(
+                                                              height: 4),
+                                                          Text(
+                                                              '${ticket.performanceDate}',
+                                                              style: const TextStyle(
+                                                                  color:
+                                                                      AppColors
+                                                                          .gray4,
+                                                                  fontSize:
+                                                                      14)),
+                                                          const SizedBox(
+                                                              height: 4),
+                                                          Text(
+                                                              '${ticket.location}',
+                                                              style: const TextStyle(
+                                                                  color:
+                                                                      AppColors
+                                                                          .gray4,
+                                                                  fontSize:
+                                                                      14)),
+                                                          SizedBox(
+                                                            height: 40,
+                                                          )
                                                         ],
                                                       ),
                                                     ],
@@ -217,8 +351,8 @@ class _TicketPopupState extends State<TicketPopup>
                                       child: IconButton(
                                         icon: const Icon(Icons.arrow_back_ios,
                                             color: AppColors.gray5, size: 12),
-                                        onPressed: () =>
-                                            _goToPage(_currentPage - 1,reservations),
+                                        onPressed: () => _goToPage(
+                                            _currentPage - 1, reservations),
                                       ),
                                     ),
                                     Positioned(
@@ -228,8 +362,8 @@ class _TicketPopupState extends State<TicketPopup>
                                             Icons.arrow_forward_ios,
                                             color: AppColors.gray5,
                                             size: 12),
-                                        onPressed: () =>
-                                            _goToPage(_currentPage + 1,reservations),
+                                        onPressed: () => _goToPage(
+                                            _currentPage + 1, reservations),
                                       ),
                                     ),
                                   ],

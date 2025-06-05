@@ -93,6 +93,7 @@ flutter:
      - assets/kakao_login_large_narrow.png
      - assets/images/praise.png
      - assets/images/pitchpipe.png
+     - assets/sold.png
      
 
   # An image asset can refer to one or more resolution-specific "variants", see
