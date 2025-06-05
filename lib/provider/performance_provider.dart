@@ -13,8 +13,8 @@ class PerformanceProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  late PerformanceDetail _performanceDetails;
-  PerformanceDetail get performanceDetails => _performanceDetails;
+  PerformanceDetail? _performanceDetails;
+  PerformanceDetail? get performanceDetails => _performanceDetails;
   String? _detailError;
   String? get detailError => _detailError;
   bool _detailLoading = false;
@@ -28,7 +28,7 @@ class PerformanceProvider with ChangeNotifier {
     try {
       _performanceDetails =
           await ApiService().fetchPerformanceDetail(performanceId);
-      debugPrint('Fetched performance details: ${_performanceDetails.title}');
+      //debugPrint('Fetched performance details: ${_performanceDetails.title}');
     } catch (e) {
       _detailError = e.toString();
       debugPrint('Error fetching performance details: $_detailError');

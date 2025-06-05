@@ -1,11 +1,12 @@
-/*
-    provider 호출은 해놓았으니
-    맞게 연결만 하면 됩니다.
- */
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
+import 'package:camticket/model/performanceDetail.dart';
+import 'package:camticket/model/ticket_option_detail.dart';
+import 'package:camticket/provider/reservation_upload_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
+import 'package:camticket/provider/ticket_option_provider.dart';
+import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/src/pages/user/ticket_success_page.dart';
@@ -16,88 +17,180 @@ import 'package:provider/provider.dart';
 
 import '../../../components/textfield.dart';
 import '../../../components/texts.dart';
+import '../../../model/reservation_request.dart';
 import '../../../provider/seat_provider.dart';
 
 class ReservationCheckInsertPayment extends StatefulWidget {
-  const ReservationCheckInsertPayment({super.key});
+  const ReservationCheckInsertPayment({
+    super.key,
+    required this.detail,
+    required this.num,
+    required this.disabled,
+    required this.scheduleId,
+    this.time,
+    required this.count,
+  });
+
+  final PerformanceDetail detail;
+  final int num;
+  final DateTime? time;
+  final Set<String> disabled;
+  final int scheduleId;
+  final int count;
 
   @override
-  _ReservationCheckInsertPaymentState createState() =>
+  State<ReservationCheckInsertPayment> createState() =>
       _ReservationCheckInsertPaymentState();
 }
 
 class _ReservationCheckInsertPaymentState
     extends State<ReservationCheckInsertPayment> {
+  List<TicketOptionDetail> _ticketOptions = [];
+  int _ticketOptionIdGeneral = 0;
+  int _ticketUnitPriceGeneral = 0;
+  int _ticketOptionIdNewbie = 0;
+
+  int _generalCount = 0;
+  int _newbieCount = 0;
+  int _maxTickets = 0;
+
+  final TextEditingController _phone1 = TextEditingController(text: '010');
+  final TextEditingController _phone2 = TextEditingController();
+  final TextEditingController _phone3 = TextEditingController();
+
+  // ───── 초기 로딩 ──────────────────────────────────────────────
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<SelectedPerformanceProvider>(context, listen: false)
-    //       .fetchSelectedPerformance();
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 유저 정보
+      context.read<UserProvider>().fetchUser();
+      _maxTickets = widget.detail.maxTicketsPerUser;
+      // 티켓 옵션
+      final optionProv = context.read<TicketOptionProvider>();
+      await optionProv.loadOptions(widget.detail.id);
+      setState(() {
+        _ticketOptions = optionProv.options;
+        if (_ticketOptions.isNotEmpty) {
+          _ticketOptionIdGeneral = _ticketOptions[0].optionId;
+          _ticketUnitPriceGeneral = _ticketOptions[0].price;
+          if (_ticketOptions.length > 1) {
+            _ticketOptionIdNewbie = _ticketOptions[1].optionId;
+          }
+        }
+      });
+    });
   }
 
-  int generalCount = 0;
-  int newbieCount = 0;
-  final int maxTickets = 3;
+  // ───── 가격 계산 ─────────────────────────────────────────────
+  int get _totalPrice =>
+      _generalCount * _ticketUnitPriceGeneral +
+      _newbieCount * (_ticketOptions.length > 1 ? _ticketOptions[1].price : 0);
 
-  final TextEditingController phone1 = TextEditingController();
-  final TextEditingController phone2 = TextEditingController();
-  final TextEditingController phone3 = TextEditingController();
-
-  bool isDepositChecked = false;
-
-  void updateCount({required bool isGeneral, required bool increment}) {
+  // ───── 수량 변경 ─────────────────────────────────────────────
+  void _updateCount({required bool isGeneral, required bool increment}) {
     setState(() {
-      int total = generalCount + newbieCount;
+      final total = _generalCount + _newbieCount;
       if (increment) {
-        if (total < maxTickets) {
-          if (isGeneral) {
-            generalCount++;
-          } else {
-            newbieCount++;
-          }
-        } else {
-          showError('최대 $maxTickets매까지만 예매할 수 있습니다.');
+        if (total >= widget.count) {
+          showError('최대 ${widget.count}매까지만 예매할 수 있습니다.');
+          return;
         }
+        isGeneral ? _generalCount++ : _newbieCount++;
       } else {
-        if (isGeneral && generalCount > 0) generalCount--;
-        if (!isGeneral && newbieCount > 0) newbieCount--;
+        if (isGeneral && _generalCount > 0) _generalCount--;
+        if (!isGeneral && _newbieCount > 0) _newbieCount--;
       }
     });
   }
 
-  int get totalPrice => generalCount * 3000 + newbieCount * 2000;
-
-  void validateAndSubmit() {
-    String p1 = phone1.text.trim();
-    String p2 = phone2.text.trim();
-    String p3 = phone3.text.trim();
-
-    // if (p1.isEmpty || p2.isEmpty || p3.isEmpty) {
-    //   showError('연락처를 모두 입력해주세요.');
-    //   return;
-    // }
-
-    if ((generalCount + newbieCount) != maxTickets) {
-      showError('총 $maxTickets매를 모두 선택해주세요.');
+  void _showError(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  // ───── 예매 제출 ─────────────────────────────────────────────
+  Future<void> _validateAndSubmit() async {
+    // ① 티켓 수량
+    if ((_generalCount + _newbieCount) != widget.count) {
+      _showError('총 ${widget.count}매를 모두 선택해주세요.');
       return;
     }
 
-    String phoneNumber = '$p1 - $p2 - $p3';
+    // ② 연락처
+    final p1 = _phone1.text.trim();
+    final p2 = _phone2.text.trim();
+    final p3 = _phone3.text.trim();
+    if (p2.length < 3 || p3.length < 3) {
+      _showError('연락처를 정확히 입력해주세요.');
+      return;
+    }
+    final phoneNumber = '$p1-$p2-$p3';
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TicketCompletePage(
-          generalCount: generalCount,
-          newbieCount: newbieCount,
-          phoneNumber: phoneNumber,
-          isSuccess: true, // 예매 성공 여부는 실제 구현에 따라 다름
+    // ③ 좌석
+    final selectedSeats =
+        context.read<SeatProvider>().selectedSeat ?? <String>{};
+    if (selectedSeats.isEmpty) {
+      _showError('좌석을 선택해주세요.');
+      return;
+    }
+
+    // ④ 유저 정보
+    final user = context.read<UserProvider>().user;
+    if (user?.bankAccount == null) {
+      _showError('사용자 계좌 정보가 없습니다.');
+      return;
+    }
+
+    // ⑤ 예약 요청 모델
+    final request = ReservationRequest(
+      performancePostId: widget.detail.id,
+      performanceScheduleId: widget.scheduleId,
+      selectedSeatCodes: selectedSeats.toList(),
+      userBankAccount: user!.bankAccount!,
+      ticketOrders: [
+        TicketOrder(
+          ticketOptionId: _ticketOptionIdGeneral,
+          count: _generalCount,
+          unitPrice: _ticketUnitPriceGeneral,
         ),
-      ),
+        if (_ticketOptions.length > 1)
+          TicketOrder(
+            ticketOptionId: _ticketOptionIdNewbie,
+            count: _newbieCount,
+            unitPrice: _ticketOptions[1].price,
+          ),
+      ],
+      isPaymentCompleted: true,
     );
+
+    // ⑥ 업로드
+    final uploadProv = context.read<ReservationUploadProvider>();
+    await uploadProv.uploadReservation(request);
+    if (!mounted) return;
+
+    if (uploadProv.isSuccess) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TicketCompletePage(
+            performanceTitle: widget.detail.title,
+            roundInfo: '${widget.num}공 : ${widget.time}', // 원하는 형태로 포맷팅
+            seatInfo: selectedSeats, // Set<String> 그대로 넘기면 됨
+            location: widget.detail.location,
+            userName: user.name!,
+            userBankAccount: user.bankAccount!,
+            phoneNumber: phoneNumber,
+            generalCount: _generalCount,
+            newbieCount: _newbieCount,
+            generalPrice: _ticketUnitPriceGeneral,
+            newbiePrice:
+                _ticketOptions.length > 1 ? _ticketOptions[1].price : 0,
+            isSuccess: true,
+          ),
+        ),
+      );
+      context.read<SeatProvider>().clearSeats();
+    } else {
+      _showError(uploadProv.errorMessage ?? '예매에 실패했습니다.');
+    }
   }
 
   void showError(String message) {
@@ -111,6 +204,8 @@ class _ReservationCheckInsertPaymentState
     final selectedPerformance =
         Provider.of<SelectedPerformanceProvider>(context).selectedPerformance;
     final selectedSeats = Provider.of<SeatProvider>(context).selectedSeat;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final user = userProvider.user;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -181,22 +276,23 @@ class _ReservationCheckInsertPaymentState
                 children: [
                   white28('예매정보 확인 및 기입 / 결제'),
                   sectionTitle('공연명'),
-                  normalText('🎭 The Gospel : Who we are'),
+                  normalText(widget.detail.title),
                   sectionTitle('관람 회차 (일시)'),
-                  normalText('1공 : 2025.11.23(토) 16시 00분'),
+                  normalText('${widget.num}공 : ${widget.time}'),
                   sectionTitle('좌석'),
                   Row(
                     children: [
                       Expanded(
                         child: normalText(
-                            '학관 104호 $selectedSeats (총 ${selectedSeats?.length.toString()}좌석)'),
+                            '${widget.detail.location} $selectedSeats (총 ${selectedSeats?.length.toString()}좌석)'),
                       ),
                       Spacer(),
                       GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => SeatViewPage(
-                                      selectedSeats: [],
+                                      selectedSeats: selectedSeats,
+                                      disabledSeats: widget.disabled,
                                     )));
                           },
                           child: subPurpleBtn16('좌석위치보기'))
@@ -213,16 +309,20 @@ class _ReservationCheckInsertPaymentState
                   SizedBox(height: 20),
                   dividerGray2(),
                   sectionTitle('예매자 정보'),
-                  SizedBox(width: 160, child: grayAndWhite16('이름', '박조이')),
                   SizedBox(
                       width: 160,
-                      child: grayAndWhite16('환불계좌:', '하나 910-910239-98907')),
+                      child: grayAndWhite16(
+                          '이름', user != null ? user.name.toString() : '')),
+                  SizedBox(
+                      width: 160,
+                      child: grayAndWhite16('환불계좌:',
+                          user != null ? user.bankAccount.toString() : '')),
                   SizedBox(height: 10),
                   Row(
                     children: [
                       buildInfoBigText('연락처 ', '*'),
                       const SizedBox(width: 8),
-                      buildPhoneNumber('010'),
+                      phoneInput(_phone1, hint: '010'),
                       Text(
                         '-',
                         style: TextStyle(
@@ -234,7 +334,7 @@ class _ReservationCheckInsertPaymentState
                           height: 1,
                         ),
                       ),
-                      buildPhoneNumber('2674'),
+                      phoneInput(_phone2, hint: '0000'),
                       Text(
                         '-',
                         style: TextStyle(
@@ -246,12 +346,12 @@ class _ReservationCheckInsertPaymentState
                           height: 1,
                         ),
                       ),
-                      buildPhoneNumber('4006'),
+                      phoneInput(_phone3, hint: '4006'),
                     ],
                   ),
                   SizedBox(height: 20),
                   sectionTitle('티켓 가격 옵션 선택 *'),
-                  normalText('3매중 ${generalCount + newbieCount}매 선택'),
+                  normalText('3매중 ${_generalCount + _newbieCount}매 선택'),
                   buildTicketOptionGroup(),
                   SizedBox(height: 20),
                   sectionTitle('결제 금액'),
@@ -268,14 +368,14 @@ class _ReservationCheckInsertPaymentState
                           text: '총 결제금액은 ',
                           children: [
                             TextSpan(
-                              text: '$totalPrice원',
+                              text: '$_totalPrice원',
                               style: TextStyle(
                                   color: Color(0xFFE5C4FF),
                                   fontWeight: FontWeight.bold),
                             ),
                             TextSpan(
                                 text:
-                                    ' 입니다. (총 ${generalCount + newbieCount}매)'),
+                                    ' 입니다. (총 ${_generalCount + _newbieCount}매)'),
                           ],
                         ),
                         style: TextStyle(color: Colors.white, fontSize: 16),
@@ -418,7 +518,7 @@ class _ReservationCheckInsertPaymentState
                 SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: validateAndSubmit,
+                    onPressed: _validateAndSubmit,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 20),
                       backgroundColor: Color(0xFF9a3ae8),
@@ -452,22 +552,27 @@ class _ReservationCheckInsertPaymentState
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('일반', generalCount, isGeneral: true),
-          ),
+          if (_ticketOptions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: buildTicketOption(_ticketOptions[0].name, _generalCount,
+                  isGeneral: true),
+            ),
           Divider(height: 1, color: AppColors.gray2, thickness: 1),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('새내기', newbieCount, isGeneral: false),
-          ),
+          if (_ticketOptions.length > 1)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: buildTicketOption(_ticketOptions[1].name, _newbieCount,
+                  isGeneral: false),
+            ),
         ],
       ),
     );
   }
 
   Widget buildTicketOption(String title, int count, {required bool isGeneral}) {
-    final int price = isGeneral ? 3000 : 2000;
+    final int price =
+        isGeneral ? _ticketOptions[0].price : _ticketOptions[1].price;
 
     return Row(
       children: [
@@ -498,7 +603,7 @@ class _ReservationCheckInsertPaymentState
             children: [
               IconButton(
                 onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: false),
+                    _updateCount(isGeneral: isGeneral, increment: false),
                 icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
               ),
               Text(
@@ -507,7 +612,7 @@ class _ReservationCheckInsertPaymentState
               ),
               IconButton(
                 onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: true),
+                    _updateCount(isGeneral: isGeneral, increment: true),
                 icon: Icon(Icons.add_circle_outline, color: Colors.white70),
               ),
             ],
@@ -519,7 +624,7 @@ class _ReservationCheckInsertPaymentState
 
   Widget phoneInput(TextEditingController controller, {String? hint}) {
     return SizedBox(
-      width: 85,
+      width: 70,
       height: 24,
       child: Center(
         child: TextField(

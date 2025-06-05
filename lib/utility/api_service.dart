@@ -8,11 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import '../auth/secure_storage.dart';
+import '../model/artist_manager.dart';
+import '../model/artist_performance.dart';
 import '../model/performanceDetail.dart';
 import '../model/performance_create/performance_post_create_request.dart';
 import '../model/performance_update/performance_post_update_request.dart';
 import '../model/performance_overview_model.dart';
 import 'package:http/http.dart' as http;
+import '../model/reservation_info_model/reservation_info_model.dart';
+import '../model/reservation_request.dart';
+import '../model/schedule_detail_model.dart';
+import '../model/seat_model.dart';
+import '../model/ticket_option_detail.dart';
 import '../model/user.dart';
 
 class ApiService {
@@ -112,6 +119,7 @@ class ApiService {
       final data = jsonMap['data'];
 
       debugPrint('성공적으로 티켓 상세 데이터를 가져왔습니다.');
+      debugPrint('data : ${data['schedules']}');
 
       return PerformanceDetail.fromJson(data);
     } else {
@@ -262,7 +270,9 @@ class ApiService {
         'Authorization': 'Bearer $accessToken',
       },
     );
-    //debugPrint('response.bodyBytes : ${response.headers}');
+    debugPrint(
+        "url : ${ApiConstants.baseUrl}/camticket/api/reservation/management/performance/$postId");
+    debugPrint('response.data : ${response.body}');
     if (response.statusCode == 200) {
       final jsonMap = json.decode(utf8.decode(response.bodyBytes));
       final data = jsonMap['data'];
@@ -278,6 +288,56 @@ List<PerformanceOverview> overviewList =
     } else {
       throw Exception('유저 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
     }
+  }
+
+  Future<ReservationDetailResponse> fetchReservationDetail(
+      int reservationId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId/detail';
+    debugPrint("url : $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    debugPrint('response : ${response.body}');
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      if (jsonMap['code'] == 200) {
+        return ReservationDetailResponse.fromJson(jsonMap['data']);
+      } else {
+        throw Exception('API 오류: ${jsonMap['message']}');
+      }
+    } else {
+      throw Exception('HTTP 오류: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> updateReservationStatus(int reservationId, String status) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId/status?status=$status';
+    debugPrint("url : $url");
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    debugPrint('response : ${response.body}');
+    if (response.statusCode == 200) {
+      final result = json.decode(utf8.decode(response.bodyBytes));
+      // code==200이면 성공, 아니면 실패로 판단
+      return result['code'] == 200;
+    }
+    return false;
   }
 
   Future<List<ManageOverview>> fetchManageOverviewImage() async {
@@ -346,5 +406,168 @@ List<PerformanceOverview> overviewList =
     } else {
       throw Exception('공연 삭제 실패: ${response.statusCode}');
     }
+  }
+
+  Future<bool> uploadReservation(ReservationRequest request) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/camticket/api/reservation'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(request.toJson()),
+    );
+
+    debugPrint('request json : ${request.toJson()}');
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      debugPrint("예매 성공: ${response.body}");
+      return true;
+    } else {
+      debugPrint("예매 실패: ${response.statusCode} ${response.body}");
+      return false;
+    }
+  }
+
+  Future<List<SeatStatus>> fetchSeatStatus(int scheduleId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/reservation/seats/$scheduleId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint(
+        'url: ${ApiConstants.baseUrl}/camticket/api/reservation/seats/$scheduleId');
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final List<dynamic> data = jsonMap['data'];
+
+      return data.map((e) => SeatStatus.fromJson(e)).toList();
+    } else {
+      debugPrint('좌석 API 오류 본문: ${response.body}');
+      throw Exception('좌석 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
+  Future<List<ScheduleDetail>> fetchScheduleDetails(int postId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/reservation/schedules/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('response status : ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final List<dynamic> data = jsonMap['data'];
+      return data.map((e) => ScheduleDetail.fromJson(e)).toList();
+    } else {
+      debugPrint("response detail : ${response.body}");
+      throw Exception('공연 회차 정보를 불러오는 데 실패했습니다: ${response.statusCode}');
+    }
+  }
+
+  Future<List<TicketOptionDetail>> fetchTicketOptions(int postId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/reservation/ticket-options/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('티켓 옵션 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final List<dynamic> data = jsonMap['data'];
+      return data.map((e) => TicketOptionDetail.fromJson(e)).toList();
+    } else {
+      throw Exception("티켓 옵션 정보를 불러오는 데 실패했습니다");
+    }
+  }
+
+  Future<List<ArtistManager>> fetchArtistManagers() async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse("${ApiConstants.baseUrl}/camticket/api/user/managers"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint("아티스트 관리자 응답: \${response.statusCode} : ${response.body}");
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      final List<dynamic> data = jsonMap['data'];
+      return data.map((e) => ArtistManager.fromJson(e)).toList();
+    } else {
+      throw Exception("아티스트 관리자 목록을 불러오는 데 실패했습니다");
+    }
+  }
+
+  Future<List<ArtistPerformance>> fetchArtistPerformances(int userId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/performance/profile/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('data : ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonMap = jsonDecode(utf8.decode(response.bodyBytes));
+      final data = jsonMap['data'] as List;
+      return data.map((e) => ArtistPerformance.fromJson(e)).toList();
+    } else {
+      throw Exception('아티스트 공연 정보를 불러오는 데 실패했습니다.');
+    }
+  }
+
+  Future<List<SeatStatus>> fetchReservedOrUnavailableSeats(
+      int scheduleId) async {
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/seats/$scheduleId';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      if (jsonMap['code'] == 200) {
+        final List<dynamic> data = jsonMap['data'];
+        return data.map((e) => SeatStatus.fromJson(e)).toList();
+      }
+    }
+    throw Exception('좌석 정보를 불러오지 못했습니다.');
   }
 }

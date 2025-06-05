@@ -155,7 +155,7 @@ class _PerformancePageState extends State<PerformancePage> {
               ),
             ),
             const SizedBox(height: 8),
-            Expanded(
+            Flexible(
               child: performanceProvider.isLoading
                   ? Center(
                       child: CircularProgressIndicator(),
@@ -190,10 +190,10 @@ class _PerformancePageState extends State<PerformancePage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 8),
-                                child: Expanded(
+                              child: Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -236,7 +236,7 @@ class _PerformancePageState extends State<PerformancePage> {
                                         ),
                                       ),
                                       const SizedBox(width: 12),
-                                      Expanded(
+                                      Flexible(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -272,7 +272,7 @@ class _PerformancePageState extends State<PerformancePage> {
                                             SizedBox(height: 8),
                                             Row(
                                               children: [
-                                                Expanded(
+                                                Flexible(
                                                   child: SizedBox(
                                                     width: 100,
                                                     child: Text(

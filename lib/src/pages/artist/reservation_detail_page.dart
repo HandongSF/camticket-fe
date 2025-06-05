@@ -6,6 +6,9 @@ import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../model/performanceDetail.dart';
+import '../../../provider/performance_provider.dart';
+import '../../../utility/api_service.dart';
 import '../searchpage.dart';
 
 class ReservationDetailPage extends StatefulWidget {
@@ -24,6 +27,8 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ReservationProvider>(context, listen: false)
           .fetchReservationList(widget.postId);
+      Provider.of<PerformanceProvider>(context, listen: false)
+          .fetchPerformanceDetail(widget.postId);
     });
   }
 
@@ -31,33 +36,157 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
     switch (status) {
       case 'PENDING':
         return '예매 진행중';
-      case 'CONFIRMED':
+      case 'APPROVED':
         return '예매 확정';
       case 'REFUND_REQUESTED':
         return '환불 요청';
       case 'REFUNDED':
         return '취소 완료';
+      case 'REJECTED':
+        return '예매 거절';
       default:
         return status;
     }
   }
 
   String _timeAgo(DateTime date) {
-    final difference = DateTime.now().difference(date);
-    if (difference.inDays > 0) {
-      return '${difference.inDays}일 전';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}시간 전';
-    } else {
-      return '${difference.inMinutes}분 전';
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) return '${diff.inDays}일 전';
+    if (diff.inHours > 0) return '${diff.inHours}시간 전';
+    return '${diff.inMinutes}분 전';
+  }
+
+  Future<void> showApproveDialog(
+      BuildContext context, String userName, int reservationId) async {
+    final isConfirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('예매 확정',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text('$userName님의 예매를 확정하시겠습니까?'),
+          actions: [
+            TextButton(
+              child: const Text('취소', style: TextStyle(color: Colors.grey)),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child:
+                  const Text('확정', style: TextStyle(color: Color(0xFF6F3ADA))),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isConfirmed == true) {
+      // PATCH: APPROVED
+      final result =
+          await ApiService().updateReservationStatus(reservationId, 'APPROVED');
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('예매 확정 완료',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            content: const Text('정상적으로 예매가 확정되었습니다.'),
+            actions: [
+              TextButton(
+                child: const Text('확인',
+                    style: TextStyle(color: Color(0xFF6F3ADA))),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> showRejectDialog(
+      BuildContext context, String userName, int reservationId) async {
+    final isCancel = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('예매 취소',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: Text('$userName님의 예매를 취소하시겠습니까?'),
+          actions: [
+            TextButton(
+              child: const Text('아니요', style: TextStyle(color: Colors.grey)),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('예', style: TextStyle(color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isCancel == true) {
+      // PATCH: REJECTED
+      final result =
+          await ApiService().updateReservationStatus(reservationId, 'REJECTED');
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('예매 취소 완료',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+            content: const Text('정상적으로 예매가 취소되었습니다.'),
+            actions: [
+              TextButton(
+                child: const Text('확인',
+                    style: TextStyle(color: Color(0xFF6F3ADA))),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
   int selectedHall = 1;
   @override
   Widget build(BuildContext context) {
+    final reservationProv = context.watch<ReservationProvider>();
+    final perfProv = context.watch<PerformanceProvider>();
+
     final provider = Provider.of<ReservationProvider>(context, listen: true);
     final reservation = provider.reservationList;
+    final detailProvider =
+        Provider.of<PerformanceProvider>(context, listen: true);
+    final detail = detailProvider.performanceDetails;
+
+    if (reservationProv.isLoading ||
+        perfProv.isLoading ||
+        perfProv.performanceDetails == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (reservationProv.error != null || perfProv.error != null) {
+      final msg = reservationProv.error ?? perfProv.error!;
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body:
+            Center(child: Text(msg, style: const TextStyle(color: Colors.red))),
+      );
+    }
+    final perf = perfProv.performanceDetails!; // non-null 확정
+    final reservations = reservationProv.reservationList; // List<Reservation>
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -124,15 +253,28 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
             child: Column(
               children: [
                 SizedBox(height: 12),
-                white28('🎼 The Gospel : Who we are'),
+                white28(perf.title),
                 SizedBox(height: 20),
-                Row(
-                  children: [
-                    _buildHallButton(1, '1공'),
-                    const SizedBox(width: 10),
-                    _buildHallButton(2, '2공'),
-                  ],
-                ),
+                if (detail != null)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(
+                        detail.schedules.length,
+                        (idx) {
+                          final schedule = detail.schedules[idx];
+                          // 버튼 사이에만 간격 넣기 (마지막 버튼엔 X)
+                          return Row(
+                            children: [
+                              _buildHallButton(idx + 1, schedule.startTime),
+                              if (idx != detail.schedules.length - 1)
+                                const SizedBox(width: 10),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 _dropdownField('관람객 전체'),
                 const SizedBox(height: 8),
@@ -140,26 +282,22 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
                 const SizedBox(height: 32),
                 dividerGray2(),
                 const SizedBox(height: 32),
-                Column(
-                  children: reservation
-                      .map((res) => GestureDetector(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ReservationDetail2Page())),
-                            child: _buildTicketCard(
-                              status: _mapStatus(res.status),
-                              name: res.userNickName,
-                              seats: res.selectedSeats.join(', '),
-                              count: res.count,
-                              timeAgo: _timeAgo(res.regDate),
-                              isConfirmed: res.status == 'CONFIRMED',
-                              isRefunded: res.status == 'REFUNDED',
-                            ),
-                          ))
-                      .toList(),
-                ),
+                if (detail != null)
+                  Column(
+                    children: reservation
+                        .where((res) => res.status == "PENDING") // ★ 이 줄 추가!
+                        .map((res) => _buildTicketCard(
+                            status: _mapStatus(res.status),
+                            name: res.userNickName,
+                            seats: res.selectedSeats.join(', '),
+                            count: res.count,
+                            timeAgo: _timeAgo(res.regDate),
+                            isConfirmed: res.status == 'CONFIRMED',
+                            isRefunded: res.status == 'REFUNDED',
+                            detail: detail,
+                            reservationId: res.reservationId))
+                        .toList(),
+                  )
               ],
             ),
           ),
@@ -186,6 +324,7 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
               color: isSelected ? AppColors.mainPurple : AppColors.white,
               fontWeight: FontWeight.bold,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
@@ -230,15 +369,16 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
     );
   }
 
-  Widget _buildTicketCard({
-    required String status,
-    required String name,
-    required String seats,
-    required int count,
-    required String timeAgo,
-    required bool isConfirmed,
-    required bool isRefunded,
-  }) {
+  Widget _buildTicketCard(
+      {required String status,
+      required String name,
+      required String seats,
+      required int count,
+      required String timeAgo,
+      required bool isConfirmed,
+      required bool isRefunded,
+      required PerformanceDetail detail,
+      required int reservationId}) {
     Color statusColor =
         status.contains('환불') ? Color(0xFFCE3939) : AppColors.subPurple;
 
@@ -266,20 +406,36 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
                     style: TextStyle(color: statusColor),
                   ),
                 ),
-                SizedBox(
-                  width: 80,
-                  child: Column(
-                    children: [
-                      const Text('예매 상세정보 →',
-                          style: TextStyle(
-                            color: AppColors.gray4,
-                            fontSize: 12,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: -0.24,
-                          )),
-                      Divider(color: AppColors.gray4),
-                    ],
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReservationDetail2Page(
+                            title: detail.title,
+                            round: '$selectedHall', // 예시
+                            seats: seats, // 예: "학관 104호 F8, F9, F10 (총 3좌석)"
+                            userName: name,
+                            userBankAccount: '',
+                            reservationId: reservationId),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: 80,
+                    child: Column(
+                      children: [
+                        const Text('예매 상세정보 →',
+                            style: TextStyle(
+                              color: AppColors.gray4,
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.24,
+                            )),
+                        Divider(color: AppColors.gray4),
+                      ],
+                    ),
                   ),
                 )
               ],
@@ -339,10 +495,20 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
                       style: TextStyle(color: Color(0xFF3774F7)))
                 else
                   Row(
-                    children: const [
-                      Text('예매 확정', style: TextStyle(color: Color(0xFF3774F7))),
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            showApproveDialog(context, name, reservationId);
+                          },
+                          child: Text('예매 확정',
+                              style: TextStyle(color: Color(0xFF3774F7)))),
                       SizedBox(width: 16),
-                      Text('예매 취소', style: TextStyle(color: Color(0xFFCE3939))),
+                      GestureDetector(
+                          onTap: () {
+                            showRejectDialog(context, name, reservationId);
+                          },
+                          child: Text('예매 취소',
+                              style: TextStyle(color: Color(0xFFCE3939)))),
                     ],
                   )
               ],

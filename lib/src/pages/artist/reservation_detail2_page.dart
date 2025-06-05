@@ -1,23 +1,53 @@
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
+import 'package:camticket/model/reservation_info_model/reservation_info_model.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/src/pages/user/ticket_success_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../components/textfield.dart';
 import '../../../components/texts.dart';
+import '../../../provider/reservation_detail_provider.dart';
+import '../../../utility/api_service.dart';
 
 class ReservationDetail2Page extends StatefulWidget {
-  const ReservationDetail2Page({super.key});
+  final String title;
+  final String round;
+  final String seats;
+  final String userName;
+  final String userBankAccount;
+  final int reservationId;
+
+  const ReservationDetail2Page({
+    super.key,
+    required this.title,
+    required this.round,
+    required this.seats,
+    required this.userName,
+    required this.userBankAccount,
+    required this.reservationId,
+  });
 
   @override
   _ReservationDetail2PageState createState() => _ReservationDetail2PageState();
 }
 
 class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ReservationDetailProvider>(context, listen: false)
+          .getReservationDetail(widget.reservationId);
+    });
+  }
+
   int generalCount = 0;
   int newbieCount = 0;
   final int maxTickets = 3;
@@ -67,17 +97,17 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
 
     String phoneNumber = '$p1 - $p2 - $p3';
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TicketCompletePage(
-          generalCount: generalCount,
-          newbieCount: newbieCount,
-          phoneNumber: phoneNumber,
-          isSuccess: true, // 예매 성공 여부는 실제 구현에 따라 다름
-        ),
-      ),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (_) => TicketCompletePage(
+    //       generalCount: generalCount,
+    //       newbieCount: newbieCount,
+    //       phoneNumber: phoneNumber,
+    //       isSuccess: true, // 예매 성공 여부는 실제 구현에 따라 다름
+    //     ),
+    //   ),
+    // );
   }
 
   void showError(String message) {
@@ -88,6 +118,19 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
 
   @override
   Widget build(BuildContext context) {
+    final response =
+        Provider.of<ReservationDetailProvider>(context, listen: true);
+
+    if (response.isLoading) {
+      return CircularProgressIndicator();
+    }
+    if (response.error != null) {
+      return Text('에러: ${response.error}');
+    }
+    if (response.detail == null) {
+      return Container();
+    }
+    final reservation = response.detail;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -158,19 +201,23 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                 children: [
                   white28('관람객 예매 상세정보'),
                   sectionTitle('공연명'),
-                  normalText('🎭 The Gospel : Who we are'),
+                  normalText(reservation!.performanceInfo.title),
                   sectionTitle('관람 회차 (일시)'),
-                  normalText('1공 : 2025.11.23(토) 16시 00분'),
+                  normalText(
+                      '${reservation.performanceInfo.scheduleIndex}공 : ${reservation.performanceInfo.performanceDate}'),
                   sectionTitle('좌석'),
                   Row(
                     children: [
-                      normalText('학관 104호 F8, F9, F10 (총 3좌석)'),
+                      normalText(
+                          '${reservation.performanceInfo.location} ${reservation.seatInfo.selectedSeats}'),
                       Spacer(),
                       GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => SeatViewPage(
-                                      selectedSeats: [],
+                                      selectedSeats:
+                                          reservation.seatInfo.selectedSeats,
+                                      disabledSeats: {},
                                     )));
                           },
                           child: subPurpleBtn16('좌석위치보기'))
@@ -187,16 +234,20 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                   SizedBox(height: 20),
                   dividerGray2(),
                   sectionTitle('예매자 정보'),
-                  SizedBox(width: 160, child: grayAndWhite16('이름', '박조이')),
                   SizedBox(
                       width: 160,
-                      child: grayAndWhite16('환불계좌:', '하나 910-910239-98907')),
+                      child: grayAndWhite16(
+                          '이름', reservation.reservationInfo.userNickName)),
+                  SizedBox(
+                      width: 160,
+                      child: grayAndWhite16('환불계좌:',
+                          reservation.reservationInfo.userBankAccount)),
                   SizedBox(height: 10),
                   Row(
                     children: [
                       buildInfoBigText('연락처 ', '*'),
                       const SizedBox(width: 8),
-                      buildPhoneNumber('010'),
+                      phoneInput(phone1, hint: '010'),
                       Text(
                         '-',
                         style: TextStyle(
@@ -208,7 +259,7 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                           height: 1,
                         ),
                       ),
-                      buildPhoneNumber('2674'),
+                      phoneInput(phone2, hint: '2674'),
                       Text(
                         '-',
                         style: TextStyle(
@@ -220,13 +271,14 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                           height: 1,
                         ),
                       ),
-                      buildPhoneNumber('4006'),
+                      phoneInput(phone3, hint: '4006'),
                     ],
                   ),
                   SizedBox(height: 20),
                   sectionTitle('티켓 가격 옵션 선택 *'),
-                  normalText('3매중 ${generalCount + newbieCount}매 선택'),
-                  buildTicketOptionGroup(),
+                  normalText(
+                      '${reservation.paymentInfo.fold(0, (sum, e) => sum + e.quantity)}매중 ${reservation.paymentInfo.fold(0, (sum, e) => sum + e.quantity)}매 선택'),
+                  buildTicketOptionGroup(reservation.paymentInfo),
                   SizedBox(height: 20),
                   sectionTitle('결제 금액'),
                   Card(
@@ -242,14 +294,15 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
                           text: '총 결제금액은 ',
                           children: [
                             TextSpan(
-                              text: '$totalPrice원',
+                              text:
+                                  '${reservation.paymentInfo.fold(0, (sum, e) => sum + e.unitPrice * e.quantity)}원',
                               style: TextStyle(
                                   color: Color(0xFFE5C4FF),
                                   fontWeight: FontWeight.bold),
                             ),
                             TextSpan(
                                 text:
-                                    ' 입니다. (총 ${generalCount + newbieCount}매)'),
+                                    ' 입니다. (총 ${reservation.paymentInfo.fold(0, (sum, e) => sum + e.quantity)}매)'),
                           ],
                         ),
                         style: TextStyle(color: Colors.white, fontSize: 16),
@@ -267,7 +320,7 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
     );
   }
 
-  Widget buildTicketOptionGroup() {
+  Widget buildTicketOptionGroup(List<PaymentInfo> paymentInfo) {
     return Card(
       color: AppColors.gray1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -276,13 +329,19 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('일반', generalCount, isGeneral: true),
+            child: buildTicketOption(
+                paymentInfo[0].ticketOptionName, paymentInfo[0].quantity,
+                isGeneral: true),
           ),
-          Divider(height: 1, color: AppColors.gray2, thickness: 1),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: buildTicketOption('새내기', newbieCount, isGeneral: false),
-          ),
+          if (paymentInfo.length > 1)
+            Divider(height: 1, color: AppColors.gray2, thickness: 1),
+          if (paymentInfo.length > 1)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: buildTicketOption(
+                  paymentInfo[1].ticketOptionName, paymentInfo[1].quantity,
+                  isGeneral: false),
+            ),
         ],
       ),
     );
@@ -318,20 +377,20 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(
-                onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: false),
-                icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
-              ),
+              // IconButton(
+              //   onPressed: () =>
+              //       updateCount(isGeneral: isGeneral, increment: false),
+              //   icon: Icon(Icons.remove_circle_outline, color: Colors.white70),
+              // ),
               Text(
                 '$count매',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
-              IconButton(
-                onPressed: () =>
-                    updateCount(isGeneral: isGeneral, increment: true),
-                icon: Icon(Icons.add_circle_outline, color: Colors.white70),
-              ),
+              // IconButton(
+              //   onPressed: () =>
+              //       updateCount(isGeneral: isGeneral, increment: true),
+              //   icon: Icon(Icons.add_circle_outline, color: Colors.white70),
+              // ),
             ],
           ),
         ),
@@ -339,29 +398,26 @@ class _ReservationDetail2PageState extends State<ReservationDetail2Page> {
     );
   }
 
-  Widget phoneInput(TextEditingController controller, {String? hint}) {
+  Widget phoneInput(TextEditingController controller, {String hint = ''}) {
     return SizedBox(
-      width: 85,
-      height: 24,
-      child: Center(
-        child: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          style: TextStyle(
-            fontSize: 16,
-            height: 1,
-            color: Colors.white,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: AppColors.gray5),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-            filled: true,
-            fillColor: AppColors.gray2,
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
+      width: 70, // 폭은 고정
+      height: 40, // 높이를 충분히 확보
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        maxLength: hint == '010' ? 3 : 4, // 010-****-****
+        style: const TextStyle(fontSize: 16, color: Colors.white),
+        decoration: InputDecoration(
+          counterText: '', // 글자 수 표시 제거
+          hintText: hint,
+          hintStyle: const TextStyle(color: AppColors.gray5),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          isDense: true,
+          filled: true,
+          fillColor: AppColors.gray2,
+          border: const OutlineInputBorder(),
         ),
       ),
     );

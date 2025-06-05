@@ -6,29 +6,59 @@ import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as context;
+import 'package:provider/provider.dart';
 
 import '../../../components/input_form.dart';
 import '../../../components/texts.dart';
+import '../../../provider/seat_provider.dart';
+import '../../../provider/user_provider.dart';
 
 class TicketCompletePage extends StatelessWidget {
+  final String performanceTitle;
+  final String roundInfo;
+  final Set<String> seatInfo;
+  final String location;
+  final String userName;
+  final String userBankAccount;
+  final String phoneNumber;
   final int generalCount;
   final int newbieCount;
-  final String phoneNumber;
+  final int generalPrice;
+  final int newbiePrice;
   final bool isSuccess;
 
-  TicketCompletePage({super.key, 
+  TicketCompletePage({
+    super.key,
+    required this.performanceTitle,
+    required this.roundInfo,
+    required this.seatInfo,
+    required this.location,
+    required this.userName,
+    required this.userBankAccount,
+    required this.phoneNumber,
     required this.generalCount,
     required this.newbieCount,
-    required this.phoneNumber,
+    required this.generalPrice,
+    required this.newbiePrice,
     this.isSuccess = true,
   });
 
-  int get totalPrice => generalCount * 3000 + newbieCount * 2000;
+  int get totalPrice => generalCount * generalPrice + newbieCount * newbiePrice;
   final TextEditingController phone1 = TextEditingController();
   final TextEditingController phone2 = TextEditingController();
   final TextEditingController phone3 = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    void _showError(String msg) => ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+
+    final selectedSeats = Provider.of<SeatProvider>(context).selectedSeat;
+    final user = Provider.of<UserProvider>(context).user;
+    if (user?.bankAccount == null) {
+      _showError('사용자 계좌 정보가 없습니다.');
+    }
     final linearGradient = LinearGradient(
       begin: Alignment(1.03, 1.82),
       end: Alignment(-0.23, -0.56),
@@ -177,15 +207,16 @@ class TicketCompletePage extends StatelessWidget {
                   white28('예매정보'),
                   SizedBox(height: 20),
                   subPurpleText('공연명'),
-                  normalText('🎼 The Gospel : Who we are'),
+                  normalText(performanceTitle),
                   SizedBox(height: 32),
                   subPurpleText('관람 회차 (일시)'),
-                  normalText('1공 : 2025.11.23(토) 16시 00분'),
+                  normalText(roundInfo),
                   SizedBox(height: 32),
                   subPurpleText('좌석'),
                   Row(
                     children: [
-                      normalText('학관 104호 F8, F9, F10 (총 3좌석)'),
+                      normalText(
+                          '$selectedSeats (총 ${selectedSeats?.length.toString()}좌석)'),
                       Spacer(),
                       GestureDetector(
                           onTap: () {
@@ -193,7 +224,8 @@ class TicketCompletePage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SeatViewPage(
-                                  selectedSeats: [],
+                                  selectedSeats: selectedSeats,
+                                  disabledSeats: {},
                                 ),
                               ),
                             );
@@ -212,11 +244,15 @@ class TicketCompletePage extends StatelessWidget {
                   dividerGray2(),
                   SizedBox(height: 20),
                   sectionTitle('예매자 정보'),
-                  SizedBox(width: 160, child: grayAndWhite16('이름', '박조이')),
+                  SizedBox(
+                      width: 160,
+                      child: grayAndWhite16(
+                          '이름', user != null ? user.name.toString() : '')),
                   SizedBox(height: 8),
                   SizedBox(
                       width: 160,
-                      child: grayAndWhite16('환불계좌', '하나 910-910239-98907')),
+                      child: grayAndWhite16('환불계좌',
+                          user != null ? user.bankAccount.toString() : '')),
                   SizedBox(height: 8),
                   Row(
                     children: [
