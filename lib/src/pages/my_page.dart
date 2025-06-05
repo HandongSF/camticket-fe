@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
@@ -40,7 +42,11 @@ class _Mypagestate extends State<Mypage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<UserProvider>(context, listen: true);
-    final user = provider.user;
+    final userRole = provider.user?.role;
+    if(userRole == 'ROLE_USER'){
+      debugPrint("userRole = $userRole  goodgood");
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Padding(
@@ -308,12 +314,15 @@ class _Mypagestate extends State<Mypage> {
         ),
       );
     }
-
+    final provider = Provider.of<UserProvider>(context, listen: true);
     final badgeText = currentUser.role == UserRole.viewer
         ? 'assets/images/viewer.png'
         : 'assets/images/artist.png';
-    final userText = currentUser.role == UserRole.viewer ? '유저 ' : '네오 ';
-
+    final userText = currentUser.role == UserRole.viewer ? provider.user?.nickName : provider.user?.nickName;
+    final user = provider.user;
+    final profileImageUrl = user?.profileImageUrl;
+    final bankAccount = user?.bankAccount;
+    debugPrint('bank account = $bankAccount');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       clipBehavior: Clip.antiAlias,
@@ -330,7 +339,14 @@ class _Mypagestate extends State<Mypage> {
             CircleAvatar(
               backgroundColor: AppColors.gray1,
               radius: 50,
-              backgroundImage: AssetImage('assets/images/zzanggu.png'),
+              backgroundImage: provider.user?.profileImageUrl != null &&
+                  provider.user!.profileImageUrl!.isNotEmpty
+                  ? NetworkImage(profileImageUrl!)
+                  : null,
+              child: provider.user?.profileImageUrl == null ||
+                  provider.user!.profileImageUrl!.isEmpty
+                  ? const Icon(Icons.person_outline, color: AppColors.gray3, size: 50)
+                  : null,
             ),
             const SizedBox(width: 16),
             Column(
@@ -345,7 +361,7 @@ class _Mypagestate extends State<Mypage> {
                 Row(
                   children: [
                     Text(
-                      userText,
+                      userText!,
                       style: TextStyle(
                         color: AppColors.gray5,
                         fontSize: 20,
@@ -373,7 +389,7 @@ class _Mypagestate extends State<Mypage> {
                         children: [
                           const SizedBox(height: 4),
                           Text(
-                            '하나 910-910239-98907 ',
+                            bankAccount!,
                             style: TextStyle(
                               color: const Color(0xFF818181),
                               fontSize: 12,
@@ -388,19 +404,33 @@ class _Mypagestate extends State<Mypage> {
                     : SizedBox(height: 20),
                 Row(
                   children: [
-                    Text(
-                      currentUser.role == UserRole.viewer
-                          ? '환불계좌 / 프로필 변경하기'
-                          : '프로필 변경하기',
-                      style: const TextStyle(
-                        color: AppColors.gray4,
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.28,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.gray4,
-                        decorationThickness: 1.2, // ← 밑줄 추가
+                    GestureDetector(
+                      onTap: () {
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: "프로필 변경",
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          transitionDuration: Duration(milliseconds: 200),
+                          pageBuilder: (_, __, ___) {
+                            return ProfileEditDialog(); // ← 위에서 구현한 다이얼로그
+                          },
+                        );
+                      },
+                      child:Text(
+                        currentUser.role == UserRole.viewer
+                            ? '환불계좌 / 프로필 변경하기'
+                            : '프로필 변경하기',
+                        style: const TextStyle(
+                          color: AppColors.gray4,
+                          fontSize: 14,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -0.28,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.gray4,
+                          decorationThickness: 1.2, // ← 밑줄 추가
+                        ),
                       ),
                     ),
                     SizedBox(width: 1),
@@ -498,3 +528,162 @@ class LoginSelectPage extends StatelessWidget {
     );
   }
 }
+
+class ProfileEditDialog extends StatefulWidget {
+  const ProfileEditDialog({Key? key}) : super(key: key);
+
+  @override
+  _ProfileEditDialogState createState() => _ProfileEditDialogState();
+}
+
+class _ProfileEditDialogState extends State<ProfileEditDialog> {
+  late TextEditingController _nameController;
+  late TextEditingController _introductionController;
+  late TextEditingController _bankAccountController;
+  final _formKey = GlobalKey<FormState>();
+
+  String? _role;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController = TextEditingController();
+    _introductionController = TextEditingController();
+    _bankAccountController = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = Provider.of<UserProvider>(context, listen: false).user;
+
+      setState(() {
+        _role = user?.role;
+        _nameController.text = user?.name ?? '';
+        _introductionController.text = user?.introduction ?? '';
+        _bankAccountController.text = user?.bankAccount ?? '';
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _introductionController.dispose();
+    _bankAccountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    return GestureDetector(
+      onTap: () => Navigator.pop(context), // 배경 클릭 시 닫기
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Container(color: Colors.black.withOpacity(0.3)),
+            ),
+            Center(
+              child: GestureDetector(
+                onTap: () {}, // 다이얼로그 내부 터치 시 닫히지 않게
+                child: Container(
+                  width: 300,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text("프로필 수정", style: TextStyle(fontSize: 20)),
+                        const SizedBox(height: 16),
+
+                        // 닉네임
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            labelText: "닉네임",
+                            hintText: "변경할 닉네임을 입력하세요",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return '닉네임은 필수입니다.';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // 소개글 (매니저만)
+                        if (_role == 'ROLE_MANAGER')
+                          TextFormField(
+                            controller: _introductionController,
+                            decoration: const InputDecoration(
+                              labelText: "소개글",
+                              hintText: "간단한 소개글을 입력하세요",
+                            ),
+                            maxLines: 3,
+                          ),
+
+                        // 환불 계좌 (일반 유저만)
+                        if (_role == 'ROLE_USER')
+                          TextFormField(
+                            controller: _bankAccountController,
+                            decoration: const InputDecoration(
+                              labelText: "환불 계좌",
+                              hintText: "은행명 + 계좌번호 입력",
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return '환불 계좌를 입력해주세요.';
+                              }
+                              return null;
+                            },
+                          ),
+
+                        const SizedBox(height: 20),
+
+                        // 버튼
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              child: const Text("취소"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            ElevatedButton(
+                              child: const Text("저장"),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  userProvider.updateUserInfo(
+                                    name: _nameController.text,
+                                    introduction: _role == 'ROLE_MANAGER' ? _introductionController.text.trim() : null,
+                                    bankAccount: _role == 'ROLE_USER' ? _bankAccountController.text.trim() : null,
+                                  );
+                                  Navigator.pop(context);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
