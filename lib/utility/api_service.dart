@@ -659,8 +659,10 @@ List<PerformanceOverview> overviewList =
 
   Future<bool> requestRefund(int reservationId) async {
     final accessToken = await secureStorage.readToken("x-access-token");
+
     final url =
         '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId/refund';
+    debugPrint('url : $url');
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -669,7 +671,7 @@ List<PerformanceOverview> overviewList =
         'Authorization': 'Bearer $accessToken',
       },
     ); // 서버에서 POST인지 PATCH인지 확인! (보통 POST가 많음)
-
+    debugPrint('response : ${response.body}');
     if (response.statusCode == 200) {
       final jsonMap = json.decode(utf8.decode(response.bodyBytes));
       // 성공 여부는 code나 message로 확인
