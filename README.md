@@ -1,5 +1,5 @@
 # 🎫 CamTicket - Campus Performance Ticketing System
-A backend API system for booking performances and events on the Handong Global University campus.
+A Frontend system for booking performances and events on the Handong Global University campus.
 
 ## 📋 Project Overview
 CamTicket is a ticketing system designed to manage various on-campus performances such as musicals, plays, and concerts. It enables club managers to register performances and provides students with a convenient booking experience.
