@@ -85,24 +85,47 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
       // PATCH: APPROVED
       final result =
           await ApiService().updateReservationStatus(reservationId, 'APPROVED');
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('예매 확정 완료',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            content: const Text('정상적으로 예매가 확정되었습니다.'),
-            actions: [
-              TextButton(
-                child: const Text('확인',
-                    style: TextStyle(color: Color(0xFF6F3ADA))),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          );
-        },
-      );
+      result
+          ? showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('예매 확정 완료',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  content: const Text('정상적으로 예매가 확정되었습니다.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('확인',
+                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Provider.of<ReservationProvider>(context, listen: false)
+                            .fetchReservationList(widget.postId);
+                      },
+                    ),
+                  ],
+                );
+              },
+            )
+          : showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('예매 확정 실패',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  content: const Text('오류가 발생했습니다.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('확인',
+                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                );
+              },
+            );
     }
   }
 
@@ -132,27 +155,50 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
 
     if (isCancel == true) {
       // PATCH: REJECTED
-      final result =
-          await ApiService().updateReservationStatus(reservationId, 'REJECTED');
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('예매 취소 완료',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
-            content: const Text('정상적으로 예매가 취소되었습니다.'),
-            actions: [
-              TextButton(
-                child: const Text('확인',
-                    style: TextStyle(color: Color(0xFF6F3ADA))),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          );
-        },
-      );
+      final result = await ApiService().deleteReservation(reservationId);
+      result
+          ? showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('예매 취소 완료',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red)),
+                  content: const Text('정상적으로 예매가 취소되었습니다.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('확인',
+                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Provider.of<ReservationProvider>(context, listen: false)
+                            .fetchReservationList(widget.postId);
+                      },
+                    ),
+                  ],
+                );
+              },
+            )
+          : showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('예매 취소 실패',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red)),
+                  content: const Text('정상적으로 예매가 취소되었습니다.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('확인',
+                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                );
+              },
+            );
     }
   }
 

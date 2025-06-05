@@ -15,6 +15,7 @@ import 'package:camticket/provider/schedule_detail_provider.dart';
 import 'package:camticket/provider/seat_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/provider/ticket_option_provider.dart';
+import 'package:camticket/provider/ticket_provider.dart';
 import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +82,9 @@ class CamTicket extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ReservationDetailProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationOverviewProvider(),
         ),
       ],
       child: MaterialApp(

@@ -19,6 +19,7 @@ import '../model/reservation_info_model/reservation_info_model.dart';
 import '../model/reservation_request.dart';
 import '../model/schedule_detail_model.dart';
 import '../model/seat_model.dart';
+import '../model/ticket_model.dart';
 import '../model/ticket_option_detail.dart';
 import '../model/user.dart';
 
@@ -408,6 +409,29 @@ List<PerformanceOverview> overviewList =
     }
   }
 
+  Future<bool> deleteReservation(int reservationId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    final response = await http.delete(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    debugPrint('API 응답: ${response.statusCode} : ${response.body}');
+
+    if (response.statusCode == 200) {
+      return true;
+      debugPrint('공연 삭제 성공: $reservationId');
+    } else {
+      return false;
+      throw Exception('공연 삭제 실패: ${response.statusCode}');
+    }
+  }
+
   Future<bool> uploadReservation(ReservationRequest request) async {
     final accessToken = await secureStorage.readToken("x-access-token");
 
@@ -555,19 +579,29 @@ List<PerformanceOverview> overviewList =
     }
   }
 
-  Future<List<SeatStatus>> fetchReservedOrUnavailableSeats(
-      int scheduleId) async {
+  /*티켓 정보 메서드*/
+  Future<List<ReservationOverview>> fetchMyReservationOverviews() async {
     final url =
-        '${ApiConstants.baseUrl}/camticket/api/reservation/seats/$scheduleId';
-    final response = await http.get(Uri.parse(url));
+        '${ApiConstants.baseUrl}/camticket/api/reservation/my-reservations/overview';
+    debugPrint("url :$url");
+    final accessToken = await secureStorage.readToken("x-access-token");
 
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    debugPrint("response : ${response.body}");
     if (response.statusCode == 200) {
       final jsonMap = json.decode(utf8.decode(response.bodyBytes));
       if (jsonMap['code'] == 200) {
         final List<dynamic> data = jsonMap['data'];
-        return data.map((e) => SeatStatus.fromJson(e)).toList();
+        return data.map((e) => ReservationOverview.fromJson(e)).toList();
       }
     }
-    throw Exception('좌석 정보를 불러오지 못했습니다.');
+    throw Exception('예매 내역을 불러오지 못했습니다.');
   }
 }
