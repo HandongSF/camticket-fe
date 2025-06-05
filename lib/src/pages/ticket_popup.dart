@@ -18,10 +18,6 @@ class _TicketPopupState extends State<TicketPopup>
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<String> ticketImages = [
-    'assets/images/gospel.png',
-    'assets/images/gospel.png',
-  ];
 
   @override
   void initState() {
@@ -41,8 +37,8 @@ class _TicketPopupState extends State<TicketPopup>
     super.dispose();
   }
 
-  void _goToPage(int index) {
-    if (index >= 0 && index < ticketImages.length) {
+  void _goToPage(int index, List reservations) {
+    if (index >= 0 && index < reservations.length) {
       _pageController.animateToPage(
         index,
         duration: const Duration(milliseconds: 300),
@@ -112,7 +108,7 @@ class _TicketPopupState extends State<TicketPopup>
                                   children: [
                                     PageView.builder(
                                       controller: _pageController,
-                                      itemCount: ticketImages.length,
+                                      itemCount: reservations.length,
                                       onPageChanged: (index) {
                                         setState(() => _currentPage = index);
                                       },
@@ -142,6 +138,12 @@ class _TicketPopupState extends State<TicketPopup>
                                                   ),
                                                 ),
                                               ),
+                                              // 💡 반투명 블랙 레이어 추가
+                                              Container(
+                                                width: screenWidth * 0.7,
+                                                height: screenWidth * 5,
+                                                color: Colors.black.withOpacity(0.4),
+                                              ),
                                               Positioned(
                                                 top: 20,
                                                 right: 20,
@@ -164,6 +166,47 @@ class _TicketPopupState extends State<TicketPopup>
                                                   ),
                                                 ),
                                               ),
+                                              Positioned.fill(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(16),
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      // 중간: 좌석 정보, 예매자
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                                        children: [
+                                                          const Text('좌석정보',
+                                                              style: TextStyle(color: AppColors.mainPurple, fontSize: 14)),
+                                                          Text('${ticket.selectedSeats}',
+                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
+                                                          const SizedBox(height: 4),
+                                                          const Text('예매자 정보',
+                                                              style: TextStyle(color: AppColors.mainPurple, fontSize: 14)),
+                                                          Text('${ticket.ticketOptionName}',
+                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
+                                                        ],
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text('${ticket.artistName}',
+                                                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                                                          const SizedBox(height: 4),
+                                                          Text('${ticket.performanceTitle}',
+                                                              style: const TextStyle(color: Colors.white, fontSize: 14)),
+                                                          const SizedBox(height: 4),
+                                                          Text('${ticket.performanceDate}',
+                                                              style: const TextStyle(color: AppColors.gray4, fontSize: 14)),
+                                                          const SizedBox(height: 4),
+                                                          Text('${ticket.location}',
+                                                              style: const TextStyle(color: AppColors.gray4, fontSize: 14)),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         );
@@ -175,7 +218,7 @@ class _TicketPopupState extends State<TicketPopup>
                                         icon: const Icon(Icons.arrow_back_ios,
                                             color: AppColors.gray5, size: 12),
                                         onPressed: () =>
-                                            _goToPage(_currentPage - 1),
+                                            _goToPage(_currentPage - 1,reservations),
                                       ),
                                     ),
                                     Positioned(
@@ -186,7 +229,7 @@ class _TicketPopupState extends State<TicketPopup>
                                             color: AppColors.gray5,
                                             size: 12),
                                         onPressed: () =>
-                                            _goToPage(_currentPage + 1),
+                                            _goToPage(_currentPage + 1,reservations),
                                       ),
                                     ),
                                   ],
@@ -194,7 +237,7 @@ class _TicketPopupState extends State<TicketPopup>
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '${_currentPage + 1} / ${ticketImages.length}',
+                                '${_currentPage + 1} / ${reservations.length}',
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ],
