@@ -18,8 +18,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<String> posterImages = [
     'assets/images/poster.png',
-    'assets/images/poster.png',
-    'assets/images/poster.png', // 너가 올린 포스터
+    'assets/images/pitch_stage.png',
+    'assets/images/praise.png', // 너가 올린 포스터
     // 추가 포스터 넣고 싶으면 여기에 추가
   ];
   final List<Map<String, String>> performances = [
@@ -31,18 +31,26 @@ class _HomePageState extends State<HomePage> {
       'tag': '무료 공연',
     },
     {
-      'profile': 'assets/Home/Pagination.png',
-      'image': 'assets/Home/Pagination.png',
+      'profile': 'assets/images/gospel.png',
+      'image': 'assets/images/gospel.png',
       'title': '🔥Street performance🕺',
       'subtitle': '예매 기간 | 예매가 필요없는 공연\n공연 날짜 | 25.03.12 (1회)\n장소 | 학관 앞',
       'tag': '무료 공연',
     },
     {
-      'profile': 'assets/Home/Pagination.png',
-      'image': 'assets/Home/Pagination.png',
+      'profile': 'assets/images/praise.png',
+      'image': 'assets/images/praise.png',
       'title': '🎵The Gospel : Who we are🎵',
       'subtitle':
           '예매 기간 | 11/18 월 - 11/21 목\n공연 날짜 | 25.11.23 (2회)\n장소 | 학관 104호',
+      'tag': '유료 공연',
+    },
+    {
+      'profile': 'assets/images/pitchpipe.png',
+      'image': 'assets/images/pitchpipe.png',
+      'title': '🎵PitchPipe : Grace Chapel🎵',
+      'subtitle':
+      '예매 기간 | 5/18 월 - 5/21 목\n공연 날짜 | 25.5.27 (2회)\n장소 | 학관 104호',
       'tag': '유료 공연',
     },
   ];
