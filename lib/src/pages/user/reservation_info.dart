@@ -335,7 +335,10 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                _showCancelDialog(context);
+                if (widget.item.status == 'APPROVED') {
+                  ApiService().requestRefund(widget.item.reservationId);
+                } else
+                  _showCancelDialog(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD90206),
@@ -344,8 +347,9 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child:
-                  const Text('예매 취소 요청', style: TextStyle(color: Colors.white)),
+              child: Text(
+                  widget.item.status == "APPROVED" ? '환불 요청 ' : '예매 취소 요청',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -494,14 +498,17 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
             ? SizedBox()
             : Icon(icon, color: AppColors.gray5, size: 16),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.gray5,
-            fontSize: 16,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w400,
-            letterSpacing: -0.32,
+        SizedBox(
+          width: 200,
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: AppColors.gray5,
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.32,
+            ),
           ),
         ),
       ],
@@ -749,15 +756,15 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
     );
   }
 
-  void _showCancelDialog(BuildContext context) {
+  void _showCancelDialog(BuildContext parentContext) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.gray1,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               '예매 취소 요청',
               style: TextStyle(
                 color: AppColors.white,
@@ -789,7 +796,7 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
         actions: [
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop(); // 1차 confirm 창 닫기
+              Navigator.of(dialogContext).pop(); // 1차 confirm 창 닫기
               // 실제 예매 취소 API 호출
               try {
                 bool result = await ApiService()
@@ -798,7 +805,7 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
                 if (result) {
                   // 성공 시 안내
                   showDialog(
-                    context: context,
+                    context: parentContext,
                     builder: (context) => AlertDialog(
                       backgroundColor: AppColors.gray1,
                       title: const Text(
@@ -828,7 +835,7 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // 안내창 닫기
-                            Navigator.of(context).pop(); // 이전으로 돌아가기(필요시)
+                            Navigator.of(parentContext).pop(); // 이전으로 돌아가기(필요시)
                           },
                           child: const Text('확인',
                               style: TextStyle(
@@ -846,8 +853,50 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
               } catch (e) {
                 if (!mounted) return;
                 // 실패 시 에러 메시지 출력
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('예매 취소 실패: $e')),
+                showDialog(
+                  context: parentContext,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: AppColors.gray1,
+                    title: const Text(
+                      '예매 취소 요청 실패',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: 0.10,
+                      ),
+                    ),
+                    content: SizedBox(
+                      width: 372,
+                      child: Text('예매 취소 요청이 수락되지 않았습니다.\n(사유: $e)',
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontSize: 16,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            height: 1.25,
+                            letterSpacing: 0.10,
+                          )),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // 안내창 닫기
+                          Navigator.of(parentContext).pop(); // 이전으로 돌아가기(필요시)
+                        },
+                        child: const Text('확인',
+                            style: TextStyle(
+                              color: AppColors.subPurple,
+                              fontSize: 14,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.28,
+                            )),
+                      ),
+                    ],
+                  ),
                 );
               }
             },
