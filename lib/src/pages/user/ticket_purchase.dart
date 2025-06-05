@@ -165,9 +165,9 @@ class _ReservationCheckInsertPaymentState
     final uploadProv = context.read<ReservationUploadProvider>();
     await uploadProv.uploadReservation(request);
     if (!mounted) return;
-
+    debugPrint("selected Seats : $selectedSeats");
     if (uploadProv.isSuccess) {
-      Navigator.pushReplacement(
+      await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => TicketCompletePage(

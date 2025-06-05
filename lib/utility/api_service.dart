@@ -510,7 +510,8 @@ List<PerformanceOverview> overviewList =
 
   Future<List<TicketOptionDetail>> fetchTicketOptions(int postId) async {
     final accessToken = await secureStorage.readToken("x-access-token");
-
+    debugPrint(
+        'url : ${ApiConstants.baseUrl}/camticket/api/reservation/ticket-options/$postId');
     final response = await http.get(
       Uri.parse(
           '${ApiConstants.baseUrl}/camticket/api/reservation/ticket-options/$postId'),
@@ -603,5 +604,77 @@ List<PerformanceOverview> overviewList =
       }
     }
     throw Exception('예매 내역을 불러오지 못했습니다.');
+  }
+
+  Future<ReservationDetailResponse> fetchReservationDetailUser(
+      int reservationId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId/detail';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      if (jsonMap['code'] == 200) {
+        return ReservationDetailResponse.fromJson(jsonMap['data']);
+      } else {
+        throw Exception(jsonMap['message'] ?? '알 수 없는 오류');
+      }
+    } else {
+      throw Exception('예매 상세 정보를 불러오지 못했습니다. (${response.statusCode})');
+    }
+  }
+
+  Future<bool> cancelReservation(int reservationId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId';
+    debugPrint("url : $url");
+
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    debugPrint("response body : ${response.body}");
+    if (response.statusCode == 200) {
+      // 서버에서 성공하면 true 리턴, 실패하면 예외 발생
+      return true;
+    } else {
+      throw Exception('예매 취소에 실패했습니다: ${response.body}');
+    }
+  }
+
+  Future<bool> requestRefund(int reservationId) async {
+    final accessToken = await secureStorage.readToken("x-access-token");
+    final url =
+        '${ApiConstants.baseUrl}/camticket/api/reservation/$reservationId/refund';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    ); // 서버에서 POST인지 PATCH인지 확인! (보통 POST가 많음)
+
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(utf8.decode(response.bodyBytes));
+      // 성공 여부는 code나 message로 확인
+      return jsonMap['code'] == 200;
+    }
+    throw Exception('환불 요청에 실패했습니다.');
   }
 }
