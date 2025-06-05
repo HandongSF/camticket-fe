@@ -122,16 +122,19 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 30),
-        // Text(
-        //   'log in',
-        //   style: TextStyle(
-        //       fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        // ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 250), // 상단 여백
+        Image.asset(
+          'assets/images/navi logo.png',
+          width: 110,
+          height: 28,
+        ),
+
+        const Spacer(), // 로그인 버튼을 아래로 밀기
+
+
         Center(
           child: ElevatedButton(
             onPressed: () {
