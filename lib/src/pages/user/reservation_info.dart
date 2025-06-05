@@ -1,16 +1,45 @@
 // reservation_info_page.dart
+import 'package:camticket/model/ticket_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../provider/navigation_provider.dart';
+import '../../../provider/reservation_user_provider.dart';
+import '../../../utility/api_service.dart';
 import '../../../utility/category_btn.dart';
 import '../../../utility/color.dart';
+import '../seat_view_page.dart';
 
-class ReservationInfoPage extends StatelessWidget {
-  const ReservationInfoPage({super.key});
+class ReservationInfoPage extends StatefulWidget {
+  final ReservationOverview item;
+  const ReservationInfoPage({super.key, required this.item});
+
+  @override
+  State<ReservationInfoPage> createState() => _ReservationInfoPageState();
+}
+
+class _ReservationInfoPageState extends State<ReservationInfoPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.microtask(() => context
+        .read<ReservationDetailUserProvider>()
+        .fetchReservationDetail(widget.item.reservationId));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final navigationProvider = Provider.of<NavigationProvider>(context);
+    final provider = context.watch<ReservationDetailUserProvider>();
+
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (provider.error != null) {
+      return Center(child: Text('에러: ${provider.error}'));
+    }
+    final detail = provider.reservationDetail;
+    if (detail == null) return SizedBox();
+
     return Scaffold(
       backgroundColor: AppColors.mainBlack,
       appBar: AppBar(
@@ -84,11 +113,13 @@ class ReservationInfoPage extends StatelessWidget {
           children: [
             _buildLabel('공연명'),
             const SizedBox(height: 4),
-            _buildInfoWithIcon('The Gospel : Who we are', Icons.music_note),
+            _buildInfoWithIcon(widget.item.performanceTitle, Icons.music_note),
             const SizedBox(height: 24),
             _buildLabel('관람 회차 (일시)'),
             const SizedBox(height: 4),
-            _buildInfoWithIcon('1공 : 2025.11.23(토) 16시 00분', null),
+            _buildInfoWithIcon(
+                '${detail.performanceInfo.scheduleIndex}공 : ${detail.performanceInfo.performanceDate}',
+                null),
             const SizedBox(height: 24),
             _buildLabel('좌석'),
             const SizedBox(height: 4),
@@ -96,38 +127,48 @@ class ReservationInfoPage extends StatelessWidget {
               children: [
                 Expanded(
                     child: _buildInfoWithIcon(
-                        '학관 104호 F8, F9, F10 (총 3좌석)', null)),
-                Container(
-                  width: 111,
-                  height: 25,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 1,
-                        color: AppColors.subPurple,
+                        '${detail.performanceInfo.location == 'HAKGWAN_104' ? '학관 104호' : ''} ${detail.seatInfo.selectedSeats} (총 ${detail.reservationInfo.ticketCount}좌석)',
+                        null)),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => SeatViewPage(
+                              selectedSeats: detail.seatInfo.selectedSeats,
+                              disabledSeats: {},
+                            )));
+                  },
+                  child: Container(
+                    width: 111,
+                    height: 25,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          width: 1,
+                          color: AppColors.subPurple,
+                        ),
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 12,
-                        top: 3,
-                        child: Text(
-                          '좌석위치보기',
-                          style: TextStyle(
-                            color: AppColors.subPurple,
-                            fontSize: 16,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: -0.32,
-                            height: 1,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          left: 12,
+                          top: 3,
+                          child: Text(
+                            '좌석위치보기',
+                            style: TextStyle(
+                              color: AppColors.subPurple,
+                              fontSize: 16,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.32,
+                              height: 1,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 )
               ],
@@ -153,7 +194,7 @@ class ReservationInfoPage extends StatelessWidget {
               children: [
                 _buildInfoBigText('이름', null),
                 const SizedBox(width: 8),
-                _buildWhiteText('박조이')
+                _buildWhiteText(detail.reservationInfo.userNickName)
               ],
             ),
             const SizedBox(height: 8),
@@ -161,7 +202,7 @@ class ReservationInfoPage extends StatelessWidget {
               children: [
                 _buildInfoBigText('환불계좌', null),
                 const SizedBox(width: 8),
-                _buildWhiteText('하나 910-910239-910')
+                _buildWhiteText(detail.reservationInfo.userBankAccount)
               ],
             ),
             const SizedBox(height: 8),
@@ -201,9 +242,25 @@ class ReservationInfoPage extends StatelessWidget {
             const SizedBox(height: 32),
             _buildSectionTitle('티켓 가격 옵션 선택 ', '*'),
             const SizedBox(height: 8),
-            _whiteAndPurple('3매중', ' 3 ', '매 선택'),
+            _whiteAndPurple('${detail.reservationInfo.ticketCount}매중',
+                ' ${detail.reservationInfo.ticketCount} ', '매 선택'),
             const SizedBox(height: 12),
-            _buildTicketOptionRow('일반', '3,000원', '2매', '새내기', '2,000원', '1매'),
+            detail.paymentInfo.length > 1
+                ? _buildTicketOptionRow(
+                    detail.paymentInfo[0].ticketOptionName,
+                    '${detail.paymentInfo[0].unitPrice}원',
+                    '${detail.paymentInfo[0].quantity}매',
+                    detail.paymentInfo[1].ticketOptionName,
+                    '${detail.paymentInfo[1].unitPrice}원',
+                    '${detail.paymentInfo[1].quantity}매',
+                  )
+                : _buildTicketOptionRow(
+                    detail.paymentInfo[0].ticketOptionName,
+                    '${detail.paymentInfo[0].unitPrice}원',
+                    '${detail.paymentInfo[0].quantity}매',
+                    '없음',
+                    '없음',
+                    '0매'),
             const SizedBox(height: 8),
             _buildInfoText(
                 '* (주의) 일반을 제외한 일부 유형은 현장에서 티켓 확인 시 증빙자료(학생증 등)가 요구될 수 있습니다. (공연 상세 페이지 > 가격정보 참고) 증빙되지 않은 경우, 현장에서 차액 지불이 요구될 수 있습니다.'),
@@ -235,7 +292,7 @@ class ReservationInfoPage extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: '8,000원 ',
+                        text: '${detail.reservationInfo.totalPrice}원 ',
                         style: TextStyle(
                           color: const Color(0xFFE4C3FF),
                           fontSize: 16,
@@ -245,7 +302,7 @@ class ReservationInfoPage extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: '입니다. (총 3매)',
+                        text: '입니다. (총 ${detail.reservationInfo.ticketCount}매)',
                         style: TextStyle(
                           color: const Color(0xFFE5E5E5),
                           fontSize: 16,
@@ -731,50 +788,68 @@ class ReservationInfoPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: AppColors.gray1,
-                  title: const Text(
-                    '예매 취소 요청 완료',
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600,
-                      height: 1.25,
-                      letterSpacing: 0.10,
-                    ),
-                  ),
-                  content: SizedBox(
-                    width: 372,
-                    child: const Text('정상적으로 예매 취소 요청이 완료되었습니다.',
+            onPressed: () async {
+              Navigator.of(context).pop(); // 1차 confirm 창 닫기
+              // 실제 예매 취소 API 호출
+              try {
+                bool result = await ApiService()
+                    .cancelReservation(widget.item.reservationId);
+                if (!mounted) return;
+                if (result) {
+                  // 성공 시 안내
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: AppColors.gray1,
+                      title: const Text(
+                        '예매 취소 요청 완료',
                         style: TextStyle(
                           color: AppColors.white,
                           fontSize: 16,
                           fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w600,
                           height: 1.25,
                           letterSpacing: 0.10,
-                        )),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('확인',
-                          style: TextStyle(
-                            color: AppColors.subPurple,
-                            fontSize: 14,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.28,
-                          )),
+                        ),
+                      ),
+                      content: const SizedBox(
+                        width: 372,
+                        child: Text('정상적으로 예매 취소 요청이 완료되었습니다.',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              height: 1.25,
+                              letterSpacing: 0.10,
+                            )),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 안내창 닫기
+                            Navigator.of(context).pop(); // 이전으로 돌아가기(필요시)
+                          },
+                          child: const Text('확인',
+                              style: TextStyle(
+                                color: AppColors.subPurple,
+                                fontSize: 14,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.28,
+                              )),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
+                  );
+                }
+              } catch (e) {
+                if (!mounted) return;
+                // 실패 시 에러 메시지 출력
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('예매 취소 실패: $e')),
+                );
+              }
             },
             child: const Text('확인', style: TextStyle(color: Color(0xFFD90206))),
           ),

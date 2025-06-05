@@ -1,6 +1,9 @@
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/ticket_provider.dart';
 
 class TicketPopup extends StatefulWidget {
   const TicketPopup({super.key});
@@ -27,6 +30,8 @@ class _TicketPopupState extends State<TicketPopup>
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat();
+    Future.microtask(
+        () => context.read<ReservationOverviewProvider>().fetchReservations());
   }
 
   @override
@@ -49,6 +54,8 @@ class _TicketPopupState extends State<TicketPopup>
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final reservationProvider = context.watch<ReservationOverviewProvider>();
+    final reservations = reservationProvider.reservations;
 
     return Stack(
       children: [
@@ -68,95 +75,130 @@ class _TicketPopupState extends State<TicketPopup>
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: screenWidth * 0.7,
-                  height: screenWidth * 1.3,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PageView.builder(
-                        controller: _pageController,
-                        itemCount: ticketImages.length,
-                        onPageChanged: (index) {
-                          setState(() => _currentPage = index);
-                        },
-                        itemBuilder: (context, index) {
-                          return ClipPath(
-                            clipper: TicketClipper(),
-                            child: Stack(
-                              children: [
-                                Image.asset(
-                                  ticketImages[index],
-                                  width: screenWidth * 0.7,
-                                  height: screenWidth * 1.3,
-                                  fit: BoxFit.cover,
-                                ),
-                                Positioned(
-                                  top: 20,
-                                  right: 20,
-                                  child: RotationTransition(
-                                    turns: _rotationController,
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/images/mark.svg',
-                                          width: 60,
-                                          height: 60,
-                                        ),
-                                        Image.asset(
-                                          'assets/images/sticker.png',
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                      ],
-                                    ),
+            child: reservationProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : reservationProvider.error != null
+                    ? Center(
+                        child: Text(
+                          reservationProvider.error!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      )
+                    : reservations.isEmpty
+                        ? const Center(
+                            child: Text('예매 내역이 없습니다.',
+                                style: TextStyle(color: Colors.white)),
+                          )
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.white),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
                                   ),
                                 ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      Positioned(
-                        left: -10,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_ios,
-                              color: AppColors.gray5, size: 12),
-                          onPressed: () => _goToPage(_currentPage - 1),
-                        ),
-                      ),
-                      Positioned(
-                        right: -10,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios,
-                              color: AppColors.gray5, size: 12),
-                          onPressed: () => _goToPage(_currentPage + 1),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_currentPage + 1} / ${ticketImages.length}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
+                              ),
+                              SizedBox(
+                                width: screenWidth * 0.7,
+                                height: screenWidth * 1.3,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    PageView.builder(
+                                      controller: _pageController,
+                                      itemCount: ticketImages.length,
+                                      onPageChanged: (index) {
+                                        setState(() => _currentPage = index);
+                                      },
+                                      itemBuilder: (context, index) {
+                                        final ticket = reservations[index];
+                                        return ClipPath(
+                                          clipper: TicketClipper(),
+                                          child: Stack(
+                                            children: [
+                                              Image.network(
+                                                ticket
+                                                    .performanceProfileImageUrl,
+                                                width: screenWidth * 0.7,
+                                                height: screenWidth * 5,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
+                                                    Container(
+                                                  width: screenWidth * 0.7,
+                                                  color: AppColors.gray2,
+                                                  child: const Center(
+                                                    child: Text(
+                                                      '이미지 없음',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 20,
+                                                right: 20,
+                                                child: RotationTransition(
+                                                  turns: _rotationController,
+                                                  child: Stack(
+                                                    alignment: Alignment.center,
+                                                    children: [
+                                                      SvgPicture.asset(
+                                                        'assets/images/mark.svg',
+                                                        width: 60,
+                                                        height: 60,
+                                                      ),
+                                                      Image.asset(
+                                                        'assets/images/sticker.png',
+                                                        width: 30,
+                                                        height: 30,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Positioned(
+                                      left: -10,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.arrow_back_ios,
+                                            color: AppColors.gray5, size: 12),
+                                        onPressed: () =>
+                                            _goToPage(_currentPage - 1),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right: -10,
+                                      child: IconButton(
+                                        icon: const Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: AppColors.gray5,
+                                            size: 12),
+                                        onPressed: () =>
+                                            _goToPage(_currentPage + 1),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${_currentPage + 1} / ${ticketImages.length}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
           ),
         ),
       ],

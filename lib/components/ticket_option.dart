@@ -13,25 +13,36 @@ class PerformanceRoundsWidget2 extends StatefulWidget {
 }
 
 class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
-  final List<TextEditingController> _controllers = [TextEditingController()];
-
-  void _addRound() {
-    setState(() {
-      _controllers.add(TextEditingController());
-    });
+  final List<TextEditingController> _controllers = [
+    TextEditingController(),
+    TextEditingController(),
+  ];
+  //요금 추가 메서드 (추가 개발시 활성화)
+  // void _addRound() {
+  //   setState(() {
+  //     _controllers.add(TextEditingController());
+  //   });
+  // }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    for (final c in _controllers) {
+      c.addListener(_notifyParent);
+    }
   }
 
   void _notifyParent() {
-    final ticketOptions = _controllers
-        .asMap()
-        .entries
-        .where((entry) => entry.value.text.trim().isNotEmpty)
-        .map((entry) => TicketOptionRequest(
-              name: entry.value == 0 ? '일반' : '새내기', // 고정된 옵션 이름 (필요 시 수정 가능)
-              price: int.tryParse(entry.value.text.trim()) ?? 0,
-            ))
-        .toList();
-
+    final ticketOptions = [
+      TicketOptionRequest(
+        name: '일반',
+        price: int.tryParse(_controllers[0].text.trim()) ?? 0,
+      ),
+      TicketOptionRequest(
+        name: '새내기',
+        price: int.tryParse(_controllers[1].text.trim()) ?? 0,
+      ),
+    ];
     widget.onChanged(ticketOptions);
   }
 
@@ -45,72 +56,108 @@ class _PerformanceRoundsWidgetState extends State<PerformanceRoundsWidget2> {
       ),
       child: Column(
         children: [
-          for (int i = 0; i < _controllers.length; i++)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                  border: Border(
-                bottom: BorderSide(color: AppColors.gray2, width: 1), // gray2
-              )),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        i == 0 ? '일반' : '새내기',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+          //for (int i = 0; i < _controllers.length; i++)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+                border: Border(
+              bottom: BorderSide(color: AppColors.gray2, width: 1), // gray2
+            )),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '일반',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Expanded(
-                        child: TextField(
-                          controller: _controllers[i],
-                          decoration: InputDecoration(
-                            hintText: '티켓 가격을 입력하세요.',
-                            hintStyle: const TextStyle(
-                                color: AppColors.gray4), // gray4
-                            filled: true,
-                            fillColor: Colors.transparent,
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          GestureDetector(
-            onTap: () {
-              _addRound();
-              _notifyParent(); // 새로운 항목 추가 후도 갱신
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  const Text(
-                    '+ 티켓 가격 옵션 추가',
-                    style: TextStyle(
-                      color: AppColors.gray5,
-                      fontSize: 16,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      height: 1.12,
-                      letterSpacing: -0.32,
                     ),
-                  ),
-                ],
-              ),
+                    Expanded(
+                      child: TextField(
+                        controller: _controllers[0],
+                        decoration: InputDecoration(
+                          hintText: '티켓 가격을 입력하세요.',
+                          hintStyle:
+                              const TextStyle(color: AppColors.gray4), // gray4
+                          filled: true,
+                          fillColor: Colors.transparent,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+                border: Border(
+              bottom: BorderSide(color: AppColors.gray2, width: 1), // gray2
+            )),
+            child: Row(
+              children: [
+                Text(
+                  '새내기',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _controllers[1],
+                    decoration: InputDecoration(
+                      hintText: '티켓 가격을 입력하세요.',
+                      hintStyle:
+                          const TextStyle(color: AppColors.gray4), // gray4
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     _addRound();
+          //     _notifyParent(); // 새로운 항목 추가 후도 갱신
+          //   },
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          //     child: Row(
+          //       children: [
+          //         const SizedBox(width: 8),
+          //         const Text(
+          //           '+ 티켓 가격 옵션 추가',
+          //           style: TextStyle(
+          //             color: AppColors.gray5,
+          //             fontSize: 16,
+          //             fontFamily: 'Inter',
+          //             fontWeight: FontWeight.w400,
+          //             height: 1.12,
+          //             letterSpacing: -0.32,
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

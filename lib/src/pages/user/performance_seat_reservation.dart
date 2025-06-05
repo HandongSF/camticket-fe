@@ -6,15 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../components/seat.dart';
 import '../../../model/performanceDetail.dart';
+import '../../../model/schedule_detail_model.dart';
 import '../../../provider/seat_provider.dart';
 import '../../../utility/color.dart';
 
 class PerformanceSeatReservationPage extends StatefulWidget {
   final List<SeatUnavailable> seatUnavailable;
-  final Schedule? schedule;
-
-  
-  const PerformanceSeatReservationPage({super.key, this.schedule, required this.seatUnavailable,});
+  final ScheduleDetail schedule;
+  final int num;
+  final PerformanceDetail detail;
+  const PerformanceSeatReservationPage({
+    super.key,
+    required this.schedule,
+    required this.seatUnavailable,
+    required this.num,
+    required this.detail,
+  });
 
   @override
   State<PerformanceSeatReservationPage> createState() =>
@@ -26,16 +33,26 @@ class _PerformanceSeatReservationPageState
   @override
   void initState() {
     // TODO: implement initState
+
     super.initState();
-    _disabledSeats.addAll(widget.seatUnavailable[widget.schedule!.scheduleIndex].codes);
+
+    debugPrint('schedule id : ${widget.schedule.scheduleId}');
+    // _disabledSeats
+    //     .addAll(widget.seatUnavailable[widget.schedule!].codes);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SeatProvider>(context, listen: false)
+          .fetchSeatStatus(widget.schedule.scheduleId);
+    });
+    final provider = Provider.of<SeatProvider>(context, listen: false);
+    _disabledSeats.addAll(provider.disabledSeats);
+    _reservedSeats.addAll(provider.reservedSeats);
+    maxSelectableSeats = widget.detail.maxTicketsPerUser;
   }
 
   final Set<String> _selectedSeats = {};
-  final Set<String> _disabledSeats = {
-
-  };
-  final Set<String> _reservedSeats = {'B3', 'D4', 'E10', 'E11'};
-  final int maxSelectableSeats = 4;
+  final Set<String> _disabledSeats = {};
+  final Set<String> _reservedSeats = {};
+  int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 0;
 
   final double seatSize = 26;
@@ -144,7 +161,7 @@ class _PerformanceSeatReservationPageState
                     children: [
                       Text(
                         widget.schedule != null
-                            ? '${widget.schedule!.scheduleIndex} 공 : ${widget.schedule!.startTime}'
+                            ? '${widget.num} 공 : ${widget.schedule!.startTime}'
                             : '선택된 회차가 없습니다.',
                         style: TextStyle(
                           color: AppColors.white,
@@ -153,7 +170,7 @@ class _PerformanceSeatReservationPageState
                         ),
                       ),
                       const SizedBox(width: 30),
-                     /* TextButton.icon(
+                      /* TextButton.icon(
                         onPressed: () {
                           final now = DateTime.now();
                           final eventDate =
@@ -258,7 +275,7 @@ class _PerformanceSeatReservationPageState
                             ),
                           ),
                           TextSpan(
-                            text: '1인 4매',
+                            text: '1인 $maxSelectableSeats매',
                             style: TextStyle(
                               color: const Color(0xFFE4C3FF),
                               fontSize: 14,
@@ -512,13 +529,20 @@ class _PerformanceSeatReservationPageState
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        print('선택된 좌석: $_selectedSeats');
+                        debugPrint('선택된 좌석: $_selectedSeats');
+                        debugPrint(
+                            'insert schedule id : ${widget.schedule.scheduleId}');
                         context.read<SeatProvider>().selectSeat(_selectedSeats);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                ReservationCheckInsertPayment(),
+                            builder: (context) => ReservationCheckInsertPayment(
+                                num: widget.num,
+                                detail: widget.detail,
+                                time: widget.schedule.startTime,
+                                disabled: _disabledSeats,
+                                scheduleId: widget.schedule.scheduleId,
+                                count: _selectedSeats.length),
                           ),
                         );
                       },

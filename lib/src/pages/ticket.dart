@@ -1,6 +1,9 @@
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/ticket_provider.dart';
 
 class TicketPage extends StatefulWidget {
   const TicketPage({super.key});
@@ -27,6 +30,8 @@ class _TicketPageState extends State<TicketPage>
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat();
+    Future.microtask(
+        () => context.read<ReservationOverviewProvider>().fetchReservations());
   }
 
   @override
@@ -49,93 +54,126 @@ class _TicketPageState extends State<TicketPage>
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final reservationProvider = context.watch<ReservationOverviewProvider>();
+    final reservations = reservationProvider.reservations;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PageView.builder(
-                    controller: _pageController,
-                    itemCount: ticketImages.length,
-                    onPageChanged: (index) {
-                      setState(() => _currentPage = index);
-                    },
-                    itemBuilder: (context, index) {
-                      return Center(
-                        child: Stack(
-                          children: [
-                            ClipPath(
-                              clipper: TicketClipper(),
-                              child: Image.asset(
-                                ticketImages[index],
-                                width: screenWidth * 0.7,
-                                fit: BoxFit.fitWidth,
-                              ),
-                            ),
-                            Positioned(
-                              top: 40,
-                              right: 40,
-                              child: RotationTransition(
-                                turns: _rotationController,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/images/mark.svg',
-                                      width: 60,
-                                      height: 60,
-                                    ),
-                                    Image.asset(
-                                      'assets/images/sticker.png',
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                  ],
+        child: reservationProvider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : reservationProvider.error != null
+                ? Center(
+                    child: Text(
+                      reservationProvider.error!,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  )
+                : reservations.isEmpty
+                    ? const Center(
+                        child: Text('예매 내역이 없습니다.',
+                            style: TextStyle(color: Colors.white)),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                PageView.builder(
+                                  controller: _pageController,
+                                  itemCount: reservations.length,
+                                  onPageChanged: (index) {
+                                    setState(() => _currentPage = index);
+                                  },
+                                  itemBuilder: (context, index) {
+                                    final ticket = reservations[index];
+                                    return Center(
+                                      child: Stack(
+                                        children: [
+                                          ClipPath(
+                                            clipper: TicketClipper(),
+                                            child: Image.network(
+                                              ticket.performanceProfileImageUrl,
+                                              width: screenWidth * 0.7,
+                                              fit: BoxFit.fitWidth,
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Container(
+                                                width: screenWidth * 0.7,
+                                                height: 240,
+                                                color: AppColors.gray2,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '이미지 없음',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 40,
+                                            right: 40,
+                                            child: RotationTransition(
+                                              turns: _rotationController,
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    'assets/images/mark.svg',
+                                                    width: 60,
+                                                    height: 60,
+                                                  ),
+                                                  Image.asset(
+                                                    'assets/images/sticker.png',
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
+                                // ◀ 왼쪽 버튼
+                                Positioned(
+                                  left: 16,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.arrow_back_ios,
+                                      color: AppColors.gray5,
+                                      size: 12,
+                                    ),
+                                    onPressed: () =>
+                                        _goToPage(_currentPage - 1),
+                                  ),
+                                ),
+                                // ▶ 오른쪽 버튼
+                                Positioned(
+                                  right: 16,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.arrow_forward_ios,
+                                        color: AppColors.gray5, size: 12),
+                                    onPressed: () =>
+                                        _goToPage(_currentPage + 1),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  // ◀ 왼쪽 버튼
-                  Positioned(
-                    left: 16,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: AppColors.gray5,
-                        size: 12,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            '${_currentPage + 1} / ${ticketImages.length}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ),
-                      onPressed: () => _goToPage(_currentPage - 1),
-                    ),
-                  ),
-                  // ▶ 오른쪽 버튼
-                  Positioned(
-                    right: 16,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_forward_ios,
-                          color: AppColors.gray5, size: 12),
-                      onPressed: () => _goToPage(_currentPage + 1),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '${_currentPage + 1} / ${ticketImages.length}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
       ),
     );
   }

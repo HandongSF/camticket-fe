@@ -1,4 +1,6 @@
 import 'package:camticket/auth/login.dart';
+import 'package:camticket/provider/artist_manager_provider.dart';
+import 'package:camticket/provider/artist_performance_provider.dart';
 import 'package:camticket/provider/jwt_provider.dart';
 import 'package:camticket/provider/manage_overview_provider.dart';
 import 'package:camticket/provider/navigation_provider.dart';
@@ -6,9 +8,15 @@ import 'package:camticket/provider/pc_provider.dart';
 import 'package:camticket/provider/performance_provider.dart';
 import 'package:camticket/provider/performance_update_provider.dart';
 import 'package:camticket/provider/performance_upload_provider.dart';
+import 'package:camticket/provider/reservation_detail_provider.dart';
 import 'package:camticket/provider/reservation_provider.dart';
+import 'package:camticket/provider/reservation_upload_provider.dart';
+import 'package:camticket/provider/reservation_user_provider.dart';
+import 'package:camticket/provider/schedule_detail_provider.dart';
 import 'package:camticket/provider/seat_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
+import 'package:camticket/provider/ticket_option_provider.dart';
+import 'package:camticket/provider/ticket_provider.dart';
 import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/performance_page.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +65,30 @@ class CamTicket extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ReservationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ScheduleDetailProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationUploadProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TicketOptionProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ArtistManagerProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ArtistPerformanceProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationDetailProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationOverviewProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReservationDetailUserProvider(),
         ),
       ],
       child: MaterialApp(

@@ -4,7 +4,7 @@ import '../utility/color.dart';
 
 Widget phoneInput(TextEditingController controller, {String? hint}) {
   return SizedBox(
-    width: 85,
+    width: 70,
     height: 24,
     child: Center(
       child: TextField(

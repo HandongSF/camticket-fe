@@ -2,14 +2,18 @@ import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/texts.dart';
 import 'package:camticket/model/performanceDetail.dart';
 import 'package:camticket/model/performance_overview_model.dart';
+import 'package:camticket/provider/schedule_detail_provider.dart';
 import 'package:camticket/provider/selected_performance_provider.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
+import 'package:camticket/utility/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../components/bottomSheet.dart';
 import '../../components/text_pair.dart';
+import '../../model/schedule_detail_model.dart';
+import '../../model/seat_model.dart';
 import '../../provider/performance_provider.dart';
 import '../../utility/color.dart';
 
@@ -22,6 +26,9 @@ class PerformanceDetailPage extends StatefulWidget {
 
 class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
   int _selectedTabIndex = 0;
+  List<String> reservedSeats = [];
+  List<String> disabledSeats = [];
+
   @override
   void initState() {
     super.initState();
@@ -30,13 +37,22 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
       Provider.of<PerformanceProvider>(context, listen: false)
           .fetchPerformanceDetail(widget.item.postId);
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ScheduleDetailProvider>(context, listen: false)
+          .loadScheduleDetails(widget.item.postId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final performanceProvider =
         Provider.of<PerformanceProvider>(context, listen: false);
+    final scheduleProvider =
+        Provider.of<ScheduleDetailProvider>(context, listen: false);
     final performanceDetails = performanceProvider.performanceDetails;
+    final scheduleList = scheduleProvider.scheduleDetails;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -105,7 +121,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // 공연 제목
-                  Expanded(
+                  Flexible(
                     child: SizedBox(
                       height: 228,
                       child: Image.network(
@@ -115,7 +131,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                     ),
                   ),
                   SizedBox(width: 12), // 간격 조정
-                  Expanded(
+                  Flexible(
                     child: SizedBox(
                       height: 228,
                       child: Column(
@@ -167,7 +183,8 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 ],
               ),
             ),
-            _buildTabContent(performanceDetails),
+            if (performanceDetails != null)
+              _buildTabContent(performanceDetails),
           ],
         ),
       ),
@@ -175,21 +192,27 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
         onTap: () {
           Provider.of<SelectedPerformanceProvider>(context, listen: false)
               .setSelectedPerformance(performanceDetails);
-          showRoundSelectBottomSheet(
-            context,
-            (Schedule selectedSchedule) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PerformanceSeatReservationPage(
-                    schedule: selectedSchedule,
-                    seatUnavailable: performanceDetails.seatUnavailableCodesPerSchedule,
+
+          if (performanceDetails != null) {
+            showRoundSelectBottomSheet(
+              context,
+              (ScheduleDetail selectedSchedule, int num) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PerformanceSeatReservationPage(
+                        detail: performanceDetails,
+                        schedule: selectedSchedule,
+                        seatUnavailable:
+                            performanceDetails.seatUnavailableCodesPerSchedule,
+                        num: num),
                   ),
-                ),
-              );
-            },
-            performanceDetails.schedules,
-          );
+                );
+              },
+              scheduleList,
+              performanceDetails.schedules,
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
@@ -474,7 +497,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text( widget.item.location, style: TextStyle(color: Colors.white)),
+              Text(widget.item.location, style: TextStyle(color: Colors.white)),
               const SizedBox(height: 20),
               const Divider(
                 color: AppColors.gray4, // 선 색상

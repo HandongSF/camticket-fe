@@ -38,9 +38,26 @@ class _ArtistPerformanceDetailPageState
   final bool isExpired = true; // 만료 여부
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<PerformanceProvider>();
+    final perf = provider.performanceDetails;
     final performanceProvider =
         Provider.of<PerformanceProvider>(context, listen: false);
     final performanceDetails = performanceProvider.performanceDetails;
+    if (provider.isLoading || perf == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (provider.error != null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child:
+              Text(provider.error!, style: const TextStyle(color: Colors.red)),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -95,7 +112,7 @@ class _ArtistPerformanceDetailPageState
                   child: Align(
                     alignment: Alignment.topCenter, // 상단 정렬
                     child: Image.network(
-                      performanceDetails.profileImageUrl,
+                      perf.profileImageUrl,
                       width: MediaQuery.of(context).size.width,
                       fit: BoxFit.cover, // 이미지 확대해서 자르기 (높이 채우기)
                     ),
@@ -113,7 +130,7 @@ class _ArtistPerformanceDetailPageState
                     child: SizedBox(
                       height: 228,
                       child: Image.network(
-                        performanceDetails.profileImageUrl,
+                        perf.profileImageUrl,
                         fit: BoxFit.fitWidth,
                       ),
                     ),
@@ -132,7 +149,7 @@ class _ArtistPerformanceDetailPageState
                           ),
                           SizedBox(
                             child: Text(
-                              performanceDetails.title,
+                              perf.title,
                               style: TextStyle(
                                   color: AppColors.white,
                                   fontSize: 16,
@@ -145,17 +162,17 @@ class _ArtistPerformanceDetailPageState
                           SizedBox(
                             height: 25,
                           ),
-                          grayAndWhite('카테고리', performanceDetails.category),
+                          grayAndWhite('카테고리', perf.category),
                           grayAndWhite(
                             '예매 기간',
-                            '${DateFormat('MM.dd ').format(DateTime.parse(performanceDetails.reservationStartAt))} ~ ${DateFormat('MM.dd').format(DateTime.parse(performanceDetails.reservationEndAt))}',
+                            '${DateFormat('MM.dd ').format(DateTime.parse(perf.reservationStartAt))} ~ ${DateFormat('MM.dd').format(DateTime.parse(perf.reservationEndAt))}',
                           ),
                           grayAndWhite(
                             '공연날짜',
-                            DateFormat('MM.dd HH:mm').format(DateTime.parse(
-                                performanceDetails.schedules.first.startTime)),
+                            DateFormat('MM.dd HH:mm').format(
+                                DateTime.parse(perf.schedules.first.startTime)),
                           ),
-                          grayAndWhite('장소', performanceDetails.location),
+                          grayAndWhite('장소', perf.location),
                         ],
                       ),
                     ),
@@ -174,7 +191,7 @@ class _ArtistPerformanceDetailPageState
                 ],
               ),
             ),
-            _buildTabContent(performanceDetails),
+            _buildTabContent(perf),
           ],
         ),
       ),
@@ -224,7 +241,7 @@ class _ArtistPerformanceDetailPageState
                     MaterialPageRoute(
                       builder: (context) => PerformanceEditPage(
                         postId: widget.postId,
-                        performanceDetails: performanceDetails,
+                        performanceDetails: perf,
                       ),
                     ),
                   );

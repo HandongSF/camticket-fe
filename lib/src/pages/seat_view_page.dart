@@ -4,33 +4,34 @@ import 'package:flutter/material.dart';
 
 import '../../components/buttons.dart';
 
-class SeatViewPage extends StatelessWidget {
-  final List<String> selectedSeats;
+class SeatViewPage extends StatefulWidget {
+  final Set<String>? selectedSeats;
+  final Set<String> disabledSeats;
+  SeatViewPage(
+      {super.key, required this.selectedSeats, required this.disabledSeats});
 
-  SeatViewPage({super.key, required this.selectedSeats});
-  final Set<String> _disabledSeats = {
-    'A1',
-    'A2',
-    'A3',
-    'A4',
-    'A5',
-    'A6',
-    'A7',
-    'A8',
-    'A9',
-    'A10',
-    'A11',
-    'A12',
-    'C3',
-    'C4'
-  };
-  final Set<String> _reservedSeats = {'B3', 'D4', 'E10', 'E11'};
+  @override
+  State<SeatViewPage> createState() => _SeatViewPageState();
+}
+
+class _SeatViewPageState extends State<SeatViewPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _disabledSeats.addAll(widget.disabledSeats);
+    _selectedSeats.addAll(widget.selectedSeats as Iterable<String>);
+  }
+
+  final Set<String> _disabledSeats = {};
+  final Set<String> _reservedSeats = {};
   final int maxSelectableSeats = 4;
   final int alreadySelectedSeats = 2;
   final Set<String> _selectedSeats = {};
   final double seatSize = 26;
   final double seatSpacing = 2;
   final double aisleSpacing = 10;
+
   Map<String, List<int>> generateSeatMap() {
     Map<String, List<int>> seatMap = {};
     for (int i = 0; i < 12; i++) {
@@ -137,7 +138,7 @@ class SeatViewPage extends StatelessWidget {
                   onTap: () {
                     // 예매하기 버튼 클릭 시 처리 로직
                     // 예를 들어, 선택된 좌석 정보를 서버에 전송하거나 다음 페이지로 이동
-                    Navigator.pop(context, selectedSeats);
+                    Navigator.pop(context);
                   },
                   child: mainPurpleBtn(
                     '확인',

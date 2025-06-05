@@ -1,25 +1,43 @@
 // reservation_check_page.dart
 import 'package:camticket/src/pages/user/reservation_info.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../model/ticket_model.dart';
+import '../../../provider/ticket_provider.dart';
 import '../../../utility/color.dart';
 
-class ReservationCheckPage extends StatelessWidget {
+class ReservationCheckPage extends StatefulWidget {
   const ReservationCheckPage({super.key});
 
-  final List<Map<String, String>> reservations = const [
-    {
-      'image': 'assets/images/gospel.png',
-      'title': 'The Gospel : Who we are',
-      'subtitle':
-          '예매 기간 | 11/18 월- 11/21 목\n공연 날짜 | 25.11.23 (2회)\n장소 | 학관 104호',
-      'tag': '유료 공연',
-      'subtag': '예매 확인중',
-      'profile': 'assets/images/sticker.png',
-    },
-  ];
+  @override
+  State<ReservationCheckPage> createState() => _ReservationCheckPageState();
+}
+
+class _ReservationCheckPageState extends State<ReservationCheckPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.microtask(
+        () => context.read<ReservationOverviewProvider>().fetchReservations());
+  }
+
+  // final List<Map<String, String>> reservations = const [
+  //   {
+  //     'image': 'assets/images/gospel.png',
+  //     'title': 'The Gospel : Who we are',
+  //     'subtitle':
+  //         '예매 기간 | 11/18 월- 11/21 목\n공연 날짜 | 25.11.23 (2회)\n장소 | 학관 104호',
+  //     'tag': '유료 공연',
+  //     'subtag': '예매 확인중',
+  //     'profile': 'assets/images/sticker.png',
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
+    final reservationProvider = context.watch<ReservationOverviewProvider>();
+    final reservations = reservationProvider.reservations;
     return Scaffold(
       backgroundColor: AppColors.mainBlack,
       appBar: AppBar(
@@ -53,7 +71,7 @@ class ReservationCheckPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ReservationInfoPage(),
+                    builder: (context) => ReservationInfoPage(item: item),
                   ),
                 );
               },
@@ -65,11 +83,14 @@ class ReservationCheckPage extends StatelessWidget {
 }
 
 class ReservationItemCard extends StatelessWidget {
-  final Map<String, String> item;
+  final ReservationOverview item;
   final int index;
 
-  const ReservationItemCard(
-      {super.key, required this.item, required this.index});
+  const ReservationItemCard({
+    super.key,
+    required this.item,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +123,8 @@ class ReservationItemCard extends StatelessWidget {
                   const SizedBox(height: 19),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      item['profile']!,
+                    child: Image.network(
+                      item.artistProfileImageUrl,
                       width: 28,
                       height: 28,
                       fit: BoxFit.cover,
@@ -117,7 +138,7 @@ class ReservationItemCard extends StatelessWidget {
                 height: 114,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(item['image']!),
+                    image: NetworkImage(item.performanceProfileImageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -129,14 +150,14 @@ class ReservationItemCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _buildTag(item['tag']!),
+                        _buildTag('유료 공연'),
                         const SizedBox(width: 4),
-                        _buildTag(item['subtag']!),
+                        _buildTag(item.status),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      item['title'] ?? '',
+                      item.performanceTitle ?? '',
                       style: const TextStyle(
                         color: AppColors.white,
                         fontSize: 14,
@@ -146,14 +167,14 @@ class ReservationItemCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      item['subtitle'] ?? '',
-                      style: const TextStyle(
-                        color: AppColors.gray4,
-                        fontSize: 12,
-                        height: 1.4,
-                      ),
-                    ),
+                    // Text(
+                    //   item. ?? '',
+                    //   style: const TextStyle(
+                    //     color: AppColors.gray4,
+                    //     fontSize: 12,
+                    //     height: 1.4,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

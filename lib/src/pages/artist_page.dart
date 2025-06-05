@@ -1,5 +1,8 @@
+import 'package:camticket/provider/artist_manager_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../provider/artist_performance_provider.dart';
 import '../../utility/color.dart';
 
 class ArtistPage extends StatefulWidget {
@@ -10,10 +13,19 @@ class ArtistPage extends StatefulWidget {
 }
 
 class _ArtistPageState extends State<ArtistPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ArtistManagerProvider>(context, listen: false).loadManagers();
+    });
+  }
+
   int selectedCategory = 0;
   int selectedSort = 0; // 등록순(0) / 최신순(1)
 
-  final List<String> categories = ['음악', '연극 / 뮤지컬', '댄스', '전시'];
+  final List<String> categories = ['전체', '음악', '연극 / 뮤지컬', '댄스'];
 
   @override
   Widget build(BuildContext context) {
@@ -73,33 +85,26 @@ class _ArtistPageState extends State<ArtistPage> {
               ),
             ),
             SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                // padding:
-                //     const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                children: [
-                  _buildSectionTitle('밴드 / 작사작곡 / 재즈'),
-                  _buildArtistRow([
-                    {
-                      'name': '네오',
-                      'image': 'assets/images/zzanggu.png',
-                    },
-                    {'name': '리퀴드', 'image': 'assets/images/zzanggu.png'},
-                    {'name': '미르', 'image': 'assets/images/zzanggu.png'},
-                    {'name': '즉새두', 'image': 'assets/images/zzanggu.png'},
-                  ]),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle('사물놀이'),
-                  _buildArtistRow([
-                    {'name': '한풍', 'image': 'assets/images/zzanggu.png'},
-                  ]),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle('아카펠라'),
-                  _buildArtistRow([
-                    {'name': '실버라이닝', 'image': 'assets/images/zzanggu.png'},
-                    {'name': '피치파이프', 'image': 'assets/images/zzanggu.png'},
-                  ]),
-                ],
+            Flexible(
+              child: Consumer<ArtistManagerProvider>(
+                builder: (context, provider, child) {
+                  final artists = provider.managers;
+
+                  return ListView(
+                    children: [
+                      _buildSectionTitle('아티스트 목록'),
+                      _buildArtistRow(
+                        artists
+                            .map((e) => {
+                                  'name': e.nickName,
+                                  'image': e.profileImageUrl,
+                                  'userId': e.userId
+                                })
+                            .toList(),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -124,81 +129,81 @@ class _ArtistPageState extends State<ArtistPage> {
   }
 
   Widget _buildArtistRow(List<Map<String, dynamic>> artists) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          border: Border.symmetric(
-            horizontal: BorderSide(
-              width: 1,
-              color: AppColors.gray2,
-            ),
-          ),
-        ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+    List<Widget> rows = [];
+
+    for (int i = 0; i < artists.length; i += 3) {
+      final chunk = artists.sublist(
+        i,
+        i + 3 > artists.length ? artists.length : i + 3,
+      );
+
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           child: Row(
-            children: artists.map((artist) {
-              return GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => ArtistDetailBottomSheet(
-                      name: artist['name'],
-                      profile: 'assets/images/zzanggu.png',
-                      description:
-                          '안녕하세요! 저희는 한동대학교 작사작곡 동아리 NEO입니다. 매 해 정기공연과 축제 공연, NEO카페를 통해 저희 만의 이야기를 들려드리고 있습니다.',
-                      posters: [
-                        'assets/images/poster.png',
-                        'assets/images/poster.png',
-                        'assets/images/poster.png',
-                        'assets/images/poster.png',
-                        'assets/images/poster.png',
-                        'assets/images/poster.png'
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(3, (index) {
+              if (index < chunk.length) {
+                final artist = chunk[index];
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      await Provider.of<ArtistPerformanceProvider>(context,
+                              listen: false)
+                          .loadPerformances(artist['userId']);
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            Consumer<ArtistPerformanceProvider>(
+                          builder: (context, provider, _) {
+                            return ArtistDetailBottomSheet(
+                              name: artist['name'],
+                              profile: artist['image'],
+                              posters: provider.performances
+                                  .map((e) => e.profileImageUrl)
+                                  .toList(),
+                              description:
+                                  '안녕하세요! 저희는 한동대학교 동아리 ${artist['name']}입니다.',
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: AppColors.gray2,
+                          backgroundImage: NetworkImage(artist['image']),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          artist['name'],
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            height: 1.43,
+                            letterSpacing: 0.10,
+                          ),
+                        ),
                       ],
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 28),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          CircleAvatar(
-                            radius: 32,
-                            backgroundColor: AppColors.gray2,
-                            backgroundImage: AssetImage(artist['image']!),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        artist['name']!,
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 14,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w500,
-                          height: 1.43,
-                          letterSpacing: 0.10,
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              } else {
+                return const Expanded(child: SizedBox()); // 빈 공간 채우기
+              }
+            }),
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    return Column(children: rows);
   }
 }
 
@@ -244,15 +249,15 @@ class ArtistDetailBottomSheet extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: AssetImage(profile),
+                    backgroundImage: NetworkImage(profile),
                     radius: 50,
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        'assets/images/artist.png',
+                      Image.network(
+                        profile,
                         width: 53,
                         height: 18,
                       ),
@@ -301,7 +306,7 @@ class ArtistDetailBottomSheet extends StatelessWidget {
                 itemBuilder: (context, index) => Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    Image.asset(
+                    Image.network(
                       posters[index],
                       fit: BoxFit.fill,
                       width: 136,

@@ -1,3 +1,4 @@
+import 'package:camticket/model/schedule_detail_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -5,10 +6,10 @@ import '../model/performanceDetail.dart';
 import '../utility/color.dart';
 
 void showRoundSelectBottomSheet(
-  BuildContext context,
-  Function(Schedule) onSelect, // ✅ Schedule을 인자로 받도록 수정
-  List<Schedule> schedules,
-) {
+    BuildContext context,
+    Function(ScheduleDetail, int) onSelect, // ✅ Schedule을 인자로 받도록 수정
+    List<ScheduleDetail> scheduleDetails,
+    List<Schedule> schedules) {
   showModalBottomSheet(
     context: context,
     shape: RoundedRectangleBorder(
@@ -60,13 +61,15 @@ void showRoundSelectBottomSheet(
                   children: [
                     ListTile(
                       title: Text(
-                        '${schedule.scheduleIndex}공 : ${schedule.startTime}',
+                        '${schedule.scheduleIndex}공 : ${scheduleDetails[schedule.scheduleIndex].startTime}',
                         // '$formattedDate $formattedTime',
                         style: const TextStyle(color: AppColors.white),
                       ),
                       onTap: () async {
+                        debugPrint('schedules : ${schedules[0].scheduleIndex}');
                         Navigator.pop(context);
-                        onSelect(schedule); // 선택 시 콜백 호출
+                        onSelect(scheduleDetails[schedule.scheduleIndex],
+                            schedule.scheduleIndex); // 선택 시 콜백 호출
                       },
                     ),
                     const Divider(color: AppColors.gray2),

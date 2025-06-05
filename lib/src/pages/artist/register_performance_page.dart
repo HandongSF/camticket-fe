@@ -612,13 +612,15 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                               style: TextStyle(color: Colors.white)))),
                 ],
               ),
-              PerformanceRoundsWidget2(
-                onChanged: (options) {
-                  setState(() {
-                    _ticket = options;
-                  });
-                },
-              ),
+              !_isFree
+                  ? PerformanceRoundsWidget2(
+                      onChanged: (options) {
+                        setState(() {
+                          _ticket = options;
+                        });
+                      },
+                    )
+                  : SizedBox(),
               SizedBox(
                 height: 8,
               ),
@@ -648,7 +650,7 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                     borderSide: const BorderSide(color: AppColors.gray2),
                   ),
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 style: const TextStyle(color: Colors.white),
               ),
               SizedBox(height: 8),
@@ -698,7 +700,7 @@ class _RegisterPerformancePageState extends State<RegisterPerformancePage> {
                       bankAccount: _bankAccountController.text,
                     );
 
-                    //provider.showPage1Info();
+                    provider.showPage1Info();
 
                     // Perform the action for the next button
                     Navigator.push(
