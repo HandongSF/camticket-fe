@@ -63,18 +63,37 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text('예매 확정',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          content: Text('$userName님의 예매를 확정하시겠습니까?'),
+          backgroundColor: AppColors.gray1,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          title: const Text(
+            '예매 확정',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              height: 1.25,
+              letterSpacing: 0.10,
+            ),
+          ),
+          content: Text('$userName님의 예매를 확정하시겠습니까?',
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 1.25,
+                letterSpacing: 0.10,
+              )),
           actions: [
+            TextButton(
+              child: const Text('확정', style: TextStyle(color: Colors.blue)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
             TextButton(
               child: const Text('취소', style: TextStyle(color: Colors.grey)),
               onPressed: () => Navigator.of(context).pop(false),
-            ),
-            TextButton(
-              child:
-                  const Text('확정', style: TextStyle(color: Color(0xFF6F3ADA))),
-              onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
         );
@@ -91,13 +110,39 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
               barrierDismissible: false,
               builder: (context) {
                 return AlertDialog(
-                  title: const Text('예매 확정 완료',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  content: const Text('정상적으로 예매가 확정되었습니다.'),
+                  backgroundColor: AppColors.gray1,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  title: const Text(
+                    '예매 확정 완료',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      height: 1.25,
+                      letterSpacing: 0.10,
+                    ),
+                  ),
+                  content: const Text('정상적으로 예매가 확정되었습니다.',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        height: 1.25,
+                        letterSpacing: 0.10,
+                      )),
                   actions: [
                     TextButton(
                       child: const Text('확인',
-                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                          style: TextStyle(
+                            color: AppColors.subPurple,
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.28,
+                          )),
                       onPressed: () {
                         Navigator.of(context).pop();
                         Provider.of<ReservationProvider>(context, listen: false)
@@ -136,17 +181,35 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text('예매 취소',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
-          content: Text('$userName님의 예매를 취소하시겠습니까?'),
-          actions: [
-            TextButton(
-              child: const Text('아니요', style: TextStyle(color: Colors.grey)),
-              onPressed: () => Navigator.of(context).pop(false),
+          backgroundColor: AppColors.gray1,
+          title: const Text(
+            '예매 취소',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 16,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              height: 1.25,
+              letterSpacing: 0.10,
             ),
+          ),
+          content: Text('$userName님의 예매를 취소하시겠습니까?',
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 1.25,
+                letterSpacing: 0.10,
+              )),
+          actions: [
             TextButton(
               child: const Text('예', style: TextStyle(color: Colors.red)),
               onPressed: () => Navigator.of(context).pop(true),
+            ),
+            TextButton(
+              child: const Text('아니요', style: TextStyle(color: Colors.grey)),
+              onPressed: () => Navigator.of(context).pop(false),
             ),
           ],
         );
@@ -162,14 +225,37 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
               barrierDismissible: false,
               builder: (context) {
                 return AlertDialog(
-                  title: const Text('예매 취소 완료',
+                  backgroundColor: AppColors.gray1,
+                  title: const Text(
+                    '예매 취소 완료',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      height: 1.25,
+                      letterSpacing: 0.10,
+                    ),
+                  ),
+                  content: const Text('정상적으로 예매가 취소되었습니다.',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red)),
-                  content: const Text('정상적으로 예매가 취소되었습니다.'),
+                        color: AppColors.white,
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        height: 1.25,
+                        letterSpacing: 0.10,
+                      )),
                   actions: [
                     TextButton(
                       child: const Text('확인',
-                          style: TextStyle(color: Color(0xFF6F3ADA))),
+                          style: TextStyle(
+                            color: AppColors.subPurple,
+                            fontSize: 14,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.28,
+                          )),
                       onPressed: () {
                         Navigator.of(context).pop();
                         Provider.of<ReservationProvider>(context, listen: false)
@@ -188,7 +274,7 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
                   title: const Text('예매 취소 실패',
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.red)),
-                  content: const Text('정상적으로 예매가 취소되었습니다.'),
+                  content: const Text('예매 취소가 '),
                   actions: [
                     TextButton(
                       child: const Text('확인',
@@ -297,6 +383,7 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 12),
                 white28(perf.title),
@@ -312,7 +399,8 @@ class _ReservationDetailPageState extends State<ReservationDetailPage> {
                           // 버튼 사이에만 간격 넣기 (마지막 버튼엔 X)
                           return Row(
                             children: [
-                              _buildHallButton(idx + 1, schedule.startTime),
+                              _buildHallButton(
+                                  idx + 1, '${schedule.scheduleIndex + 1}공'),
                               if (idx != detail.schedules.length - 1)
                                 const SizedBox(width: 10),
                             ],

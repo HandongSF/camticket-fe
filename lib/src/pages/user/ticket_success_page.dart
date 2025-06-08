@@ -1,6 +1,7 @@
 import 'package:camticket/components/buttons.dart';
 import 'package:camticket/components/dividers.dart';
 import 'package:camticket/components/text_pair.dart';
+import 'package:camticket/src/nav_page.dart';
 import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/seat_view_page.dart';
 import 'package:camticket/utility/color.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../../../components/input_form.dart';
 import '../../../components/texts.dart';
+import '../../../provider/navigation_provider.dart';
 import '../../../provider/seat_provider.dart';
 import '../../../provider/user_provider.dart';
 
@@ -492,7 +494,12 @@ class TicketCompletePage extends StatelessWidget {
       ),
       bottomNavigationBar: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            // final navigationProvider = Provider.of<NavigationProvider>(context);
+            // navigationProvider.setIndex(1);
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => Start()),
+              (Route<dynamic> route) => false,
+            );
           },
           child: mainPurpleBtn('홈으로')),
     );

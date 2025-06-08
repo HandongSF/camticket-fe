@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:camticket/provider/user_provider.dart';
 import 'package:camticket/src/pages/artist/reservation_manage_page.dart';
+import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/ticket_popup.dart';
 import 'package:camticket/utility/color.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class _Mypagestate extends State<Mypage> {
   Widget build(BuildContext context) {
     final provider = Provider.of<UserProvider>(context, listen: true);
     final userRole = provider.user?.role;
-    if(userRole == 'ROLE_USER'){
+    if (userRole == 'ROLE_USER') {
       debugPrint("userRole = $userRole  goodgood");
     }
 
@@ -318,7 +319,9 @@ class _Mypagestate extends State<Mypage> {
     final badgeText = currentUser.role == UserRole.viewer
         ? 'assets/images/viewer.png'
         : 'assets/images/artist.png';
-    final userText = currentUser.role == UserRole.viewer ? provider.user?.nickName : provider.user?.nickName;
+    final userText = currentUser.role == UserRole.viewer
+        ? provider.user?.name
+        : provider.user?.name;
     final user = provider.user;
     final profileImageUrl = user?.profileImageUrl;
     final bankAccount = user?.bankAccount;
@@ -340,12 +343,13 @@ class _Mypagestate extends State<Mypage> {
               backgroundColor: AppColors.gray1,
               radius: 50,
               backgroundImage: provider.user?.profileImageUrl != null &&
-                  provider.user!.profileImageUrl!.isNotEmpty
+                      provider.user!.profileImageUrl!.isNotEmpty
                   ? NetworkImage(profileImageUrl!)
                   : null,
               child: provider.user?.profileImageUrl == null ||
-                  provider.user!.profileImageUrl!.isEmpty
-                  ? const Icon(Icons.person_outline, color: AppColors.gray3, size: 50)
+                      provider.user!.profileImageUrl!.isEmpty
+                  ? const Icon(Icons.person_outline,
+                      color: AppColors.gray3, size: 50)
                   : null,
             ),
             const SizedBox(width: 16),
@@ -417,7 +421,7 @@ class _Mypagestate extends State<Mypage> {
                           },
                         );
                       },
-                      child:Text(
+                      child: Text(
                         currentUser.role == UserRole.viewer
                             ? '환불계좌 / 프로필 변경하기'
                             : '프로필 변경하기',
@@ -503,9 +507,44 @@ class LoginSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('로그인'),
+        automaticallyImplyLeading: false,
+        title: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              Image.asset(
+                'assets/images/navi logo.png',
+                width: 110,
+                height: 28,
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Searchpage()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.search,
+                  size: 24,
+                  color: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Center(
         child: Column(
@@ -663,8 +702,12 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
                                 if (_formKey.currentState!.validate()) {
                                   userProvider.updateUserInfo(
                                     name: _nameController.text,
-                                    introduction: _role == 'ROLE_MANAGER' ? _introductionController.text.trim() : null,
-                                    bankAccount: _role == 'ROLE_USER' ? _bankAccountController.text.trim() : null,
+                                    introduction: _role == 'ROLE_MANAGER'
+                                        ? _introductionController.text.trim()
+                                        : null,
+                                    bankAccount: _role == 'ROLE_USER'
+                                        ? _bankAccountController.text.trim()
+                                        : null,
                                   );
                                   Navigator.pop(context);
                                 }
@@ -684,6 +727,3 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
     );
   }
 }
-
-
-

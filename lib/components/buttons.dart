@@ -178,7 +178,8 @@ Widget buildGradientButton(
       Navigator.pop(context, userInfo);
     },
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+      width: 120,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment(-1.0, 0.0),
@@ -192,9 +193,9 @@ Widget buildGradientButton(
         decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.black, width: 1),
+          border: Border.all(color: Colors.black, width: 0.1),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
             begin: Alignment(-1.0, 0.0),
@@ -207,12 +208,14 @@ Widget buildGradientButton(
             stops: [-0.1386, 0.2721, 1.5045],
           ).createShader(bounds),
           blendMode: BlendMode.srcIn,
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Inter',
+          child: Center(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
             ),
           ),
         ),

@@ -8,6 +8,7 @@ import 'package:camticket/src/pages/searchpage.dart';
 import 'package:camticket/src/pages/user/performance_seat_reservation.dart';
 import 'package:camticket/utility/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../components/bottomSheet.dart';
@@ -28,6 +29,8 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
   int _selectedTabIndex = 0;
   List<String> reservedSeats = [];
   List<String> disabledSeats = [];
+  double mapLat = 36.102480; // 원하는 위치의 위도
+  double mapLng = 129.389097; // 원하는 위치의 경도
 
   @override
   void initState() {
@@ -36,9 +39,6 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<PerformanceProvider>(context, listen: false)
           .fetchPerformanceDetail(widget.item.postId);
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ScheduleDetailProvider>(context, listen: false)
           .loadScheduleDetails(widget.item.postId);
     });
@@ -310,6 +310,42 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                 thickness: 0.5, // 선 두께
               ),
               SizedBox(height: 20),
+              if (performanceDetails.detailImageUrls.isNotEmpty)
+                Column(
+                  children:
+                      performanceDetails.detailImageUrls.map<Widget>((imgUrl) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          imgUrl,
+                          width: double.infinity,
+                          fit: BoxFit.fitWidth,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+                              width: double.infinity,
+                              height: 180,
+                              color: AppColors.gray2,
+                              child: const Center(
+                                  child: CircularProgressIndicator()),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            width: double.infinity,
+                            height: 180,
+                            color: AppColors.gray2,
+                            child: const Center(
+                                child: Text('이미지 로드 실패',
+                                    style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
         );
@@ -482,7 +518,7 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(
-                widget.item.location,
+                widget.item.location == 'HAKGWAN_104' ? '학관 104호' : '학관 104호',
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
@@ -497,7 +533,31 @@ class _PerformanceDetailPageState extends State<PerformanceDetailPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text(widget.item.location, style: TextStyle(color: Colors.white)),
+              // Text(performanceDetails.reservationNotice,
+              //     style: TextStyle(color: Colors.white)),
+              SizedBox(
+                height: 200,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(mapLat, mapLng),
+                      zoom: 17, // 확대 레벨, 상황에 맞게 조정
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: MarkerId('hakgwan_104'),
+                        position: LatLng(mapLat, mapLng),
+                        infoWindow: InfoWindow(title: '학관 104호'),
+                      ),
+                    },
+                    zoomControlsEnabled: false,
+                    liteModeEnabled: true, // 지도는 간단히만 보여주려면 true (안드로이드만 지원)
+                    myLocationButtonEnabled: false,
+                    onMapCreated: (controller) {},
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               const Divider(
                 color: AppColors.gray4, // 선 색상

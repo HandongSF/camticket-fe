@@ -130,10 +130,10 @@ class _LoginPageState extends State<LoginPage> {
           'assets/images/navi logo.png',
           width: 110,
           height: 28,
+          fit: BoxFit.cover,
         ),
 
         const Spacer(), // 로그인 버튼을 아래로 밀기
-
 
         Center(
           child: ElevatedButton(
