@@ -719,11 +719,12 @@ class _ReservationInfoPageState extends State<ReservationInfoPage> {
         children: [
           buildGradientBadge('아티스트'),
           SizedBox(height: 4),
-          Text('피치파이프 님의 계좌로 입금하세요.', style: TextStyle(color: AppColors.white)),
+          Text('한동 오케스트라 님의 계좌로 입금하세요.',
+              style: TextStyle(color: AppColors.white)),
           SizedBox(height: 4),
           Row(
             children: [
-              _buildSectionTitle('하나 910-910123-45678', null),
+              _buildSectionTitle('하나 123-456-789', null),
               const SizedBox(width: 8),
               Icon(Icons.copy, color: AppColors.subPurple, size: 16),
             ],

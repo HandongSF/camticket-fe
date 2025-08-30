@@ -417,7 +417,7 @@ class TicketCompletePage extends StatelessWidget {
                                 TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: '피치파이프 ',
+                                      text: '한동 오케스트라 ',
                                       style: TextStyle(
                                         color: AppColors.gray5,
                                         fontSize: 18,
@@ -455,7 +455,7 @@ class TicketCompletePage extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                '하나 910-910123-45678',
+                                '하나 123-456-789',
                                 style: TextStyle(
                                   color: AppColors.subPurple,
                                   fontSize: 18,
@@ -470,7 +470,7 @@ class TicketCompletePage extends StatelessWidget {
                                 onPressed: () {
                                   // 클립보드에 복사하는 기능 구현
                                   Clipboard.setData(ClipboardData(
-                                      text: '하나 910-910123-45678')); // 예시 계좌번호
+                                      text: '하나 123-456-789')); // 예시 계좌번호
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('계좌번호가 복사되었습니다.'),

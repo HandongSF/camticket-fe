@@ -17,7 +17,7 @@
  */
 
 class ApiConstants {
-  static const String loginUrl = "http://172.17.200.112:8080";
+  static const String loginUrl = "http://172.18.137.76:8080";
   // static const String loginUrl = "http://172.17.171.107:8080";
   // static const String loginUrl = "http://192.168.0.8:8080"; // 집
   static const String baseUrl = loginUrl;

@@ -338,10 +338,12 @@ class _Mypagestate extends State<Mypage> {
         ? 'assets/images/viewer.png'
         : 'assets/images/artist.png';
     final userText = currentUser.role == UserRole.viewer
-        ? provider.user?.name
-        : provider.user?.name;
+        ? provider.user?.nickName
+        : '한동 오케스트라';
     final user = provider.user;
-    final profileImageUrl = user?.profileImageUrl;
+    final profileImageUrl = currentUser.role == UserRole.viewer
+        ? user?.profileImageUrl
+        : 'https://handonglikelionpegbackend.s3.ap-northeast-2.amazonaws.com/camticket/user/hgpo.png';
     final bankAccount = user?.bankAccount;
     debugPrint('bank account = $bankAccount');
     return Container(
